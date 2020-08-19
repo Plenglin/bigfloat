@@ -9,18 +9,28 @@
 #include "../bigfloat.h"
 #include <math.h>
 
+
+void require_bf_eq(bigfloat bf, bool sign, unsigned char exponent, unsigned long mantissa) {
+    BOOST_REQUIRE_EQUAL(bf.sign, sign);
+    BOOST_REQUIRE_EQUAL(bf.mantissa, mantissa);
+    BOOST_REQUIRE_EQUAL(bf.exponent, exponent);
+}
+
+void require_bf_eq(bigfloat bf, bigfloat bf2) {
+    BOOST_REQUIRE_EQUAL(bf.sign, bf2.sign);
+    BOOST_REQUIRE_EQUAL(bf.mantissa, bf2.mantissa);
+    BOOST_REQUIRE_EQUAL(bf.exponent, bf2.exponent);
+}
+
+
 BOOST_AUTO_TEST_SUITE(bigfloat_test_suite)
 
     BOOST_AUTO_TEST_CASE(construct_with_double) {
-        float f = 0.5;
-        bigfloat bf(f);
-
-        BOOST_REQUIRE_EQUAL(bf.sign, 0);
-        BOOST_REQUIRE_EQUAL(bf.mantissa, 0);
-        BOOST_REQUIRE_EQUAL(bf.exponent, 0x3f00);
     }
 
     BOOST_AUTO_TEST_CASE(construct_with_float) {
+        require_bf_eq(bigfloat(0.5f), 0, 126, 0);
+
     }
 
 BOOST_AUTO_TEST_SUITE_END()

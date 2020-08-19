@@ -4,7 +4,7 @@
 
 #include "bigfloat.h"
 
-bigfloat::bigfloat(bool sign, short exponent, unsigned long mantissa) :
+bigfloat::bigfloat(bool sign, unsigned char exponent, unsigned long mantissa) :
         sign(sign),
         mantissa(mantissa),
         exponent(exponent)
@@ -21,6 +21,5 @@ bigfloat::bigfloat(float x) {
     ieee754_float f = {.f = x};
     sign = f.sign;
     mantissa = (long)f.mantissa << 40;
-    exponent = ((short*)&x)[1];
-    exponent &= 0x7f80;
+    exponent = (*(unsigned int*)&x) >> 23;
 }

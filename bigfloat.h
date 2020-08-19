@@ -35,10 +35,10 @@ struct bigfloat {
 
     // Though technically 16 bits wide, we only use [14:7]. The highest bit is
     // always zero and the lower 7 are treated as nonexistent.
-    short exponent;
+    unsigned char exponent;
     bool sign;
 
-    bigfloat(bool sign, short exponent, unsigned long mantissa);
+    bigfloat(bool sign, unsigned char exponent, unsigned long mantissa);
     explicit bigfloat(double x);
     explicit bigfloat(float x);
 };
