@@ -20,6 +20,7 @@ bigfloat::bigfloat(double x) {
 bigfloat::bigfloat(float x) {
     ieee754_float f = {.f = x};
     sign = f.sign;
-    mantissa = f.mantissa;
-    exponent = f.exponent;
+    mantissa = (long)f.mantissa << 40;
+    exponent = ((short*)&x)[1];
+    exponent &= 0x7f80;
 }

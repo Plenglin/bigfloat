@@ -5,26 +5,25 @@
 #ifndef BIGFLOAT_BIGFLOAT_H
 #define BIGFLOAT_BIGFLOAT_H
 
-// Bitmasks for extracting values from raw binary floats
-
 typedef union {
     float f;
     struct {
         unsigned int mantissa : 23;
-        unsigned int exponent : 8;
-        unsigned int sign : 1;
+        short exponent : 8;
+        bool sign : 1;
     };
 } ieee754_float;
 
 typedef union {
     double d;
     struct {
-        unsigned int mantissa : 52;
-        unsigned int exponent : 11;
-        unsigned int sign : 1;
+        unsigned long mantissa : 52;
+        short exponent : 11;
+        bool sign : 1;
     };
 } ieee754_double;
 
+#define EXPONENT_STEP 0x800
 
 // A software-based floating point number object.
 // On disk, it is packed into a 80-bit space like so:
@@ -33,6 +32,9 @@ struct bigfloat {
     // The mantissa is 63 bits wide. When loaded into memory, the uppermost bit
     // is used to detect overflow.
     unsigned long mantissa;
+
+    // Though technically 16 bits wide, we only use [14:7]. The highest bit is
+    // always zero and the lower 7 are treated as nonexistent.
     short exponent;
     bool sign;
 
