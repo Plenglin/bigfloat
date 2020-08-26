@@ -2,11 +2,14 @@
 // Created by astrid on 8/18/20.
 //
 
-#ifndef BIGFLOAT_BIGFLOAT_H
-#define BIGFLOAT_BIGFLOAT_H
+#ifndef BIGFLOAT_BIGFLOAT_HPP
+#define BIGFLOAT_BIGFLOAT_HPP
+
+#include "ostream"
 
 typedef union {
     float f;
+    unsigned int bits;
     struct {
         unsigned int mantissa : 23;
         short exponent : 8;
@@ -16,6 +19,7 @@ typedef union {
 
 typedef union {
     double d;
+    unsigned long bits;
     struct {
         unsigned long mantissa : 52;
         short exponent : 11;
@@ -38,10 +42,23 @@ struct bigfloat {
     unsigned char exponent;
     bool sign;
 
+    bigfloat();
     bigfloat(bool sign, unsigned char exponent, unsigned long mantissa);
-    explicit bigfloat(double x);
-    explicit bigfloat(float x);
+    bigfloat(double x);
+    bigfloat(float x);
+
+    operator float() const;
+    operator double() const;
+
+    bigfloat operator -() const;
+
+    bigfloat operator +(bigfloat &other) const;
+    bigfloat operator -(bigfloat &other);
+    bigfloat operator *(bigfloat &other);
+    bigfloat operator /(bigfloat &other);
+    bool operator ==(const bigfloat &other) const;
 };
 
+std::ostream& operator <<(std::ostream &os, bigfloat x);
 
-#endif //BIGFLOAT_BIGFLOAT_H
+#endif //BIGFLOAT_BIGFLOAT_HPP
