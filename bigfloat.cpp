@@ -8,7 +8,7 @@ bigfloat::bigfloat() : sign(false), mantissa(0), exponent(0) {
 
 }
 
-bigfloat::bigfloat(bool sign, unsigned char exponent, unsigned long mantissa) :
+bigfloat::bigfloat(bool sign, unsigned char exponent, long mantissa) :
         sign(sign),
         mantissa(mantissa),
         exponent(exponent)
@@ -28,33 +28,46 @@ bigfloat::bigfloat(float x) {
     exponent = f.bits >> 23;
 }
 
-bigfloat bigfloat::operator+(bigfloat &other) const {
+// Adds a and b, assuming that a's exponent > b's exponent
+bigfloat add_impl(const bigfloat a, const bigfloat b) {
+    int shift = a.exponent - b.exponent;
+
+    long mta = a.sign ? -a.mantissa : a.mantissa;
+    long mtb = b.sign ? -b.mantissa : b.mantissa;
+
+    long shifted_mantissa = mtb << shift;
+
     bigfloat out;
-    int smaller_exp, larger_exp;
-    if (exponent < other.exponent) {
-        larger_exp = other.exponent;
-        smaller_exp = exponent;
-    } else {
-        larger_exp = other.exponent;
-        smaller_exp = exponent;
+    out.exponent = a.exponent;
+    out.mantissa = mta + shifted_mantissa;
+
+    if (out.mantissa < mta) {  // overflow
+        out.mantissa >>= 1;
+        out.exponent += 1;
     }
 
-
-
     return out;
 }
 
-bigfloat bigfloat::operator-(bigfloat &other) {
+bigfloat bigfloat::operator+(const bigfloat &other) const {
+    if (exponent < other.exponent) {
+        return add_impl(other, *this);
+    } else {
+        return add_impl(*this, other);
+    }
+}
+
+bigfloat bigfloat::operator-(const bigfloat &other) {
     bigfloat out;
     return out;
 }
 
-bigfloat bigfloat::operator*(bigfloat &other) {
+bigfloat bigfloat::operator*(const bigfloat &other) {
     bigfloat out;
     return out;
 }
 
-bigfloat bigfloat::operator/(bigfloat &other) {
+bigfloat bigfloat::operator/(const bigfloat &other) {
     bigfloat out;
     return out;
 }

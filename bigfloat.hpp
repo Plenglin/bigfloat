@@ -35,7 +35,7 @@ typedef union {
 struct bigfloat {
     // The mantissa is 63 bits wide. When loaded into memory, the uppermost bit
     // is used to detect overflow.
-    unsigned long mantissa;
+    long mantissa;
 
     // Though technically 16 bits wide, we only use [14:7]. The highest bit is
     // always zero and the lower 7 are treated as nonexistent.
@@ -43,7 +43,7 @@ struct bigfloat {
     bool sign;
 
     bigfloat();
-    bigfloat(bool sign, unsigned char exponent, unsigned long mantissa);
+    bigfloat(bool sign, unsigned char exponent, long mantissa);
     bigfloat(double x);
     bigfloat(float x);
 
@@ -52,10 +52,10 @@ struct bigfloat {
 
     bigfloat operator -() const;
 
-    bigfloat operator +(bigfloat &other) const;
-    bigfloat operator -(bigfloat &other);
-    bigfloat operator *(bigfloat &other);
-    bigfloat operator /(bigfloat &other);
+    bigfloat operator +(const bigfloat &other) const;
+    bigfloat operator -(const bigfloat &other);
+    bigfloat operator *(const bigfloat &other);
+    bigfloat operator /(const bigfloat &other);
     bool operator ==(const bigfloat &other) const;
 };
 
