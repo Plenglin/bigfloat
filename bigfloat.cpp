@@ -79,7 +79,7 @@ bool bigfloat::operator==(const bigfloat &other) const {
 bigfloat::operator float() const {
     ieee754_float f;
     f.mantissa = static_cast<unsigned int>(mantissa >> 40);
-    f.exponent = static_cast<short>(exponent >> 7);
+    f.exponent = static_cast<short>(exponent);
     f.sign = sign;
     return f.f;
 }
@@ -91,6 +91,16 @@ bigfloat::operator double() const {
 bigfloat bigfloat::operator-() const {
     return bigfloat(!sign, mantissa, exponent);
 }
+
+void bigfloat::to_mpfr(mpfr_t rop) {
+    mpfr_init2(rop, 63);
+    mpfr_set_ui_2exp(rop, mantissa, exponent, MPFR_RNDD);
+}
+
+bigfloat::bigfloat(std::string x) {
+
+}
+
 
 std::ostream &operator<<(std::ostream &os, bigfloat x) {
     if (x.sign) {

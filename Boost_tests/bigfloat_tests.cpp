@@ -1,3 +1,6 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedMacroInspection"
+#pragma ide diagnostic ignored "cert-err58-cpp"
 //
 // Created by astrid on 8/18/20.
 //
@@ -11,12 +14,6 @@
 
 
 using namespace std;
-
-void require_bf_eq(bigfloat bf, bigfloat bf2) {
-    BOOST_REQUIRE_EQUAL(bf.sign, bf2.sign);
-    BOOST_REQUIRE_EQUAL(bf.mantissa, bf2.mantissa);
-    BOOST_REQUIRE_EQUAL(bf.exponent, bf2.exponent);
-}
 
 
 BOOST_AUTO_TEST_SUITE(bigfloat_test_suite)
@@ -37,10 +34,20 @@ BOOST_AUTO_TEST_SUITE(bigfloat_test_suite)
         BOOST_REQUIRE_EQUAL(bigfloat(-numeric_limits<float>::infinity()), bigfloat(1, 255, 0));
     }
 
+    BOOST_AUTO_TEST_CASE(convert_to_float) {
+        // https://www.h-schmidt.net/FloatConverter/IEEE754.html this is useful for test generation
+
+        BOOST_REQUIRE_EQUAL(float(bigfloat(0.5f)), 0.5f);
+        BOOST_REQUIRE_EQUAL(float(bigfloat(0.324578f)), 0.324578f);
+        BOOST_REQUIRE_EQUAL(float(bigfloat(9.923478e8f)), 9.923478e8f);
+    }
+
     BOOST_AUTO_TEST_CASE(addition) {
         bigfloat a = 0.3f;
-        bigfloat b = 0.8f;
-        BOOST_REQUIRE_EQUAL(float(a + b), 0.3f + 0.8f);
+        bigfloat b = 0.15f;
+        BOOST_REQUIRE_EQUAL(float(a + b), 0.3f + 0.15f);
     }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+#pragma clang diagnostic pop

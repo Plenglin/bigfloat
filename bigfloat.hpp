@@ -1,9 +1,14 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "google-explicit-constructor"
 //
 // Created by astrid on 8/18/20.
 //
 
 #ifndef BIGFLOAT_BIGFLOAT_HPP
 #define BIGFLOAT_BIGFLOAT_HPP
+
+#include <gmp.h>
+#include <mpfr.h>
 
 #include "ostream"
 
@@ -37,8 +42,6 @@ struct bigfloat {
     // is used to detect overflow.
     long mantissa;
 
-    // Though technically 16 bits wide, we only use [14:7]. The highest bit is
-    // always zero and the lower 7 are treated as nonexistent.
     unsigned char exponent;
     bool sign;
 
@@ -46,6 +49,7 @@ struct bigfloat {
     bigfloat(bool sign, unsigned char exponent, long mantissa);
     bigfloat(double x);
     bigfloat(float x);
+    bigfloat(std::string x);
 
     operator float() const;
     operator double() const;
@@ -56,9 +60,14 @@ struct bigfloat {
     bigfloat operator -(const bigfloat &other);
     bigfloat operator *(const bigfloat &other);
     bigfloat operator /(const bigfloat &other);
+
     bool operator ==(const bigfloat &other) const;
+
+    void to_mpfr(mpfr_t rop);
 };
 
 std::ostream& operator <<(std::ostream &os, bigfloat x);
 
 #endif //BIGFLOAT_BIGFLOAT_HPP
+
+#pragma clang diagnostic pop
