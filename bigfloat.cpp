@@ -8,7 +8,7 @@ bigfloat::bigfloat() : sign(false), mantissa(0), exponent(0) {
 
 }
 
-bigfloat::bigfloat(bool sign, unsigned char exponent, long mantissa) :
+bigfloat::bigfloat(bool sign, unsigned char exponent, unsigned long mantissa) :
         sign(sign),
         mantissa(mantissa),
         exponent(exponent)
@@ -24,42 +24,49 @@ bigfloat::bigfloat(double x) {
 bigfloat::bigfloat(float x) {
     ieee754_float f = {.f = x};
     sign = f.sign;
-    mantissa = (long)f.mantissa << 40;
+    mantissa = (unsigned long)f.mantissa << 41;
     exponent = f.bits >> 23;
 }
 
 // Adds a and b, assuming that a's exponent > b's exponent
+template <bool invert_b>
 bigfloat add_impl(const bigfloat a, const bigfloat b) {
     int shift = a.exponent - b.exponent;
 
-    long mta = a.sign ? -a.mantissa : a.mantissa;
-    long mtb = b.sign ? -b.mantissa : b.mantissa;
+    unsigned long mta = a.sign ? -a.mantissa : a.mantissa;
+    unsigned long mtb = (invert_b ^ b.sign) ? -b.mantissa : b.mantissa;
 
-    long shifted_mantissa = mtb << shift;
+    // Add on the implicit 1
+    int mask_loc = 64 - shift;
+    mtb >>= shift;
+    mtb |= (1UL << mask_loc);
 
-    bigfloat out;
-    out.exponent = a.exponent;
-    out.mantissa = mta + shifted_mantissa;
+    unsigned char exo = a.exponent;
+    unsigned long mto = mta + mtb;
 
-    if (out.mantissa < mta) {  // overflow
-        out.mantissa >>= 1;
-        out.exponent += 1;
-    }
+    bool sa = mta > 0;
+    bool sb = mtb > 0;
+    bool so = mto > 0;
 
-    return out;
+    // Remove the implicit 1
+
+    return bigfloat(false, exo, mto);
 }
 
 bigfloat bigfloat::operator+(const bigfloat &other) const {
     if (exponent < other.exponent) {
-        return add_impl(other, *this);
+        return add_impl<false>(other, *this);
     } else {
-        return add_impl(*this, other);
+        return add_impl<false>(*this, other);
     }
 }
 
 bigfloat bigfloat::operator-(const bigfloat &other) {
-    bigfloat out;
-    return out;
+    if (exponent < other.exponent) {
+        return add_impl<true>(other, *this);
+    } else {
+        return add_impl<true>(*this, other);
+    }
 }
 
 bigfloat bigfloat::operator*(const bigfloat &other) {
@@ -78,7 +85,7 @@ bool bigfloat::operator==(const bigfloat &other) const {
 
 bigfloat::operator float() const {
     ieee754_float f;
-    f.mantissa = static_cast<unsigned int>(mantissa >> 40);
+    f.mantissa = static_cast<unsigned int>(mantissa >> 41);
     f.exponent = static_cast<short>(exponent);
     f.sign = sign;
     return f.f;

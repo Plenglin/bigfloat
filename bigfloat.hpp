@@ -35,24 +35,23 @@ typedef union {
 #define EXPONENT_STEP 0x800
 
 // A software-based floating point number object.
-// On disk, it is packed into a 80-bit space like so:
-// [79:65 exponent] [64 sign] [63:0 mantissa]
 struct bigfloat {
     // The mantissa is 63 bits wide. When loaded into memory, the uppermost bit
     // is used to detect overflow.
-    long mantissa;
+    unsigned long mantissa;
 
     unsigned char exponent;
     bool sign;
 
     bigfloat();
-    bigfloat(bool sign, unsigned char exponent, long mantissa);
+    bigfloat(bool sign, unsigned char exponent, unsigned long mantissa);
     bigfloat(double x);
     bigfloat(float x);
     bigfloat(std::string x);
 
     operator float() const;
     operator double() const;
+    void to_mpfr(mpfr_t rop);
 
     bigfloat operator -() const;
 
@@ -62,8 +61,6 @@ struct bigfloat {
     bigfloat operator /(const bigfloat &other);
 
     bool operator ==(const bigfloat &other) const;
-
-    void to_mpfr(mpfr_t rop);
 };
 
 std::ostream& operator <<(std::ostream &os, bigfloat x);
