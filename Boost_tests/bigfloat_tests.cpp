@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_test_suite)
 
     BOOST_AUTO_TEST_CASE(simple_float_addition) {
         TEST_ADDITION_CASE(float, 0.25f, 0.5f)
-        //TEST_ADDITION_CASE(float, 0.8, 0.6)
+        TEST_ADDITION_CASE(float, 0.8, 0.6)
         //TEST_ADDITION_CASE(float, 0.937498723478932789425f, 0.91267467283412345f)
     }
 

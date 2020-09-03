@@ -3,6 +3,8 @@
 //
 
 #include "bigfloat.hpp"
+#include "immintrin.h"
+
 
 bigfloat::bigfloat() : sign(false), mantissa(0), exponent(0) {
 
@@ -24,38 +26,74 @@ bigfloat::bigfloat(double x) {
 bigfloat::bigfloat(float x) {
     ieee754_float f = {.f = x};
     sign = f.sign;
-    mantissa = (unsigned long)f.mantissa << 41;
+    mantissa = (unsigned long)f.mantissa << 40;
     exponent = f.bits >> 23;
 }
 
-// Adds a and b, assuming that a's exponent > b's exponent
-template <bool invert_b>
-bigfloat add_impl(const bigfloat a, const bigfloat b) {
-    int shift = a.exponent - b.exponent;
+bigfloat::operator float() const {
+    ieee754_float f;
+    f.mantissa = static_cast<unsigned int>(mantissa >> 40);
+    f.exponent = static_cast<short>(exponent);
+    f.sign = sign;
+    return f.f;
+}
 
-    unsigned long mta = a.sign ? -a.mantissa : a.mantissa;
-    unsigned long mtb = (invert_b ^ b.sign) ? -b.mantissa : b.mantissa;
+bigfloat::operator double() const {
+    return 0;
+}
+
+// Adds a and b, assuming that a's exponent > b's exponent. We're using this complicated
+// template system to hopefully make the compiler compile away the flags so we only have to do a single check
+// at the beginning, minimizing branches.
+template <bool invert_b, bool sign_same, bool sa>
+inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb) {
+    int shift = exa - exb;
+
+    // Are we subtracting?
+    if (invert_b ^ !sign_same) {
+        mtb = -mtb;
+    }
 
     // Add on the implicit 1
-    int mask_loc = 64 - shift;
     mtb >>= shift;
-    mtb |= (1UL << mask_loc);
+    mtb |= (1UL << (63 - shift));
 
-    unsigned char exo = a.exponent;
+    unsigned char exo = exa;
+
+    // Perform addition
     unsigned long mto = mta + mtb;
 
-    bool sa = mta > 0;
-    bool sb = mtb > 0;
-    bool so = mto > 0;
+    if (invert_b ^ !sign_same) {
+        // Subtracting and underflow
+        mto = -mto;
+    } else if (mto < mta) {
+        // Adding and overflow
+        exo++;
+        mto >>= 1;
+        mto |= (1UL << 63);
+    }
 
-    // Remove the implicit 1
 
     return bigfloat(false, exo, mto);
 }
 
+template <bool invert_b>
+inline bigfloat add_impl(const bigfloat a, const bigfloat b) {
+    if (a.sign) {
+        if (b.sign) {
+            return add_impl<invert_b, true, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+        }
+        return add_impl<invert_b, false, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+    }
+    if (b.sign) {
+        return add_impl<invert_b, false, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+    }
+    return add_impl<invert_b, true, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+}
+
 bigfloat bigfloat::operator+(const bigfloat &other) const {
     if (exponent < other.exponent) {
-        return add_impl<false>(other, *this);
+        return add_impl<true>(other, *this);
     } else {
         return add_impl<false>(*this, other);
     }
@@ -81,18 +119,6 @@ bigfloat bigfloat::operator/(const bigfloat &other) {
 
 bool bigfloat::operator==(const bigfloat &other) const {
     return sign == other.sign && mantissa == other.mantissa && exponent == other.exponent;
-}
-
-bigfloat::operator float() const {
-    ieee754_float f;
-    f.mantissa = static_cast<unsigned int>(mantissa >> 41);
-    f.exponent = static_cast<short>(exponent);
-    f.sign = sign;
-    return f.f;
-}
-
-bigfloat::operator double() const {
-    return 0;
 }
 
 bigfloat bigfloat::operator-() const {
