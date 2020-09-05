@@ -66,11 +66,11 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
     if (invert_b ^ !sign_same) {
         // Subtracting and underflow
         mto = -mto;
-    } else if (mto < mta) {
+    } else if (mto & (1UL << 63)) {
         // Adding and overflow
         exo++;
+        mto &= ((unsigned long)(-1) >> 1);
         mto >>= 1;
-        mto |= (1UL << 63);
     }
 
 

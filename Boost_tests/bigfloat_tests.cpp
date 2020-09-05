@@ -13,38 +13,54 @@
 #include <limits>
 
 
-#define TEST_ADDITION_CASE(type, a, b) BOOST_REQUIRE_EQUAL(type(bigfloat(a) + bigfloat(b)), a + b);
-#define TEST_CONVERSION_CASE(type, x) BOOST_REQUIRE_EQUAL(type(bigfloat(x)), x);
+#define TEST_ADDITION_CASE(name, type, a, b) \
+    BOOST_AUTO_TEST_CASE(name) { \
+        BOOST_REQUIRE_EQUAL(type(bigfloat(a) + bigfloat(b)), a + b); \
+    }
+
+#define TEST_SUBTRACTION_CASE(name, type, a, b) \
+    BOOST_AUTO_TEST_CASE(name) { \
+        BOOST_REQUIRE_EQUAL(type(bigfloat(a) - bigfloat(b)), a - b); \
+    }
+
+#define TEST_MULTIPLICATION_CASE(name, type, a, b) \
+    BOOST_AUTO_TEST_CASE(name) { \
+        BOOST_REQUIRE_EQUAL(type(bigfloat(a) * bigfloat(b)), a * b); \
+    }
+
+#define TEST_DIVISION_CASE(name, type, a, b) \
+    BOOST_AUTO_TEST_CASE(name) { \
+        BOOST_REQUIRE_EQUAL(type(bigfloat(a) / bigfloat(b)), a / b); \
+    }
+
+#define TEST_CONVERSION_CASE(name, type, x) BOOST_AUTO_TEST_CASE(name) { BOOST_REQUIRE_EQUAL(type(bigfloat(x)), x); }
 
 
 using namespace std;
 
 
-BOOST_AUTO_TEST_SUITE(bigfloat_test_suite)
 
-    BOOST_AUTO_TEST_CASE(convert_between_double) {
-        TEST_CONVERSION_CASE(double, 0.5);
-        TEST_CONVERSION_CASE(double, 0.324578);
-        TEST_CONVERSION_CASE(double, 9.923478e8);
-    }
+BOOST_AUTO_TEST_SUITE(bigfloat_conversion)
+    TEST_CONVERSION_CASE(dbd1, double, 0.5);
+    TEST_CONVERSION_CASE(dbd2, double, 0.324578);
+    TEST_CONVERSION_CASE(dbd3, double, 9.923478e8);
 
-    BOOST_AUTO_TEST_CASE(convert_between_float) {
-        TEST_CONVERSION_CASE(float, 0.5f);
-        TEST_CONVERSION_CASE(float, 0.324578f);
-        TEST_CONVERSION_CASE(float, 9.923478e8f);
-    }
+    TEST_CONVERSION_CASE(fbf1, float, 0.5f);
+    TEST_CONVERSION_CASE(fbf2, float, 0.324578f);
+    TEST_CONVERSION_CASE(fbf3, float, 9.923478e8f);
 
-    BOOST_AUTO_TEST_CASE(float_construct_special) {
+    BOOST_AUTO_TEST_CASE(fb_construct_special) {
         BOOST_REQUIRE_EQUAL(bigfloat(numeric_limits<float>::infinity()), bigfloat(0, 255, 0));
         BOOST_REQUIRE_EQUAL(bigfloat(-numeric_limits<float>::infinity()), bigfloat(1, 255, 0));
     }
+BOOST_AUTO_TEST_SUITE_END();
 
-    BOOST_AUTO_TEST_CASE(simple_float_addition) {
-        TEST_ADDITION_CASE(float, 0.25f, 0.5f)
-        TEST_ADDITION_CASE(float, 0.8, 0.6)
-        //TEST_ADDITION_CASE(float, 0.937498723478932789425f, 0.91267467283412345f)
-    }
+BOOST_AUTO_TEST_SUITE(bigfloat_addition)
+    TEST_ADDITION_CASE(af1, float, 0.25f, 0.5f)
+    TEST_ADDITION_CASE(af2, float, 0.625f, 0.375f)
+    TEST_ADDITION_CASE(af3, float, 0.8f, 0.6f)
+    TEST_ADDITION_CASE(af4, float, 0.937498723478932789425f, 0.91267467283412345f)
+BOOST_AUTO_TEST_SUITE_END();
 
-BOOST_AUTO_TEST_SUITE_END()
 
 #pragma clang diagnostic pop
