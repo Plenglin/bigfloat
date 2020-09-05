@@ -32,7 +32,7 @@ bigfloat::bigfloat(float x) {
 
 bigfloat::bigfloat(std::string x) {
 
-}1
+}
 
 bigfloat::operator float() const {
     ieee754_float f;
@@ -49,12 +49,12 @@ bigfloat::operator double() const {
 // Adds a and b, assuming that a's exponent > b's exponent. We're using this complicated
 // template system to hopefully make the compiler compile away the flags so we only have to do a single check
 // at the beginning, minimizing branches.
-template <bool invert_b, bool sign_same, bool sa>
+template <bool subtract, bool sa>
 inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb) {
     int shift = exa - exb;
 
     // Are we subtracting?
-    if (invert_b ^ !sign_same) {
+    if (subtract) {
         mtb = -mtb;
     }
 
@@ -66,7 +66,7 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
 
     // Overflow handling
     unsigned char exo = exa;
-    if (invert_b ^ !sign_same) {
+    if (subtract) {
         // Subtracting and underflow
         mto = -mto;
     } else if (mto < mta) {
@@ -80,18 +80,18 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
     return bigfloat(false, exo, mto);
 }
 
-template <bool invert_b>
+template <bool addition>
 inline bigfloat add_impl(const bigfloat a, const bigfloat b) {
     if (a.sign) {
         if (b.sign) {
-            return add_impl<invert_b, true, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+            return add_impl<addition, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
         }
-        return add_impl<invert_b, false, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+        return add_impl<!addition, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
     }
     if (b.sign) {
-        return add_impl<invert_b, false, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+        return add_impl<!addition, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
     }
-    return add_impl<invert_b, true, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+    return add_impl<addition, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
 }
 
 bigfloat bigfloat::operator+(const bigfloat &other) const {
