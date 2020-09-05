@@ -36,8 +36,7 @@ typedef union {
 
 // A software-based floating point number object.
 struct bigfloat {
-    // The mantissa is 63 bits wide. When loaded into memory, the uppermost bit
-    // is used to detect overflow.
+    // The mantissa is 63 bits wide. The uppermost bit is always 1.
     unsigned long mantissa;
 
     unsigned char exponent;

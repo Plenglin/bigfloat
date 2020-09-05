@@ -26,9 +26,13 @@ bigfloat::bigfloat(double x) {
 bigfloat::bigfloat(float x) {
     ieee754_float f = {.f = x};
     sign = f.sign;
-    mantissa = (unsigned long)f.mantissa << 40;
-    exponent = f.bits >> 23;
+    mantissa = ((unsigned long)f.mantissa << 40) | (1UL << 63);
+    exponent = (f.bits >> 23);
 }
+
+bigfloat::bigfloat(std::string x) {
+
+}1
 
 bigfloat::operator float() const {
     ieee754_float f;
@@ -54,19 +58,18 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
         mtb = -mtb;
     }
 
-    // Add on the implicit 1
+    // Shift to align decimal points
     mtb >>= shift;
-    mtb |= (1UL << (63 - shift));
-
-    unsigned char exo = exa;
 
     // Perform addition
     unsigned long mto = mta + mtb;
 
+    // Overflow handling
+    unsigned char exo = exa;
     if (invert_b ^ !sign_same) {
         // Subtracting and underflow
         mto = -mto;
-    } else if (mto & (1UL << 63)) {
+    } else if (mto < mta) {
         // Adding and overflow
         exo++;
         mto &= ((unsigned long)(-1) >> 1);
@@ -93,7 +96,7 @@ inline bigfloat add_impl(const bigfloat a, const bigfloat b) {
 
 bigfloat bigfloat::operator+(const bigfloat &other) const {
     if (exponent < other.exponent) {
-        return add_impl<true>(other, *this);
+        return add_impl<false>(other, *this);
     } else {
         return add_impl<false>(*this, other);
     }
@@ -129,11 +132,6 @@ void bigfloat::to_mpfr(mpfr_t rop) {
     mpfr_init2(rop, 63);
     mpfr_set_ui_2exp(rop, mantissa, exponent, MPFR_RNDD);
 }
-
-bigfloat::bigfloat(std::string x) {
-
-}
-
 
 std::ostream &operator<<(std::ostream &os, bigfloat x) {
     if (x.sign) {
