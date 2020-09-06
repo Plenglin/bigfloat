@@ -32,6 +32,8 @@ struct bigfloat {
     explicit operator double() const;
     explicit operator bigfloat_packed() const;
 
+    short unbiased_exponent() const;
+
     inline bigfloat operator -() const;
     inline bigfloat operator +() const;
 
@@ -41,10 +43,14 @@ struct bigfloat {
     bigfloat operator *(const bigfloat &other) const;
     bigfloat operator /(const bigfloat &other) const;
 
+    bool operator <(const bigfloat &other) const;
+    bool operator >(const bigfloat &other) const;
+    bool operator <=(const bigfloat &other) const;
+    bool operator >=(const bigfloat &other) const;
+    bool operator ==(const bigfloat &other) const;
+
     inline bool is_zero() const;
     inline bool is_nan() const;
-
-    bool operator ==(const bigfloat &other) const;
 
     inline static bigfloat inf(bool sign);
     inline static bigfloat nan(bool sign);

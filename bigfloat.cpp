@@ -5,6 +5,7 @@
 #include "bigfloat.hpp"
 #include <immintrin.h>
 #include <xmmintrin.h>
+#include <vector>
 
 union ieee754_float {
     float value;
@@ -264,10 +265,51 @@ bigfloat bigfloat::nan(bool sign) {
     return bigfloat(sign, -1, 1);
 }
 
+short bigfloat::unbiased_exponent() const {
+    return (short)(exponent - 1023);
+}
+
+inline bool le_impl(const bigfloat &a, const bigfloat &b) {
+    return a.exponent < b.exponent || a.mantissa < b.mantissa;
+}
+
+inline bool leq_impl(const bigfloat &a, const bigfloat &b) {
+    return a.exponent <= b.exponent || a.mantissa <= b.mantissa;
+}
+
+template<bool (*cmp)(const bigfloat&, const bigfloat&), bool mp_result>
+inline bool cmp_impl(const bigfloat &a, const bigfloat &b) {
+    int flags = (a.sign << 1) | b.sign;
+    switch (flags) {
+        case 0b00:
+            return cmp(a, b);
+        case 0b01:
+            return !mp_result;
+        case 0b10:
+            return mp_result;
+        case 0b11:
+            return cmp(b, a);
+    }
+}
+
+bool bigfloat::operator<(const bigfloat &other) const {
+    return cmp_impl<le_impl, true>(*this, other)
+}
+
+bool bigfloat::operator>(const bigfloat &other) const {
+    return cmp_impl<leq_impl, true>(*this, other)
+}
+
 std::ostream &operator<<(std::ostream &os, bigfloat x) {
+    std::vector<char> digits;
+    auto ten = bigfloat(1);
+    while (x > ten) {
+
+    }
+    auto remainder = x;
+
     if (x.sign) {
         os << "-";
     }
-    os << "1." << x.mantissa << "e" << (int)x.exponent;
     return os;
 }

@@ -37,8 +37,19 @@
         BOOST_REQUIRE_CLOSE(double(bigfloat(a) / bigfloat(b)), a / b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_D_CONVERSION_CASE(name, x) BOOST_AUTO_TEST_CASE(name) { BOOST_REQUIRE_EQUAL(double(bigfloat(x)), x); }
+#define TEST_D_CONVERSION_CASE(name, x) \
+    BOOST_AUTO_TEST_CASE(name) {        \
+        BOOST_REQUIRE_EQUAL(double(bigfloat(x)), x); \
+    }
 
+#define TEST_D_BF2STR_CASE(name, x) \
+    BOOST_AUTO_TEST_CASE(name) { \
+        std::stringstream os1; \
+        os1 << bigfloat(x); \
+        std::stringstream os2; \
+        os2 << x; \
+        BOOST_REQUIRE_EQUAL(os1.str(), os2.str()); \
+    }
 
 using namespace std;
 
@@ -56,6 +67,10 @@ BOOST_AUTO_TEST_SUITE(bigfloat_conversion)
         // BOOST_REQUIRE_EQUAL(bigfloat(numeric_limits<double>::infinity()), bigfloat(0, 255, 0));
         // BOOST_REQUIRE_EQUAL(bigfloat(-numeric_limits<double>::infinity()), bigfloat(1, 255, 0));
     }
+BOOST_AUTO_TEST_SUITE_END();
+
+BOOST_AUTO_TEST_SUITE(bigfloat_to_str)
+    TEST_D_BF2STR_CASE(b2s0, 0.5);
 BOOST_AUTO_TEST_SUITE_END();
 
 BOOST_AUTO_TEST_SUITE(bigfloat_add_sub)
