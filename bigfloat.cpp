@@ -248,11 +248,6 @@ bigfloat bigfloat::operator+() const {
     return *this;
 }
 
-void bigfloat::to_mpfr(mpfr_t rop) {
-    mpfr_init2(rop, 63);
-    mpfr_set_ui_2exp(rop, mantissa, exponent, MPFR_RNDD);
-}
-
 bool bigfloat::is_zero() const {
     return !(mantissa || exponent);
 }

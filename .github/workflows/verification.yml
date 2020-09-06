@@ -19,7 +19,7 @@ jobs:
     - name: Install Apt Packages
       uses: mstksg/get-package@v1
       with:
-        apt-get: libboost-test-dev libmpfr-dev libbenchmark-dev
+        apt-get: libboost-test-dev libbenchmark-dev libmpfr-dev
              
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build

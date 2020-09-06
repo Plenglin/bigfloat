@@ -1,14 +1,10 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "google-explicit-constructor"
-//
-// Created by astrid on 8/18/20.
-//
 
 #ifndef BIGFLOAT_BIGFLOAT_HPP
 #define BIGFLOAT_BIGFLOAT_HPP
 
 #include <gmp.h>
-#include <mpfr.h>
 
 #include "ostream"
 
@@ -35,7 +31,6 @@ struct bigfloat {
 
     explicit operator double() const;
     explicit operator bigfloat_packed() const;
-    void to_mpfr(mpfr_t rop);
 
     inline bigfloat operator -() const;
     inline bigfloat operator +() const;
