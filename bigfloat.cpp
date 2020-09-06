@@ -68,10 +68,8 @@ bigfloat::operator double() const {
 // at the beginning, minimizing branches.
 template <bool adding>
 inline bigfloat add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned long mtb) {
-    int shift = exa - exb;
-
     // Shift to align decimal points
-    mtb >>= shift;
+    mtb >>= exa - exb;
 
     // Invert if subtracting
     if (!adding) {
@@ -82,47 +80,67 @@ inline bigfloat add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned 
     unsigned long mto = mta + mtb;
 
     // Overflow handling
+    unsigned short exo = exa;
     if (!adding) {
         int leading_zeros = __builtin_clzl(mto);
         mto <<= leading_zeros;
-        unsigned short exo = exa - leading_zeros;
-
-        return bigfloat(sa, exo, mto);
-    } else {
-        bool carry = mto < mta;
-        unsigned short exo = exa + carry;
-        mto >>= carry;
+        exo -= leading_zeros;
+    } else if (mto < mta) {
+        exo++;
+        mto >>= 1;
         mto |= (1UL << 63);
-        return bigfloat(sa, exo, mto);
     }
+    return bigfloat(sa, exo, mto);
 }
 
-inline bigfloat add_check_signs(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
-    return sa != sb
-        ? add_impl<false>(sa, exa, mta, exb, mtb)
-        : add_impl<true>(sa, exa, mta, exb, mtb);
-}
+#define FLAG_ADDITION 4
+#define FLAG_A_GTE_B 2
+#define FLAG_DIFF_SIGNS 1
 
-inline bigfloat add_sort_exponents(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
-    return exa >= exb
-        ? add_check_signs(sa, exa, mta, sb, exb, mtb)
-        : add_check_signs(sb, exb, mtb, sa, exa, mta);
+template <bool calling_addition>
+inline bigfloat norm_sort_signs_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+    // Doing it with a switch statement shaves off about 7ns
+
+    int flags = sa != sb ? FLAG_DIFF_SIGNS : 0;
+    flags |= exa >= exb ? FLAG_A_GTE_B : 0;
+    if (calling_addition)
+        flags |= FLAG_ADDITION;
+
+    switch (flags) {
+        case FLAG_ADDITION | FLAG_A_GTE_B | FLAG_DIFF_SIGNS:
+            return add_impl<false>(sa, exa, mta, exb, mtb);
+        case FLAG_ADDITION | FLAG_A_GTE_B:
+            return add_impl<true>(sa, exa, mta, exb, mtb);
+        case FLAG_ADDITION | FLAG_DIFF_SIGNS:
+            return add_impl<false>(sb, exb, mtb, exa, mta);
+        case FLAG_ADDITION:
+            return add_impl<true>(sb, exb, mtb, exa, mta);
+        case FLAG_A_GTE_B | FLAG_DIFF_SIGNS:
+            return add_impl<true>(sa, exa, mta, exb, mtb);
+        case FLAG_A_GTE_B:
+            return add_impl<false>(sa, exa, mta, exb, mtb);
+        case FLAG_DIFF_SIGNS:
+            return add_impl<true>(!sb, exb, mtb, exa, mta);
+        case 0:
+            return add_impl<false>(!sb, exb, mtb, exa, mta);
+    }
+    throw std::exception();
 }
 
 template <bool calling_addition>
-inline bigfloat add_normalize_signs(const bigfloat &a, const bigfloat &b) {
-    return add_sort_exponents(
+inline bigfloat add_impl_deconstruct(const bigfloat &a, const bigfloat &b) {
+    return norm_sort_signs_impl<calling_addition>(
             a.sign,
             a.exponent,
             a.mantissa,
-            b.sign ^ !calling_addition,
+            b.sign,
             b.exponent,
             b.mantissa
-        );
+    );
 }
 
 bigfloat bigfloat::operator+(const bigfloat &other) const {
-    return add_normalize_signs<true>(*this, other);
+    return add_impl_deconstruct<true>(*this, other);
 }
 
 bigfloat bigfloat::operator+=(const bigfloat &other) {
@@ -133,7 +151,7 @@ bigfloat bigfloat::operator+=(const bigfloat &other) {
 }
 
 bigfloat bigfloat::operator-(const bigfloat &other) const {
-    return add_normalize_signs<false>(*this, other);
+    return add_impl_deconstruct<false>(*this, other);
 }
 
 inline bigfloat mult_impl(bool s, int ex, unsigned long mt, int i) {
