@@ -55,7 +55,9 @@ struct bigfloat {
     bigfloat operator -() const;
 
     bigfloat operator +(const bigfloat &other) const;
+    bigfloat operator +=(const bigfloat &other);
     bigfloat operator -(const bigfloat &other);
+    bigfloat operator *(const int &other);
     bigfloat operator *(const bigfloat &other);
     bigfloat operator /(const bigfloat &other);
 

@@ -84,17 +84,32 @@ template <bool addition>
 inline bigfloat add_impl(const bigfloat a, const bigfloat b) {
     if (a.sign) {
         if (b.sign) {
-            return add_impl<addition, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+            return add_impl<!addition, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
         }
-        return add_impl<!addition, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+        return add_impl<addition, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
     }
     if (b.sign) {
-        return add_impl<!addition, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+        return add_impl<addition, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
     }
-    return add_impl<addition, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+    return add_impl<!addition, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
 }
 
 bigfloat bigfloat::operator+(const bigfloat &other) const {
+    if (exponent < other.exponent) {
+        return add_impl<true>(other, *this);
+    } else {
+        return add_impl<true>(*this, other);
+    }
+}
+
+bigfloat bigfloat::operator+=(const bigfloat &other) {
+    bigfloat result = *this + other;
+    sign = result.sign;
+    exponent = result.exponent;
+    mantissa = result.mantissa;
+}
+
+bigfloat bigfloat::operator-(const bigfloat &other) {
     if (exponent < other.exponent) {
         return add_impl<false>(other, *this);
     } else {
@@ -102,12 +117,21 @@ bigfloat bigfloat::operator+(const bigfloat &other) const {
     }
 }
 
-bigfloat bigfloat::operator-(const bigfloat &other) {
-    if (exponent < other.exponent) {
-        return add_impl<true>(other, *this);
-    } else {
-        return add_impl<true>(*this, other);
+bigfloat bigfloat::operator*(const int &other) {
+    bool so = other < 0;
+    int factor = so ? -other : other;
+
+    bigfloat acc;
+    int p2exp = exponent;
+    while (factor > 0) {
+        if (factor & 1) {
+            acc += bigfloat(so, p2exp, mantissa);
+        }
+        p2exp++;
+        factor >>= 1;
     }
+
+    return acc;
 }
 
 bigfloat bigfloat::operator*(const bigfloat &other) {
