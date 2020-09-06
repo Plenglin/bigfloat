@@ -1,22 +1,25 @@
 name: Verification
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 env:
   BUILD_TYPE: Release
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Install APT Packages
+    - name: Install Apt Packages
       uses: mstksg/get-package@v1
       with:
-        apt-get: libboost-test-dev libmpfr-dev
+        apt-get: libboost-test-dev libmpfr-dev libbenchmark-dev
              
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -36,10 +39,15 @@ jobs:
       shell: bash
       run: ctest -C $BUILD_TYPE
 
+    - name: Run benchmark
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ./benchmark/run_benchmarks --benchmark_format=json | tee ${{runner.workspace}}/benchmark_result.json
+
     - name: Store benchmark result
       uses: rhysd/github-action-benchmark@v1
       with:
         tool: 'googlecpp'
-        output-file-path: output.txt
-        gh-pages-branch: gh-pages
-        fail-on-alert: true
+        output-file-path: ${{runner.workspace}}/benchmark_result.json
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        auto-push: true

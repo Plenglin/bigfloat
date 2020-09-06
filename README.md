@@ -2,7 +2,7 @@
 
 High-performance, high-precision floating point library
 
-## Disk storage
+## Packed Format
 
 | Field     | Start | End | Notes |
 |----------:|------:|----:|:------|
