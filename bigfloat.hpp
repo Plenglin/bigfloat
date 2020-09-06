@@ -44,12 +44,12 @@ struct bigfloat {
 
     bigfloat();
     bigfloat(bool sign, unsigned char exponent, unsigned long mantissa);
-    bigfloat(double x);
-    bigfloat(float x);
+    explicit bigfloat(double x);
+    explicit bigfloat(float x);
     bigfloat(std::string x);
 
-    operator float() const;
-    operator double() const;
+    explicit operator float() const;
+    explicit operator double() const;
     void to_mpfr(mpfr_t rop);
 
     bigfloat operator -() const;
@@ -57,7 +57,6 @@ struct bigfloat {
     bigfloat operator +(const bigfloat &other) const;
     bigfloat operator +=(const bigfloat &other);
     bigfloat operator -(const bigfloat &other);
-    bigfloat operator *(const int &other);
     bigfloat operator *(const bigfloat &other);
     bigfloat operator /(const bigfloat &other);
 
@@ -65,6 +64,8 @@ struct bigfloat {
 };
 
 std::ostream& operator <<(std::ostream &os, bigfloat x);
+bigfloat operator *(const bigfloat &bf, const int &i);
+bigfloat operator *(const int &i, const bigfloat &bf);
 
 #endif //BIGFLOAT_BIGFLOAT_HPP
 
