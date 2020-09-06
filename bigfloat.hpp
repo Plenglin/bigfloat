@@ -33,7 +33,6 @@ struct bigfloat {
     explicit bigfloat(double x);
     bigfloat(std::string x);
 
-    explicit operator float() const;
     explicit operator double() const;
     explicit operator bigfloat_packed() const;
     void to_mpfr(mpfr_t rop);

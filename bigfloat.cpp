@@ -66,19 +66,12 @@ bigfloat::operator bigfloat_packed() const {
     };
 }
 
-bigfloat::operator float() const {
-    ieee754_float f;
-    f.mantissa = static_cast<unsigned int>(mantissa >> 40);
-    f.exponent = static_cast<short>(exponent - 1023 + 127);
-    f.sign = sign;
-    return f.value;
-}
-
 bigfloat::operator double() const {
-    ieee754_double d;
-    d.mantissa = static_cast<unsigned long>(mantissa >> 11);
-    d.exponent = static_cast<short>(exponent);
-    d.sign = sign;
+    ieee754_double d = {
+        .mantissa = static_cast<unsigned long>(mantissa >> 11),
+        .exponent = static_cast<unsigned short>(exponent),
+        .sign = sign
+    };
     return d.value;
 }
 
