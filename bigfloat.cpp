@@ -3,15 +3,15 @@
 //
 
 #include "bigfloat.hpp"
-#include "immintrin.h"
-
+#include <immintrin.h>
+#include <xmmintrin.h>
 
 typedef union {
     float value;
     unsigned int bits;
     struct {
         unsigned int mantissa : 23;
-        short exponent : 8;
+        unsigned short exponent : 8;
         bool sign : 1;
     };
 } ieee754_float;
@@ -21,7 +21,7 @@ typedef union {
     unsigned long bits;
     struct {
         unsigned long mantissa : 52;
-        short exponent : 11;
+        unsigned short exponent : 11;
         bool sign : 1;
     };
 } ieee754_double;
@@ -172,8 +172,21 @@ inline bigfloat mult_impl(bool s, int ex, unsigned long mt, int i) {
 }
 
 inline bigfloat mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+    // Add exponents
+    int exo = exa + exb - 1022;  // bias - 1
 
-    return bigfloat();
+    // Multiply mantissas
+    unsigned __int128 mul = (unsigned __int128)mta * (unsigned __int128)mtb;
+
+    // Extract leading zeros
+    unsigned long result_upper = mul >> 64;
+    int leading_zeros = __builtin_clzl(result_upper);
+
+    // Normalize exponent and mantissa
+    unsigned long mto = mul >> (64 - leading_zeros);
+    exo -= leading_zeros;
+
+    return bigfloat(sa ^ sb, exo, mto);
 }
 
 bigfloat operator*(const bigfloat &bf, const int &i) {
@@ -184,7 +197,7 @@ bigfloat operator*(const int &i, const bigfloat &bf) {
     return mult_impl(bf.sign, bf.exponent, bf.mantissa, i);
 }
 
-bigfloat bigfloat::operator*(const bigfloat &other) {
+bigfloat bigfloat::operator*(const bigfloat &other) const {
     return mult_impl(sign, exponent, mantissa, other.sign, other.exponent, other.mantissa);
 }
 
