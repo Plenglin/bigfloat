@@ -38,6 +38,8 @@ struct bigfloat {
     bigfloat operator *(const bigfloat &other) const;
     bigfloat operator /(const bigfloat &other);
 
+    inline bool is_zero() const;
+
     bool operator ==(const bigfloat &other) const;
 };
 

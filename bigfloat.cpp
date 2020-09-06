@@ -39,8 +39,13 @@ bigfloat::bigfloat(bool sign, unsigned short exponent, unsigned long mantissa) :
 bigfloat::bigfloat(double x) {
     ieee754_double d = {.value = x};
     sign = d.sign;
-    mantissa = ((unsigned long)d.mantissa << 11) | (1UL << 63);
-    exponent = d.exponent;
+    if (x == 0.0 || x == -0.0) {
+        mantissa = 0;
+        exponent = 0;
+    } else {
+        mantissa = ((unsigned long)d.mantissa << 11) | (1UL << 63);
+        exponent = d.exponent;
+    }
 }
 
 bigfloat::bigfloat(std::string x) {
@@ -198,6 +203,9 @@ bigfloat operator*(const int &i, const bigfloat &bf) {
 }
 
 bigfloat bigfloat::operator*(const bigfloat &other) const {
+    if (is_zero() || other.is_zero()) {
+        return bigfloat(sign ^ other.sign, 0, 0);
+    }
     return mult_impl(sign, exponent, mantissa, other.sign, other.exponent, other.mantissa);
 }
 
@@ -217,6 +225,10 @@ bigfloat bigfloat::operator-() const {
 void bigfloat::to_mpfr(mpfr_t rop) {
     mpfr_init2(rop, 63);
     mpfr_set_ui_2exp(rop, mantissa, exponent, MPFR_RNDD);
+}
+
+inline bool bigfloat::is_zero() const {
+    return !(mantissa || exponent);
 }
 
 std::ostream &operator<<(std::ostream &os, bigfloat x) {
