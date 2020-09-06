@@ -159,23 +159,6 @@ bigfloat bigfloat::operator-(const bigfloat &other) const {
     return add_impl_deconstruct<false>(*this, other);
 }
 
-inline bigfloat mult_impl(bool s, int ex, unsigned long mt, int i) {
-    bool i_sign = (i < 0);
-    s ^= i_sign;
-    i = i_sign ? -i : i;
-
-    bigfloat acc;
-    while (i > 0) {
-        if (i & 1) {
-            acc += bigfloat(s, ex, mt);
-        }
-        ex++;
-        i >>= 1;
-    }
-
-    return acc;
-}
-
 inline bigfloat mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
     // Add exponents
     int exo = exa + exb - 1022;  // bias - 1
@@ -192,14 +175,6 @@ inline bigfloat mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb,
     exo -= leading_zeros;
 
     return bigfloat(sa ^ sb, exo, mto);
-}
-
-bigfloat operator*(const bigfloat &bf, const int &i) {
-    return mult_impl(bf.sign, bf.exponent, bf.mantissa, i);
-}
-
-bigfloat operator*(const int &i, const bigfloat &bf) {
-    return mult_impl(bf.sign, bf.exponent, bf.mantissa, i);
 }
 
 bigfloat bigfloat::operator*(const bigfloat &other) const {

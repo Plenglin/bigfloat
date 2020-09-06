@@ -44,8 +44,6 @@ struct bigfloat {
 };
 
 std::ostream& operator <<(std::ostream &os, bigfloat x);
-bigfloat operator *(const bigfloat &bf, const int &i);
-bigfloat operator *(const int &i, const bigfloat &bf);
 
 #endif //BIGFLOAT_BIGFLOAT_HPP
 
