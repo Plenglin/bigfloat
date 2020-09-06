@@ -293,11 +293,11 @@ inline bool cmp_impl(const bigfloat &a, const bigfloat &b) {
 }
 
 bool bigfloat::operator<(const bigfloat &other) const {
-    return cmp_impl<le_impl, true>(*this, other)
+    return cmp_impl<le_impl, true>(*this, other);
 }
 
 bool bigfloat::operator>(const bigfloat &other) const {
-    return cmp_impl<leq_impl, true>(*this, other)
+    return cmp_impl<leq_impl, true>(*this, other);
 }
 
 std::ostream &operator<<(std::ostream &os, bigfloat x) {
