@@ -6,28 +6,41 @@
 #include "immintrin.h"
 
 
+typedef union {
+    float value;
+    unsigned int bits;
+    struct {
+        unsigned int mantissa : 23;
+        short exponent : 8;
+        bool sign : 1;
+    };
+} ieee754_float;
+
+typedef union {
+    double value;
+    unsigned long bits;
+    struct {
+        unsigned long mantissa : 52;
+        short exponent : 11;
+        bool sign : 1;
+    };
+} ieee754_double;
+
 bigfloat::bigfloat() : sign(false), mantissa(0), exponent(0) {
 
 }
 
-bigfloat::bigfloat(bool sign, unsigned char exponent, unsigned long mantissa) :
+bigfloat::bigfloat(bool sign, unsigned short exponent, unsigned long mantissa) :
         sign(sign),
         mantissa(mantissa),
         exponent(exponent)
 { }
 
 bigfloat::bigfloat(double x) {
-    ieee754_double d = {.d = x};
+    ieee754_double d = {.value = x};
     sign = d.sign;
-    mantissa = d.mantissa << 12;
-    exponent = (d.exponent - (1023 << 4));
-}
-
-bigfloat::bigfloat(float x) {
-    ieee754_float f = {.f = x};
-    sign = f.sign;
-    mantissa = ((unsigned long)f.mantissa << 40) | (1UL << 63);
-    exponent = (f.bits >> 23);
+    mantissa = ((unsigned long)d.mantissa << 11) | (1UL << 63);
+    exponent = d.exponent;
 }
 
 bigfloat::bigfloat(std::string x) {
@@ -37,13 +50,17 @@ bigfloat::bigfloat(std::string x) {
 bigfloat::operator float() const {
     ieee754_float f;
     f.mantissa = static_cast<unsigned int>(mantissa >> 40);
-    f.exponent = static_cast<short>(exponent);
+    f.exponent = static_cast<short>(exponent - 1023 + 127);
     f.sign = sign;
-    return f.f;
+    return f.value;
 }
 
 bigfloat::operator double() const {
-    return 0;
+    ieee754_double d;
+    d.mantissa = static_cast<unsigned long>(mantissa >> 11);
+    d.exponent = static_cast<short>(exponent);
+    d.sign = sign;
+    return d.value;
 }
 
 // Adds a and b, assuming that a's exponent > b's exponent. We're using this complicated
@@ -68,12 +85,12 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
     if (subtract) {
         int leading_zeros = __builtin_clzl(mto);
         mto <<= leading_zeros;
-        unsigned char exo = exa - leading_zeros;
+        unsigned short exo = exa - leading_zeros;
 
         return bigfloat(sa, exo, mto);
     } else {
         bool carry = mto < mta;
-        unsigned char exo = exa + carry;
+        unsigned short exo = exa + carry;
         mto >>= carry;
         mto |= (1UL << 63);
         return bigfloat(sa, exo, mto);

@@ -12,40 +12,18 @@
 
 #include "ostream"
 
-typedef union {
-    float f;
-    unsigned int bits;
-    struct {
-        unsigned int mantissa : 23;
-        short exponent : 8;
-        bool sign : 1;
-    };
-} ieee754_float;
-
-typedef union {
-    double d;
-    unsigned long bits;
-    struct {
-        unsigned long mantissa : 52;
-        short exponent : 11;
-        bool sign : 1;
-    };
-} ieee754_double;
-
-#define EXPONENT_STEP 0x800
 
 // A software-based floating point number object.
 struct bigfloat {
     // The mantissa is 63 bits wide. The uppermost bit is always 1.
     unsigned long mantissa;
 
-    unsigned char exponent;
+    unsigned short exponent;
     bool sign;
 
     bigfloat();
-    bigfloat(bool sign, unsigned char exponent, unsigned long mantissa);
+    bigfloat(bool sign, unsigned short exponent, unsigned long mantissa);
     explicit bigfloat(double x);
-    explicit bigfloat(float x);
     bigfloat(std::string x);
 
     explicit operator float() const;

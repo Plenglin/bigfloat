@@ -13,102 +13,102 @@
 #include <limits>
 
 
-#define FLOAT_TOLERANCE 0.0001
-#define DOUBLE_TOLERANCE 0.0001
+#define FLOAT_TOLERANCE 1e-4
+#define DOUBLE_TOLERANCE 1e-8
 
-#define TEST_F_ADDITION_CASE(name, a, b) \
+#define TEST_D_ADDITION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_CLOSE(float(bigfloat(a) + bigfloat(b)), a + b, FLOAT_TOLERANCE); \
+        BOOST_REQUIRE_CLOSE(double(bigfloat(a) + bigfloat(b)), a + b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_F_SUBTRACTION_CASE(name, a, b) \
+#define TEST_D_SUBTRACTION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_CLOSE(float(bigfloat(a) - bigfloat(b)), a - b, FLOAT_TOLERANCE); \
+        BOOST_REQUIRE_CLOSE(double(bigfloat(a) - bigfloat(b)), a - b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_FBI_MULTIPLICATION_CASE(name, a, b) \
+#define TEST_DBI_MULTIPLICATION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_CLOSE(float(bigfloat(a) * b), a * b, FLOAT_TOLERANCE); \
+        BOOST_REQUIRE_CLOSE(double(bigfloat(a) * b), a * b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_FIB_MULTIPLICATION_CASE(name, a, b) \
+#define TEST_DIB_MULTIPLICATION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_CLOSE(float(a * bigfloat(b)), a * b, FLOAT_TOLERANCE); \
+        BOOST_REQUIRE_CLOSE(double(a * bigfloat(b)), a * b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_FBB_MULTIPLICATION_CASE(name, a, b) \
+#define TEST_DBB_MULTIPLICATION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_CLOSE(float(bigfloat(b) * bigfloat(b)), a * b, FLOAT_TOLERANCE); \
+        BOOST_REQUIRE_CLOSE(double(bigfloat(b) * bigfloat(b)), a * b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_F_DIVISION_CASE(name, a, b) \
+#define TEST_D_DIVISION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_CLOSE(float(bigfloat(a) / bigfloat(b)), a / b, FLOAT_TOLERANCE); \
+        BOOST_REQUIRE_CLOSE(double(bigfloat(a) / bigfloat(b)), a / b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_CONVERSION_CASE(name, type, x) BOOST_AUTO_TEST_CASE(name) { BOOST_REQUIRE_EQUAL(type(bigfloat(x)), x); }
+#define TEST_D_CONVERSION_CASE(name, x) BOOST_AUTO_TEST_CASE(name) { BOOST_REQUIRE_EQUAL(double(bigfloat(x)), x); }
 
 
 using namespace std;
 
 
-
 BOOST_AUTO_TEST_SUITE(bigfloat_conversion)
-    TEST_CONVERSION_CASE(dbd1, double, 0.5);
-    TEST_CONVERSION_CASE(dbd2, double, 0.324578);
-    TEST_CONVERSION_CASE(dbd3, double, 9.923478e8);
+    TEST_D_CONVERSION_CASE(dbd1, 0.5);
+    TEST_D_CONVERSION_CASE(dbd2, 0.324578);
+    TEST_D_CONVERSION_CASE(dbd3, 9.923478e8);
+    TEST_D_CONVERSION_CASE(dbd4, 9.71234971627894);
+    TEST_D_CONVERSION_CASE(dbd5, -813426678123);
+    TEST_D_CONVERSION_CASE(dbd6, 0.0);
 
-    TEST_CONVERSION_CASE(fbf1, float, 0.5f);
-    TEST_CONVERSION_CASE(fbf2, float, 0.324578f);
-    TEST_CONVERSION_CASE(fbf3, float, 9.923478e8f);
-
-    BOOST_AUTO_TEST_CASE(fb_construct_special) {
-        BOOST_REQUIRE_EQUAL(bigfloat(numeric_limits<float>::infinity()), bigfloat(0, 255, 0));
-        BOOST_REQUIRE_EQUAL(bigfloat(-numeric_limits<float>::infinity()), bigfloat(1, 255, 0));
+    BOOST_AUTO_TEST_CASE(db_construct_special) {
+        // TODO write this
+        // BOOST_REQUIRE_EQUAL(bigfloat(numeric_limits<double>::infinity()), bigfloat(0, 255, 0));
+        // BOOST_REQUIRE_EQUAL(bigfloat(-numeric_limits<double>::infinity()), bigfloat(1, 255, 0));
     }
 BOOST_AUTO_TEST_SUITE_END();
 
-BOOST_AUTO_TEST_SUITE(bigfloat_operands)
-    TEST_F_ADDITION_CASE(af1, 0.25f, 0.5f)
-    TEST_F_ADDITION_CASE(af2, 0.625f, 0.375f)
-    TEST_F_ADDITION_CASE(af3, 0.8f, 0.6f)
-    TEST_F_ADDITION_CASE(af4, 0.937498723478932789425f, 0.91267467283412345f)
-    TEST_F_ADDITION_CASE(af5, 9e-2f, 1.23e4f)
-    TEST_F_ADDITION_CASE(af_mp1, -1.0f, 2.0f)
-    TEST_F_ADDITION_CASE(af_mp2, -2.0f, 1.0f)
-    TEST_F_ADDITION_CASE(af_pm1, 2.0f, -1.0f)
-    TEST_F_ADDITION_CASE(af_pm3, -2.0f, 1.75f)
-    TEST_F_ADDITION_CASE(af8, -0.2f, -0.9f)
+BOOST_AUTO_TEST_SUITE(bigfloat_add_sub)
+    TEST_D_ADDITION_CASE(a1, 0.25, 0.5)
+    TEST_D_ADDITION_CASE(a2, 0.625, 0.375)
+    TEST_D_ADDITION_CASE(a3, 0.8, 0.6)
+    TEST_D_ADDITION_CASE(a4, 0.937498723478932789425, 0.91267467283412345)
+    TEST_D_ADDITION_CASE(a5, 9e-2, 1.23e4)
+    TEST_D_ADDITION_CASE(a_mp1, -1.f, 2.0)
+    TEST_D_ADDITION_CASE(a_mp2, -2.f, 1.0)
+    TEST_D_ADDITION_CASE(a_pm1, 2.0, -1.0)
+    TEST_D_ADDITION_CASE(a_pm3, -2.f, 1.75)
+    TEST_D_ADDITION_CASE(a8, -0.f, -0.9)
 
-    TEST_F_SUBTRACTION_CASE(sf1, 0.25f, 0.5f)
-    TEST_F_SUBTRACTION_CASE(sf2, 0.625f, 0.375f)
-    TEST_F_SUBTRACTION_CASE(sf3, 0.8f, 0.6f)
-    TEST_F_SUBTRACTION_CASE(sf4, 0.937498723478932789425f, 0.91267467283412345f)
-    TEST_F_SUBTRACTION_CASE(sf5, 9e-2f, 1.23e4f)
-    TEST_F_SUBTRACTION_CASE(sf_mp1, -1.0f, 2.0f)
-    TEST_F_SUBTRACTION_CASE(sf_mp2, -2.0f, 1.0f)
-    TEST_F_SUBTRACTION_CASE(sf_pm1, 2.0f, -1.0f)
-    TEST_F_SUBTRACTION_CASE(sf_pm3, -2.0f, 1.75f)
-    TEST_F_SUBTRACTION_CASE(sf8, -0.2f, -0.9f)
-
-    TEST_FBI_MULTIPLICATION_CASE(mbif1, 1321.0f, 3)
-    TEST_FBI_MULTIPLICATION_CASE(mbif2, 234.3f, -2341)
-    TEST_FBI_MULTIPLICATION_CASE(mbif3, 2434.0f, 0)
-    TEST_FBI_MULTIPLICATION_CASE(mbif4, 0.1323f, 27398)
-    TEST_FBI_MULTIPLICATION_CASE(mbif5, 2332e-5f, 3)
-    TEST_FIB_MULTIPLICATION_CASE(mibf1, 3, 1321.0f)
-    TEST_FIB_MULTIPLICATION_CASE(mibf2, -2341, 234.3f)
-    TEST_FIB_MULTIPLICATION_CASE(mibf3, 0, 2434.0f)
-    TEST_FIB_MULTIPLICATION_CASE(mibf4, 27398, 0.1323f)
-    TEST_FIB_MULTIPLICATION_CASE(mibf5, 3, 2332e-5f)
-
-    TEST_FBB_MULTIPLICATION_CASE(mfbb0, 1.0f, 3.0f)
-    TEST_FBB_MULTIPLICATION_CASE(mfbb1, 1321.0f, 3.34f)
-    TEST_FBB_MULTIPLICATION_CASE(mfbb2, 234.3f, -234.123f)
-    TEST_FBB_MULTIPLICATION_CASE(mfbb3, 2434.0f, 0.0f)
-    TEST_FBB_MULTIPLICATION_CASE(mfbb4, 0.1323f, 2739.8f)
-    TEST_FBB_MULTIPLICATION_CASE(mfbb5, 2332e-5f, 3.32f)
+    TEST_D_SUBTRACTION_CASE(s1, 0.25, 0.5)
+    TEST_D_SUBTRACTION_CASE(s2, 0.625, 0.375)
+    TEST_D_SUBTRACTION_CASE(s3, 0.8, 0.6)
+    TEST_D_SUBTRACTION_CASE(s4, 0.937498723478932789425, 0.91267467283412345)
+    TEST_D_SUBTRACTION_CASE(s5, 9e-2, 1.23e4)
+    TEST_D_SUBTRACTION_CASE(s_mp1, -1.0, 2.0)
+    TEST_D_SUBTRACTION_CASE(s_mp2, -2.0, 1.0)
+    TEST_D_SUBTRACTION_CASE(s_pm1, 2.0, -1.0)
+    TEST_D_SUBTRACTION_CASE(s_pm3, -2.0, 1.75)
+    TEST_D_SUBTRACTION_CASE(s8, -0.2, -0.9)
 BOOST_AUTO_TEST_SUITE_END();
 
+BOOST_AUTO_TEST_SUITE(bigfloat_mul)
+    TEST_DBI_MULTIPLICATION_CASE(mbi1, 1321.0, 3)
+    TEST_DBI_MULTIPLICATION_CASE(mbi2, 234.3, -2341)
+    TEST_DBI_MULTIPLICATION_CASE(mbi3, 2434.0, 0)
+    TEST_DBI_MULTIPLICATION_CASE(mbi4, 0.1323, 27398)
+    TEST_DBI_MULTIPLICATION_CASE(mbi5, 2332e-5, 3)
+    TEST_DIB_MULTIPLICATION_CASE(mib1, 3, 1321.0)
+    TEST_DIB_MULTIPLICATION_CASE(mib2, -2341, 234.3)
+    TEST_DIB_MULTIPLICATION_CASE(mib3, 0, 2434.0)
+    TEST_DIB_MULTIPLICATION_CASE(mib4, 27398, 0.1323)
+    TEST_DIB_MULTIPLICATION_CASE(mib5, 3, 2332e-5)
+
+    TEST_DBB_MULTIPLICATION_CASE(mbb0, 1.0, 3.0)
+    TEST_DBB_MULTIPLICATION_CASE(mbb1, 1321.0, 3.34)
+    TEST_DBB_MULTIPLICATION_CASE(mbb2, 234.3, -234.123)
+    TEST_DBB_MULTIPLICATION_CASE(mbb3, 2434.0, 0.0)
+    TEST_DBB_MULTIPLICATION_CASE(mbb4, 0.1323, 2739.8)
+    TEST_DBB_MULTIPLICATION_CASE(mbb5, 2332e-5, 3.32)
+BOOST_AUTO_TEST_SUITE_END();
 
 #pragma clang diagnostic pop
