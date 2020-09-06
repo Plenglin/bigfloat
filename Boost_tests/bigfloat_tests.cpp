@@ -13,24 +13,27 @@
 #include <limits>
 
 
-#define TEST_ADDITION_CASE(name, type, a, b) \
+#define FLOAT_TOLERANCE 0.0001
+#define DOUBLE_TOLERANCE 0.0001
+
+#define TEST_F_ADDITION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_EQUAL(type(bigfloat(a) + bigfloat(b)), a + b); \
+        BOOST_REQUIRE_CLOSE(float(bigfloat(a) + bigfloat(b)), a + b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_SUBTRACTION_CASE(name, type, a, b) \
+#define TEST_F_SUBTRACTION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_EQUAL(type(bigfloat(a) - bigfloat(b)), a - b); \
+        BOOST_REQUIRE_CLOSE(float(bigfloat(a) - bigfloat(b)), a - b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_MULTIPLICATION_CASE(name, type, a, b) \
+#define TEST_F_MULTIPLICATION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_EQUAL(type(bigfloat(a) * bigfloat(b)), a * b); \
+        BOOST_REQUIRE_CLOSE(float(bigfloat(a) * bigfloat(b)), a * b, FLOAT_TOLERANCE); \
     }
 
-#define TEST_DIVISION_CASE(name, type, a, b) \
+#define TEST_F_DIVISION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
-        BOOST_REQUIRE_EQUAL(type(bigfloat(a) / bigfloat(b)), a / b); \
+        BOOST_REQUIRE_CLOSE(float(bigfloat(a) / bigfloat(b)), a / b, FLOAT_TOLERANCE); \
     }
 
 #define TEST_CONVERSION_CASE(name, type, x) BOOST_AUTO_TEST_CASE(name) { BOOST_REQUIRE_EQUAL(type(bigfloat(x)), x); }
@@ -55,11 +58,11 @@ BOOST_AUTO_TEST_SUITE(bigfloat_conversion)
     }
 BOOST_AUTO_TEST_SUITE_END();
 
-BOOST_AUTO_TEST_SUITE(bigfloat_addition)
-    TEST_ADDITION_CASE(af1, float, 0.25f, 0.5f)
-    TEST_ADDITION_CASE(af2, float, 0.625f, 0.375f)
-    TEST_ADDITION_CASE(af3, float, 0.8f, 0.6f)
-    TEST_ADDITION_CASE(af4, float, 0.937498723478932789425f, 0.91267467283412345f)
+BOOST_AUTO_TEST_SUITE(bigfloat_operands)
+    TEST_F_ADDITION_CASE(af1, 0.25f, 0.5f)
+    TEST_F_ADDITION_CASE(af2, 0.625f, 0.375f)
+    TEST_F_ADDITION_CASE(af3, 0.8f, 0.6f)
+    TEST_F_ADDITION_CASE(af4, 0.937498723478932789425f, 0.91267467283412345f)
 BOOST_AUTO_TEST_SUITE_END();
 
 
