@@ -53,31 +53,38 @@ template <bool subtract, bool sa>
 inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb) {
     int shift = exa - exb;
 
-    // Are we subtracting?
+    // Shift to align decimal points
+    mtb >>= shift;
+
+    // Invert if subtracting
     if (subtract) {
         mtb = -mtb;
     }
-
-    // Shift to align decimal points
-    mtb >>= shift;
 
     // Perform addition
     unsigned long mto = mta + mtb;
 
     // Overflow handling
-    unsigned char exo = exa;
+    bool carry = mto < mta;
     if (subtract) {
-        // Subtracting and underflow
+        if (carry) {
+            int leading_zeros = __builtin_clzl(mto);
+            mto <<= leading_zeros;
+            unsigned char exo = exa - leading_zeros;
+
+            return bigfloat(sa, exo, mto);
+        }
         mto = -mto;
+
+        int leading_zeros = __builtin_clzl(mto);
+        unsigned char exo = exa - leading_zeros;
+        return bigfloat(sa, exo, mto);
     } else {
-        // Adding and overflow
-        bool carry = mto < mta;
-        exo += carry;
+        unsigned char exo = exa + carry;
         mto >>= carry;
         mto |= (1UL << 63);
+        return bigfloat(sa, exo, mto);
     }
-
-    return bigfloat(sa, exo, mto);
 }
 
 template <bool addition>
