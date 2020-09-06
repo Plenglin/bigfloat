@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Verification
 
 on: [push]
 
@@ -35,3 +35,11 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: ctest -C $BUILD_TYPE
+
+    - name: Store benchmark result
+      uses: rhysd/github-action-benchmark@v1
+      with:
+        tool: 'googlecpp'
+        output-file-path: output.txt
+        gh-pages-branch: gh-pages
+        fail-on-alert: true
