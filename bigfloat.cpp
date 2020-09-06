@@ -73,11 +73,11 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
         // Adding and overflow
         bool carry = mto < mta;
         exo += carry;
-        mto &= ((unsigned long)(-1) >> carry);
         mto >>= carry;
+        mto |= (1UL << 63);
     }
 
-    return bigfloat(false, exo, mto);
+    return bigfloat(sa, exo, mto);
 }
 
 template <bool addition>
