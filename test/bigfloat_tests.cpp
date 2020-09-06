@@ -11,6 +11,7 @@
 #include <boost/test/unit_test.hpp>
 #include "../bigfloat.hpp"
 #include <limits>
+#include <cmath>
 
 
 #define FLOAT_TOLERANCE 1e-4
@@ -92,13 +93,22 @@ BOOST_AUTO_TEST_SUITE(bigfloat_mul)
 BOOST_AUTO_TEST_SUITE_END();
 
 BOOST_AUTO_TEST_SUITE(bigfloat_div)
-    TEST_D_DIVISION_CASE(mbb0, 1.0, 2.0)
-    TEST_D_DIVISION_CASE(mbb1, 1.0, 3.0)
-    TEST_D_DIVISION_CASE(mbb2, 1321.0, 3.34)
-    TEST_D_DIVISION_CASE(mbb3, 234.3, -234.123)
-    TEST_D_DIVISION_CASE(mbb4, 2434.0, 0.0)
-    TEST_D_DIVISION_CASE(mbb5, 0.1323, 2739.8)
-    TEST_D_DIVISION_CASE(mbb6, 2332e-5, 3.32)
+    TEST_D_DIVISION_CASE(dbb0, 1.0, 2.0)
+    TEST_D_DIVISION_CASE(dbb1, 1.0, 3.0)
+    TEST_D_DIVISION_CASE(dbb2, 1321.0, 3.34)
+    TEST_D_DIVISION_CASE(dbb3, 234.3, -234.123)
+    TEST_D_DIVISION_CASE(dbb5, 0.1323, 2739.8)
+    TEST_D_DIVISION_CASE(dbb6, 2332e-5, 3.32)
+
+    BOOST_AUTO_TEST_CASE(dbz) {
+        BOOST_REQUIRE_EQUAL(double(bigfloat(2349.23) / bigfloat(0)), 2349.23 / 0.0);
+    }
+    BOOST_AUTO_TEST_CASE(dzb) {
+        BOOST_REQUIRE_EQUAL(double(bigfloat(0) / bigfloat(2349.23)), 0.0 / 2349.23);
+    }
+    BOOST_AUTO_TEST_CASE(dzz) {
+        BOOST_REQUIRE(std::isnan(double(bigfloat(0) / bigfloat(0))));
+    }
 BOOST_AUTO_TEST_SUITE_END();
 
 #pragma clang diagnostic pop

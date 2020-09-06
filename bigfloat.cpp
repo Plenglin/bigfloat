@@ -67,6 +67,10 @@ bigfloat::operator bigfloat_packed() const {
 }
 
 bigfloat::operator double() const {
+    if (is_nan()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
     ieee754_double d;
     d.mantissa = static_cast<unsigned long>(mantissa >> 11);
     d.exponent = static_cast<unsigned short>(exponent);
@@ -75,8 +79,8 @@ bigfloat::operator double() const {
 }
 
 // Adds a and b, assuming that a's exponent > b's exponent. We're using this complicated
-// template system to hopefully make the compiler compile away the flags so we only have to do a single check
-// at the beginning, minimizing branches.
+// template system to make the compiler compile away the flags so we only have to do a
+// single big jump table at the beginning, minimizing branches.
 template <bool adding>
 inline bigfloat add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned long mtb) {
     // Shift to align decimal points
@@ -187,7 +191,7 @@ bigfloat bigfloat::operator*(const bigfloat &other) const {
     return mult_impl(sign, exponent, mantissa, other.sign, other.exponent, other.mantissa);
 }
 
-inline bigfloat div_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+inline bigfloat div_impl(bool sign, int exa, unsigned long mta, int exb, unsigned long mtb) {
     // Divide mantissas
     unsigned __int128 result = ((unsigned __int128)mta << 64) / (unsigned __int128)mtb;
 
@@ -213,14 +217,23 @@ inline bigfloat div_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, 
         exo += -leading_zeros + 1022;  // bias + 1 - 64
     }
 
-    return bigfloat(sa ^ sb, exo, mto);
+    return bigfloat(sign, exo, mto);
 }
 
 bigfloat bigfloat::operator/(const bigfloat &other) const {
-    if (is_zero() || other.is_zero()) {
-        return bigfloat(sign ^ other.sign, 0, 0);
+    bool so = sign ^ other.sign;
+    int zero = (is_zero() << 1) | other.is_zero();
+    switch (zero) {
+        case 0b00:  // x / y
+            return div_impl(so, exponent, mantissa, other.exponent, other.mantissa);
+        case 0b10:  // 0 / y
+            return bigfloat(so, 0, 0);  // signed zero
+        case 0b01:  // x / 0
+            return bigfloat::inf(so);
+        case 0b11:  // 0 / 0
+            return bigfloat::nan(!so);
     }
-    return div_impl(sign, exponent, mantissa, other.sign, other.exponent, other.mantissa);
+    return bigfloat();
 }
 
 bool bigfloat::operator==(const bigfloat &other) const {
@@ -231,13 +244,29 @@ bigfloat bigfloat::operator-() const {
     return bigfloat(!sign, mantissa, exponent);
 }
 
+bigfloat bigfloat::operator+() const {
+    return *this;
+}
+
 void bigfloat::to_mpfr(mpfr_t rop) {
     mpfr_init2(rop, 63);
     mpfr_set_ui_2exp(rop, mantissa, exponent, MPFR_RNDD);
 }
 
-inline bool bigfloat::is_zero() const {
+bool bigfloat::is_zero() const {
     return !(mantissa || exponent);
+}
+
+bool bigfloat::is_nan() const {
+    return exponent == (unsigned short)-1 && mantissa;
+}
+
+bigfloat bigfloat::inf(bool sign) {
+    return bigfloat(sign, -1, 0);
+}
+
+bigfloat bigfloat::nan(bool sign) {
+    return bigfloat(sign, -1, 1);
 }
 
 std::ostream &operator<<(std::ostream &os, bigfloat x) {

@@ -37,7 +37,8 @@ struct bigfloat {
     explicit operator bigfloat_packed() const;
     void to_mpfr(mpfr_t rop);
 
-    bigfloat operator -() const;
+    inline bigfloat operator -() const;
+    inline bigfloat operator +() const;
 
     bigfloat operator +(const bigfloat &other) const;
     bigfloat operator +=(const bigfloat &other);
@@ -46,8 +47,12 @@ struct bigfloat {
     bigfloat operator /(const bigfloat &other) const;
 
     inline bool is_zero() const;
+    inline bool is_nan() const;
 
     bool operator ==(const bigfloat &other) const;
+
+    inline static bigfloat inf(bool sign);
+    inline static bigfloat nan(bool sign);
 };
 
 std::ostream& operator <<(std::ostream &os, bigfloat x);
