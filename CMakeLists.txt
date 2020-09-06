@@ -10,4 +10,4 @@ add_subdirectory(benchmark)
 
 add_subdirectory(test)
 enable_testing()
-add_test(NAME test1 COMMAND test)
+add_test(NAME bigfloat_tests COMMAND run_tests)
