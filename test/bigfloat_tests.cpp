@@ -20,8 +20,7 @@ using namespace std;
 namespace data = boost::unit_test::data;
 namespace mono = data::monomorphic;
 
-#define FLOAT_TOLERANCE 1e-4
-#define DOUBLE_TOLERANCE 1e-8
+#define DOUBLE_TOLERANCE 1e-10
 
 BOOST_AUTO_TEST_SUITE(bigfloat_conversion)
     static const auto VALUES =
@@ -100,20 +99,20 @@ BOOST_AUTO_TEST_SUITE(bigfloat_ops)
                        });
 
     BOOST_DATA_TEST_CASE(add, PAIRS, a, b) {
-        BOOST_REQUIRE_CLOSE(double(bigfloat(a) + bigfloat(b)), a + b, FLOAT_TOLERANCE);
+        BOOST_REQUIRE_CLOSE(double(bigfloat(a) + bigfloat(b)), a + b, DOUBLE_TOLERANCE);
     }
     BOOST_DATA_TEST_CASE(sub, PAIRS, a, b) {
-        BOOST_REQUIRE_CLOSE(double(bigfloat(a) - bigfloat(b)), a - b, FLOAT_TOLERANCE);
+        BOOST_REQUIRE_CLOSE(double(bigfloat(a) - bigfloat(b)), a - b, DOUBLE_TOLERANCE);
     }
     BOOST_DATA_TEST_CASE(mul, PAIRS, a, b) {
-        BOOST_REQUIRE_CLOSE(double(bigfloat(a) * bigfloat(b)), a * b, FLOAT_TOLERANCE);
+        BOOST_REQUIRE_CLOSE(double(bigfloat(a) * bigfloat(b)), a * b, DOUBLE_TOLERANCE);
     }
     BOOST_AUTO_TEST_CASE(mul_x_zero_is_zero) {
         BOOST_REQUIRE_EQUAL(double(bigfloat(32.13) * bigfloat(0)), 0.0);
     }
 
     BOOST_DATA_TEST_CASE(div, PAIRS, a, b) {
-        BOOST_REQUIRE_CLOSE(double(bigfloat(a) / bigfloat(b)), a / b, FLOAT_TOLERANCE);
+        BOOST_REQUIRE_CLOSE(double(bigfloat(a) / bigfloat(b)), a / b, DOUBLE_TOLERANCE);
     }
 
     BOOST_AUTO_TEST_CASE(div_x_zero_is_inf) {
