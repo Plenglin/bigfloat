@@ -1,4 +1,4 @@
-# Bigfloat Library
+# Bigfloat Library ![Unit Tests](https://github.com/Plenglin/bigfloat/workflows/Unit%20Tests/badge.svg)
 
 High-performance, high-precision floating point library
 
