@@ -66,15 +66,15 @@ bigfloat::operator double() const {
 // Adds a and b, assuming that a's exponent > b's exponent. We're using this complicated
 // template system to hopefully make the compiler compile away the flags so we only have to do a single check
 // at the beginning, minimizing branches.
-template <bool subtract, bool sa>
-inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb) {
+template <bool adding>
+inline bigfloat add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned long mtb) {
     int shift = exa - exb;
 
     // Shift to align decimal points
     mtb >>= shift;
 
     // Invert if subtracting
-    if (subtract) {
+    if (!adding) {
         mtb = -mtb;
     }
 
@@ -82,7 +82,7 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
     unsigned long mto = mta + mtb;
 
     // Overflow handling
-    if (subtract) {
+    if (!adding) {
         int leading_zeros = __builtin_clzl(mto);
         mto <<= leading_zeros;
         unsigned short exo = exa - leading_zeros;
@@ -97,26 +97,32 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
     }
 }
 
-template <bool addition>
-inline bigfloat add_impl(const bigfloat a, const bigfloat b) {
-    if (a.sign) {
-        if (b.sign) {
-            return add_impl<!addition, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
-        }
-        return add_impl<addition, true>(a.mantissa, a.exponent, b.mantissa, b.exponent);
-    }
-    if (b.sign) {
-        return add_impl<addition, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
-    }
-    return add_impl<!addition, false>(a.mantissa, a.exponent, b.mantissa, b.exponent);
+inline bigfloat add_check_signs(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+    return sa != sb
+        ? add_impl<false>(sa, exa, mta, exb, mtb)
+        : add_impl<true>(sa, exa, mta, exb, mtb);
+}
+
+inline bigfloat add_sort_exponents(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+    return exa >= exb
+        ? add_check_signs(sa, exa, mta, sb, exb, mtb)
+        : add_check_signs(sb, exb, mtb, sa, exa, mta);
+}
+
+template <bool calling_addition>
+inline bigfloat add_normalize_signs(const bigfloat &a, const bigfloat &b) {
+    return add_sort_exponents(
+            a.sign,
+            a.exponent,
+            a.mantissa,
+            b.sign ^ !calling_addition,
+            b.exponent,
+            b.mantissa
+        );
 }
 
 bigfloat bigfloat::operator+(const bigfloat &other) const {
-    if (exponent < other.exponent) {
-        return add_impl<true>(other, *this);
-    } else {
-        return add_impl<true>(*this, other);
-    }
+    return add_normalize_signs<true>(*this, other);
 }
 
 bigfloat bigfloat::operator+=(const bigfloat &other) {
@@ -126,12 +132,8 @@ bigfloat bigfloat::operator+=(const bigfloat &other) {
     mantissa = result.mantissa;
 }
 
-bigfloat bigfloat::operator-(const bigfloat &other) {
-    if (exponent < other.exponent) {
-        return add_impl<false>(other, *this);
-    } else {
-        return add_impl<false>(*this, other);
-    }
+bigfloat bigfloat::operator-(const bigfloat &other) const {
+    return add_normalize_signs<false>(*this, other);
 }
 
 inline bigfloat mult_impl(bool s, int ex, unsigned long mt, int i) {
