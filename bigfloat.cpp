@@ -175,7 +175,7 @@ inline bigfloat mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb,
 
     // Normalize exponent and mantissa
     unsigned long mto = mul >> (64 - leading_zeros);
-    int exo = exa + exb - 1022 - leading_zeros;
+    int exo = exa + exb - leading_zeros - 1022;  // Bias - 1
 
     return bigfloat(sa ^ sb, exo, mto);
 }
@@ -189,20 +189,29 @@ bigfloat bigfloat::operator*(const bigfloat &other) const {
 
 inline bigfloat div_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
     // Divide mantissas
-    unsigned __int128 result = ((unsigned __int128)mta << 64) / ((unsigned __int128)mtb << 64);
+    unsigned __int128 result = ((unsigned __int128)mta << 64) / (unsigned __int128)mtb;
+
+    // Subtract exponents
+    int exo = exa - exb;
 
     // Extract leading zeros
     unsigned long result_upper = result >> 64;
-    int leading_zeros;
-    if (result_upper)
-        leading_zeros = __builtin_clzl(result_upper);
-    else
-        leading_zeros = 64 + __builtin_clzl((unsigned long) result);
+    unsigned long mto;
+    if (result_upper) {
+        // There is upper stuff
+        int leading_zeros = __builtin_clzl(result_upper);
+        mto = result >> (64 - leading_zeros);
 
-    // Normalize exponent and mantissa
-    unsigned long mto = result << (leading_zeros);
-    // Subtract exponents
-    int exo = exa - exb + (1024 - 128) + leading_zeros;  // bias - 1
+        // Subtract and normalize exponents
+        exo += leading_zeros + (1024 - 64);  // bias + 1 - 64
+    } else {
+        // There is no upper stuff
+        int leading_zeros = __builtin_clzl((unsigned long) result);
+        mto = result << leading_zeros;
+
+        // Subtract and normalize exponents
+        exo += -leading_zeros + 1022;  // bias + 1 - 64
+    }
 
     return bigfloat(sa ^ sb, exo, mto);
 }
