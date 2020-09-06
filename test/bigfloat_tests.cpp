@@ -23,27 +23,20 @@ namespace mono = data::monomorphic;
 #define FLOAT_TOLERANCE 1e-4
 #define DOUBLE_TOLERANCE 1e-8
 
-#define TEST_D_CONVERSION_CASE(name, x) \
-    BOOST_AUTO_TEST_CASE(name) {        \
-        BOOST_REQUIRE_EQUAL(double(bigfloat(x)), x); \
-    }
-
-#define TEST_D_BF2STR_CASE(name, x) \
-    BOOST_AUTO_TEST_CASE(name) { \
-        std::stringstream os1; \
-        os1 << bigfloat(x); \
-        std::stringstream os2; \
-        os2 << x; \
-        BOOST_REQUIRE_EQUAL(os1.str(), os2.str()); \
-    }
-
 BOOST_AUTO_TEST_SUITE(bigfloat_conversion)
-    TEST_D_CONVERSION_CASE(dbd1, 0.5);
-    TEST_D_CONVERSION_CASE(dbd2, 0.324578);
-    TEST_D_CONVERSION_CASE(dbd3, 9.923478e8);
-    TEST_D_CONVERSION_CASE(dbd4, 9.71234971627894);
-    TEST_D_CONVERSION_CASE(dbd5, -813426678123);
-    TEST_D_CONVERSION_CASE(dbd6, 0.0);
+    static const auto VALUES =
+        data::make({
+                           0.5,
+                           0.324578,
+                           9.923478e8,
+                           9.71234971627894,
+                           -81.3426678123,
+                           0.0
+        });
+
+    BOOST_DATA_TEST_CASE(double_to_bf_to_double_preserves_value, VALUES, x) {
+        BOOST_REQUIRE_EQUAL(double(bigfloat(x)), x);
+    }
 
     BOOST_AUTO_TEST_CASE(db_construct_special) {
         // TODO write this
@@ -52,10 +45,16 @@ BOOST_AUTO_TEST_SUITE(bigfloat_conversion)
     }
 BOOST_AUTO_TEST_SUITE_END();
 
+    /*
 BOOST_AUTO_TEST_SUITE(bigfloat_to_str)
-    TEST_D_BF2STR_CASE(b2s0, 0.5);
-BOOST_AUTO_TEST_SUITE_END();
-
+    BOOST_AUTO_TEST_CASE(name) { \
+        std::stringstream os1; \
+        os1 << bigfloat(x); \
+        std::stringstream os2; \
+        os2 << x; \
+        BOOST_REQUIRE_EQUAL(os1.str(), os2.str()); \
+    }
+BOOST_AUTO_TEST_SUITE_END();*/
 
 BOOST_AUTO_TEST_SUITE(bigfloat_ops)
     static const auto PAIRS =
