@@ -43,7 +43,7 @@ struct bigfloat {
     bigfloat operator +=(const bigfloat &other);
     bigfloat operator -(const bigfloat &other) const;
     bigfloat operator *(const bigfloat &other) const;
-    bigfloat operator /(const bigfloat &other);
+    bigfloat operator /(const bigfloat &other) const;
 
     inline bool is_zero() const;
 

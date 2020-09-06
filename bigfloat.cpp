@@ -67,11 +67,10 @@ bigfloat::operator bigfloat_packed() const {
 }
 
 bigfloat::operator double() const {
-    ieee754_double d = {
-        .mantissa = static_cast<unsigned long>(mantissa >> 11),
-        .exponent = static_cast<unsigned short>(exponent),
-        .sign = sign
-    };
+    ieee754_double d;
+    d.mantissa = static_cast<unsigned long>(mantissa >> 11);
+    d.exponent = static_cast<unsigned short>(exponent);
+    d.sign = sign;
     return d.value;
 }
 
@@ -167,9 +166,6 @@ bigfloat bigfloat::operator-(const bigfloat &other) const {
 }
 
 inline bigfloat mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
-    // Add exponents
-    int exo = exa + exb - 1022;  // bias - 1
-
     // Multiply mantissas
     unsigned __int128 mul = (unsigned __int128)mta * (unsigned __int128)mtb;
 
@@ -179,7 +175,7 @@ inline bigfloat mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb,
 
     // Normalize exponent and mantissa
     unsigned long mto = mul >> (64 - leading_zeros);
-    exo -= leading_zeros;
+    int exo = exa + exb - 1022 - leading_zeros;
 
     return bigfloat(sa ^ sb, exo, mto);
 }
@@ -191,9 +187,31 @@ bigfloat bigfloat::operator*(const bigfloat &other) const {
     return mult_impl(sign, exponent, mantissa, other.sign, other.exponent, other.mantissa);
 }
 
-bigfloat bigfloat::operator/(const bigfloat &other) {
-    bigfloat out;
-    return out;
+inline bigfloat div_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+    // Divide mantissas
+    unsigned __int128 result = ((unsigned __int128)mta << 64) / ((unsigned __int128)mtb << 64);
+
+    // Extract leading zeros
+    unsigned long result_upper = result >> 64;
+    int leading_zeros;
+    if (result_upper)
+        leading_zeros = __builtin_clzl(result_upper);
+    else
+        leading_zeros = 64 + __builtin_clzl((unsigned long) result);
+
+    // Normalize exponent and mantissa
+    unsigned long mto = result << (leading_zeros);
+    // Subtract exponents
+    int exo = exa - exb + (1024 - 128) + leading_zeros;  // bias - 1
+
+    return bigfloat(sa ^ sb, exo, mto);
+}
+
+bigfloat bigfloat::operator/(const bigfloat &other) const {
+    if (is_zero() || other.is_zero()) {
+        return bigfloat(sign ^ other.sign, 0, 0);
+    }
+    return div_impl(sign, exponent, mantissa, other.sign, other.exponent, other.mantissa);
 }
 
 bool bigfloat::operator==(const bigfloat &other) const {
