@@ -65,21 +65,14 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
     unsigned long mto = mta + mtb;
 
     // Overflow handling
-    bool carry = mto < mta;
     if (subtract) {
-        if (carry) {
-            int leading_zeros = __builtin_clzl(mto);
-            mto <<= leading_zeros;
-            unsigned char exo = exa - leading_zeros;
-
-            return bigfloat(sa, exo, mto);
-        }
-        mto = -mto;
-
         int leading_zeros = __builtin_clzl(mto);
+        mto <<= leading_zeros;
         unsigned char exo = exa - leading_zeros;
+
         return bigfloat(sa, exo, mto);
     } else {
+        bool carry = mto < mta;
         unsigned char exo = exa + carry;
         mto >>= carry;
         mto |= (1UL << 63);
