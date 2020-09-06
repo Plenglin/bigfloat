@@ -6,7 +6,7 @@
 #include <immintrin.h>
 #include <xmmintrin.h>
 
-typedef union {
+union ieee754_float {
     float value;
     unsigned int bits;
     struct {
@@ -14,9 +14,9 @@ typedef union {
         unsigned short exponent : 8;
         bool sign : 1;
     };
-} ieee754_float;
+};
 
-typedef union {
+union ieee754_double {
     double value;
     unsigned long bits;
     struct {
@@ -24,7 +24,7 @@ typedef union {
         unsigned short exponent : 11;
         bool sign : 1;
     };
-} ieee754_double;
+};
 
 bigfloat::bigfloat() : sign(false), mantissa(0), exponent(0) {
 
@@ -50,6 +50,20 @@ bigfloat::bigfloat(double x) {
 
 bigfloat::bigfloat(std::string x) {
 
+}
+
+bigfloat::bigfloat(bigfloat_packed x) {
+    sign = x.sign;
+    mantissa = x.mantissa;
+    exponent = x.exponent;
+}
+
+bigfloat::operator bigfloat_packed() const {
+    return bigfloat_packed{
+        .mantissa = mantissa,
+        .sign = sign,
+        .exponent = exponent,
+    };
 }
 
 bigfloat::operator float() const {

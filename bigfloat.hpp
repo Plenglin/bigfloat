@@ -12,6 +12,12 @@
 
 #include "ostream"
 
+// A packed software-based floating point number object.
+struct bigfloat_packed {
+    unsigned long mantissa : 63;
+    bool sign : 1;
+    unsigned short exponent;
+};
 
 // A software-based floating point number object.
 struct bigfloat {
@@ -23,11 +29,13 @@ struct bigfloat {
 
     bigfloat();
     bigfloat(bool sign, unsigned short exponent, unsigned long mantissa);
+    explicit bigfloat(bigfloat_packed x);
     explicit bigfloat(double x);
     bigfloat(std::string x);
 
     explicit operator float() const;
     explicit operator double() const;
+    explicit operator bigfloat_packed() const;
     void to_mpfr(mpfr_t rop);
 
     bigfloat operator -() const;
