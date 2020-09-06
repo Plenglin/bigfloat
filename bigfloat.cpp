@@ -117,21 +117,26 @@ bigfloat bigfloat::operator-(const bigfloat &other) {
     }
 }
 
-inline bigfloat mult_impl(bool sign, int exponent, unsigned long mantissa, int i) {
+inline bigfloat mult_impl(bool s, int ex, unsigned long mt, int i) {
     bool i_sign = (i < 0);
-    sign ^= i_sign;
+    s ^= i_sign;
     i = i_sign ? -i : i;
 
     bigfloat acc;
     while (i > 0) {
         if (i & 1) {
-            acc += bigfloat(sign, exponent, mantissa);
+            acc += bigfloat(s, ex, mt);
         }
-        exponent++;
+        ex++;
         i >>= 1;
     }
 
     return acc;
+}
+
+inline bigfloat mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+
+    return bigfloat();
 }
 
 bigfloat operator*(const bigfloat &bf, const int &i) {
@@ -143,8 +148,7 @@ bigfloat operator*(const int &i, const bigfloat &bf) {
 }
 
 bigfloat bigfloat::operator*(const bigfloat &other) {
-    bigfloat out;
-    return out;
+    return mult_impl(sign, exponent, mantissa, other.sign, other.exponent, other.mantissa);
 }
 
 bigfloat bigfloat::operator/(const bigfloat &other) {

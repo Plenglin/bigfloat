@@ -36,6 +36,11 @@
         BOOST_REQUIRE_CLOSE(float(a * bigfloat(b)), a * b, FLOAT_TOLERANCE); \
     }
 
+#define TEST_FBB_MULTIPLICATION_CASE(name, a, b) \
+    BOOST_AUTO_TEST_CASE(name) { \
+        BOOST_REQUIRE_CLOSE(float(bigfloat(b) * bigfloat(b)), a * b, FLOAT_TOLERANCE); \
+    }
+
 #define TEST_F_DIVISION_CASE(name, a, b) \
     BOOST_AUTO_TEST_CASE(name) { \
         BOOST_REQUIRE_CLOSE(float(bigfloat(a) / bigfloat(b)), a / b, FLOAT_TOLERANCE); \
@@ -96,6 +101,13 @@ BOOST_AUTO_TEST_SUITE(bigfloat_operands)
     TEST_FIB_MULTIPLICATION_CASE(mibf3, 0, 2434.0f)
     TEST_FIB_MULTIPLICATION_CASE(mibf4, 27398, 0.1323f)
     TEST_FIB_MULTIPLICATION_CASE(mibf5, 3, 2332e-5f)
+
+    TEST_FBB_MULTIPLICATION_CASE(mfbb0, 1.0f, 3.0f)
+    TEST_FBB_MULTIPLICATION_CASE(mfbb1, 1321.0f, 3.34f)
+    TEST_FBB_MULTIPLICATION_CASE(mfbb2, 234.3f, -234.123f)
+    TEST_FBB_MULTIPLICATION_CASE(mfbb3, 2434.0f, 0.0f)
+    TEST_FBB_MULTIPLICATION_CASE(mfbb4, 0.1323f, 2739.8f)
+    TEST_FBB_MULTIPLICATION_CASE(mfbb5, 2332e-5f, 3.32f)
 BOOST_AUTO_TEST_SUITE_END();
 
 
