@@ -69,13 +69,13 @@ inline bigfloat add_impl(unsigned long mta, int exa, unsigned long mtb, int exb)
     if (subtract) {
         // Subtracting and underflow
         mto = -mto;
-    } else if (mto < mta) {
+    } else {
         // Adding and overflow
-        exo++;
-        mto &= ((unsigned long)(-1) >> 1);
-        mto >>= 1;
+        bool carry = mto < mta;
+        exo += carry;
+        mto &= ((unsigned long)(-1) >> carry);
+        mto >>= carry;
     }
-
 
     return bigfloat(false, exo, mto);
 }
