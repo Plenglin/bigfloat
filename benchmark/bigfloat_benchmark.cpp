@@ -5,10 +5,16 @@
 
 using namespace bigfloat;
 
+const static double as[] = {98127, 0.9123478, 9.923645, -2.834679, 1.134598, -98245.932458};
+const static double bs[] = {1.1243e8, 84123.120734, -982314.238, -192, 9182.1234, 891.23456};
+
+const static int count = sizeof(as) / sizeof(double);
+
 static void bigfloat_addition(benchmark::State& state) {
+    int i = 0;
     for (auto _ : state) {
-        bf a(32.31);
-        bf b(831.1329);
+        bf a(as[i % count]);
+        bf b(bs[i++ % count]);
         volatile auto c = a + b;
     }
 }
@@ -32,9 +38,10 @@ static void bigfloat_construction(benchmark::State& state) {
 BENCHMARK(bigfloat_construction);
 
 static void bigfloat_multiplication(benchmark::State& state) {
+    int i = 0;
     for (auto _ : state) {
-        bf a(32.31);
-        bf b(831.1329);
+        bf a(as[i % count]);
+        bf b(bs[i++ % count]);
         volatile auto c = a * b;
     }
 }
@@ -50,9 +57,10 @@ static void double_multiplication(benchmark::State& state) {
 BENCHMARK(double_multiplication);
 
 static void bigfloat_division(benchmark::State& state) {
+    int i = 0;
     for (auto _ : state) {
-        bf a(32.31);
-        bf b(831.1329);
+        bf a(as[i % count]);
+        bf b(bs[i++ % count]);
         volatile auto c = a / b;
     }
 }

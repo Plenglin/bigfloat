@@ -97,31 +97,35 @@ inline bf add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned long m
     // Perform addition
     unsigned long mto = mta + mtb;
 
-    // Overflow handling
-    unsigned short exo = exa;
     if (!adding) {
         int leading_zeros = __builtin_clzl(mto);
         mto <<= leading_zeros;
+        unsigned short exo = exa;
         exo -= leading_zeros;
-    } else if (mto < mta) {
-        exo++;
-        mto >>= 1;
-        mto |= (1UL << 63);
+        return bf(sa, exo, mto);
     }
+
+    // Overflow handling
+    bool flag = mto < mta;
+
+    unsigned short exo = exa + flag;
+    mto >>= flag;
+    mto |= ((unsigned long)flag << 63);
     return bf(sa, exo, mto);
 }
 
-#define FLAG_ADDITION 4
 #define FLAG_A_GTE_B 2
 #define FLAG_DIFF_SIGNS 1
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-multiway-paths-covered"
 template <bool calling_addition>
 inline bf norm_sort_signs_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
-    // Doing it with a switch statement shaves off about 7ns
-    int flags = (sa != sb) | ((exa >= exb) << 1);
+    const int flags = (sa != sb) | ((exa >= exb) << 1);
 
+    // Doing it with a switch statement shaves off a Very Good (tm) amount of time.
     // Take your 2 values, a and b. Apply the following operations to them in this order:
-    // 1. If we're not calling addition, we are performing subtraction. Invert the sign of b.
+    // 1. If we're not calling addition, we are performing subtraction, so invert the sign of b.
     // 2. If a < b, swap their values. (The greater one must be on the left side.)
     // 3. If a's sign != b's sign, then we're performing true subtraction. Otherwise, we're performing true addition.
     if (calling_addition) {
@@ -149,6 +153,7 @@ inline bf norm_sort_signs_impl(bool sa, int exa, unsigned long mta, bool sb, int
     }
     throw std::exception();
 }
+#pragma clang diagnostic pop
 
 template <bool calling_addition>
 inline bf add_impl_deconstruct(const bf &a, const bf &b) {
@@ -204,43 +209,38 @@ inline bf div_impl(bool sign, int exa, unsigned long mta, int exb, unsigned long
     // Divide mantissas
     unsigned __int128 result = ((unsigned __int128)mta << 64) / (unsigned __int128)mtb;
 
-    // Subtract exponents
-    int exo = exa - exb;
-
     // Extract leading zeros
     unsigned long result_upper = result >> 64;
-    unsigned long mto;
     if (result_upper) {
         // There is upper stuff
         int leading_zeros = __builtin_clzl(result_upper);
-        mto = result >> (64 - leading_zeros);
+        unsigned long mto = result >> (64 - leading_zeros);
 
         // Subtract and normalize exponents
-        exo += leading_zeros + (1024 - 64);  // bias + 1 - 64
+        const auto exo = exa - exb + leading_zeros + (1024 - 64);  // bias + 1 - 64
+        return bf(sign, exo, mto);
     } else {
         // There is no upper stuff
         int leading_zeros = __builtin_clzl((unsigned long) result);
-        mto = result << leading_zeros;
+        unsigned long mto = result << leading_zeros;
 
         // Subtract and normalize exponents
-        exo += -leading_zeros + 1022;  // bias + 1 - 64
+        const auto exo = exa - exb + -leading_zeros + 1022;  // bias + 1 - 64
+        return bf(sign, exo, mto);
     }
-
-    return bf(sign, exo, mto);
 }
 
 bf bf::operator/(const bf &other) const {
-    bool so = sign ^ other.sign;
     int zero = (is_zero() << 1) | other.is_zero();
     switch (zero) {
         case 0b00:  // x / y
-            return div_impl(so, exponent, mantissa, other.exponent, other.mantissa);
+            return div_impl(sign ^ other.sign, exponent, mantissa, other.exponent, other.mantissa);
         case 0b10:  // 0 / y
-            return bf(so, 0, 0);  // signed zero
+            return bf(sign ^ other.sign, 0, 0);  // signed zero
         case 0b01:  // x / 0
-            return bf::inf(so);
+            return bf::inf(sign ^ other.sign);
         case 0b11:  // 0 / 0
-            return bf::nan(!so);
+            return bf::nan(!sign ^ other.sign);
     }
     return bf();
 }
