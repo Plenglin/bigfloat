@@ -2,10 +2,12 @@
 // Created by astrid on 8/18/20.
 //
 
-#include "bigfloat.hpp"
+#include "bf.hpp"
 #include <immintrin.h>
 #include <xmmintrin.h>
 #include <vector>
+
+using namespace bigfloat;
 
 union ieee754_float {
     float value;
@@ -27,17 +29,17 @@ union ieee754_double {
     };
 };
 
-bigfloat::bigfloat() : sign(false), mantissa(0), exponent(0) {
+bf::bf() : sign(false), mantissa(0), exponent(0) {
 
 }
 
-bigfloat::bigfloat(bool sign, unsigned short exponent, unsigned long mantissa) :
+bf::bf(bool sign, unsigned short exponent, unsigned long mantissa) :
         sign(sign),
         mantissa(mantissa),
         exponent(exponent)
 { }
 
-bigfloat::bigfloat(double x) {
+bf::bf(double x) {
     ieee754_double d = {.value = x};
     sign = d.sign;
     if (x == 0.0 || x == -0.0) {
@@ -49,25 +51,25 @@ bigfloat::bigfloat(double x) {
     }
 }
 
-bigfloat::bigfloat(std::string x) {
+bf::bf(std::string x) {
 
 }
 
-bigfloat::bigfloat(bigfloat_packed x) {
+bf::bf(bf_packed x) {
     sign = x.sign;
     mantissa = x.mantissa;
     exponent = x.exponent;
 }
 
-bigfloat::operator bigfloat_packed() const {
-    return bigfloat_packed{
+bf::operator bf_packed() const {
+    return bf_packed{
         .mantissa = mantissa,
         .sign = sign,
         .exponent = exponent,
     };
 }
 
-bigfloat::operator double() const {
+bf::operator double() const {
     if (is_nan()) {
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -83,7 +85,7 @@ bigfloat::operator double() const {
 // template system to make the compiler compile away the flags so we only have to do a
 // single big jump table at the beginning, minimizing branches.
 template <bool adding>
-inline bigfloat add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned long mtb) {
+inline bf add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned long mtb) {
     // Shift to align decimal points
     mtb >>= exa - exb;
 
@@ -106,7 +108,7 @@ inline bigfloat add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned 
         mto >>= 1;
         mto |= (1UL << 63);
     }
-    return bigfloat(sa, exo, mto);
+    return bf(sa, exo, mto);
 }
 
 #define FLAG_ADDITION 4
@@ -114,7 +116,7 @@ inline bigfloat add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned 
 #define FLAG_DIFF_SIGNS 1
 
 template <bool calling_addition>
-inline bigfloat norm_sort_signs_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+inline bf norm_sort_signs_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
     // Doing it with a switch statement shaves off about 7ns
     int flags = (sa != sb) | ((exa >= exb) << 1);
 
@@ -149,7 +151,7 @@ inline bigfloat norm_sort_signs_impl(bool sa, int exa, unsigned long mta, bool s
 }
 
 template <bool calling_addition>
-inline bigfloat add_impl_deconstruct(const bigfloat &a, const bigfloat &b) {
+inline bf add_impl_deconstruct(const bf &a, const bf &b) {
     return norm_sort_signs_impl<calling_addition>(
             a.sign,
             a.exponent,
@@ -160,22 +162,22 @@ inline bigfloat add_impl_deconstruct(const bigfloat &a, const bigfloat &b) {
     );
 }
 
-bigfloat bigfloat::operator+(const bigfloat &other) const {
+bf bf::operator+(const bf &other) const {
     return add_impl_deconstruct<true>(*this, other);
 }
 
-bigfloat bigfloat::operator+=(const bigfloat &other) {
-    bigfloat result = *this + other;
+bf bf::operator+=(const bf &other) {
+    bf result = *this + other;
     sign = result.sign;
     exponent = result.exponent;
     mantissa = result.mantissa;
 }
 
-bigfloat bigfloat::operator-(const bigfloat &other) const {
+bf bf::operator-(const bf &other) const {
     return add_impl_deconstruct<false>(*this, other);
 }
 
-inline bigfloat mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+inline bf mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
     // Multiply mantissas
     unsigned __int128 mul = (unsigned __int128)mta * (unsigned __int128)mtb;
 
@@ -187,17 +189,17 @@ inline bigfloat mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb,
     unsigned long mto = mul >> (64 - leading_zeros);
     int exo = exa + exb - leading_zeros - 1022;  // Bias - 1
 
-    return bigfloat(sa ^ sb, exo, mto);
+    return bf(sa ^ sb, exo, mto);
 }
 
-bigfloat bigfloat::operator*(const bigfloat &other) const {
+bf bf::operator*(const bf &other) const {
     if (is_zero() || other.is_zero()) {
-        return bigfloat(sign ^ other.sign, 0, 0);
+        return bf(sign ^ other.sign, 0, 0);
     }
     return mult_impl(sign, exponent, mantissa, other.sign, other.exponent, other.mantissa);
 }
 
-inline bigfloat div_impl(bool sign, int exa, unsigned long mta, int exb, unsigned long mtb) {
+inline bf div_impl(bool sign, int exa, unsigned long mta, int exb, unsigned long mtb) {
     // Divide mantissas
     unsigned __int128 result = ((unsigned __int128)mta << 64) / (unsigned __int128)mtb;
 
@@ -223,67 +225,67 @@ inline bigfloat div_impl(bool sign, int exa, unsigned long mta, int exb, unsigne
         exo += -leading_zeros + 1022;  // bias + 1 - 64
     }
 
-    return bigfloat(sign, exo, mto);
+    return bf(sign, exo, mto);
 }
 
-bigfloat bigfloat::operator/(const bigfloat &other) const {
+bf bf::operator/(const bf &other) const {
     bool so = sign ^ other.sign;
     int zero = (is_zero() << 1) | other.is_zero();
     switch (zero) {
         case 0b00:  // x / y
             return div_impl(so, exponent, mantissa, other.exponent, other.mantissa);
         case 0b10:  // 0 / y
-            return bigfloat(so, 0, 0);  // signed zero
+            return bf(so, 0, 0);  // signed zero
         case 0b01:  // x / 0
-            return bigfloat::inf(so);
+            return bf::inf(so);
         case 0b11:  // 0 / 0
-            return bigfloat::nan(!so);
+            return bf::nan(!so);
     }
-    return bigfloat();
+    return bf();
 }
 
-bool bigfloat::operator==(const bigfloat &other) const {
+bool bf::operator==(const bf &other) const {
     return sign == other.sign && mantissa == other.mantissa && exponent == other.exponent;
 }
 
-bigfloat bigfloat::operator-() const {
-    return bigfloat(!sign, mantissa, exponent);
+bf bf::operator-() const {
+    return bf(!sign, mantissa, exponent);
 }
 
-bigfloat bigfloat::operator+() const {
+bf bf::operator+() const {
     return *this;
 }
 
-bool bigfloat::is_zero() const {
+bool bf::is_zero() const {
     return !(mantissa || exponent);
 }
 
-bool bigfloat::is_nan() const {
+bool bf::is_nan() const {
     return exponent == (unsigned short)-1 && mantissa;
 }
 
-bigfloat bigfloat::inf(bool sign) {
-    return bigfloat(sign, -1, 0);
+bf bf::inf(bool sign) {
+    return bf(sign, -1, 0);
 }
 
-bigfloat bigfloat::nan(bool sign) {
-    return bigfloat(sign, -1, 1);
+bf bf::nan(bool sign) {
+    return bf(sign, -1, 1);
 }
 
-short bigfloat::unbiased_exponent() const {
+short bf::unbiased_exponent() const {
     return (short)(exponent - 1023);
 }
 
-inline bool le_impl(const bigfloat &a, const bigfloat &b) {
+inline bool le_impl(const bf &a, const bf &b) {
     return a.exponent < b.exponent || a.mantissa < b.mantissa;
 }
 
-inline bool leq_impl(const bigfloat &a, const bigfloat &b) {
+inline bool leq_impl(const bf &a, const bf &b) {
     return a.exponent <= b.exponent || a.mantissa <= b.mantissa;
 }
 
-template<bool (*cmp)(const bigfloat&, const bigfloat&), bool mp_result>
-inline bool cmp_impl(const bigfloat &a, const bigfloat &b) {
+template<bool (*cmp)(const bf&, const bf&), bool mp_result>
+inline bool cmp_impl(const bf &a, const bf &b) {
     int flags = (a.sign << 1) | b.sign;
     switch (flags) {
         case 0b00:
@@ -297,17 +299,17 @@ inline bool cmp_impl(const bigfloat &a, const bigfloat &b) {
     }
 }
 
-bool bigfloat::operator<(const bigfloat &other) const {
+bool bf::operator<(const bf &other) const {
     return cmp_impl<le_impl, true>(*this, other);
 }
 
-bool bigfloat::operator>(const bigfloat &other) const {
+bool bf::operator>(const bf &other) const {
     return cmp_impl<leq_impl, true>(*this, other);
 }
 
-std::ostream &operator<<(std::ostream &os, bigfloat x) {
+std::ostream &operator<<(std::ostream &os, bf x) {
     std::vector<char> digits;
-    auto ten = bigfloat(1);
+    auto ten = bf(1);
     while (x > ten) {
 
     }

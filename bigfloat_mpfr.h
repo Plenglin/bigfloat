@@ -2,7 +2,7 @@
 #define BIGFLOAT_BIGFLOAT_MPFR_H
 
 #include <mpfr.h>
-#include "bigfloat.hpp"
+#include "bf.hpp"
 
 void mpfr_init_set_bigfloat(mpfr_t rop, bigfloat bf) {
     // TODO implement
