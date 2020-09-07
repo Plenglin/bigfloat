@@ -20,56 +20,42 @@ namespace bigfloat {
     struct bf {
         // The mantissa is 63 bits wide. The uppermost bit is always 1.
         unsigned long mantissa;
-
         unsigned short exponent;
         bool sign;
 
         bf();
-
         bf(bool sign, unsigned short exponent, unsigned long mantissa);
-
         explicit bf(bf_packed x);
-
         explicit bf(double x);
-
         bf(std::string x);
 
         explicit operator double() const;
-
         explicit operator bf_packed() const;
 
         short unbiased_exponent() const;
 
         inline bf operator-() const;
-
         inline bf operator+() const;
 
         bf operator+(const bf &other) const;
-
-        bf operator+=(const bf &other);
+        void operator+=(const bf &other);
 
         bf operator-(const bf &other) const;
 
         bf operator*(const bf &other) const;
+        void operator*=(const bf &other);
 
         bf operator/(const bf &other) const;
 
         bool operator<(const bf &other) const;
-
         bool operator>(const bf &other) const;
-
         bool operator<=(const bf &other) const;
-
         bool operator>=(const bf &other) const;
-
         bool operator==(const bf &other) const;
 
         inline bool is_zero() const;
-
         inline bool is_nan() const;
-
         inline static bf inf(bool sign);
-
         inline static bf nan(bool sign);
     };
 }
