@@ -1,8 +1,8 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "google-explicit-constructor"
 
-#ifndef BIGFLOAT_BIGFLOAT_HPP
-#define BIGFLOAT_BIGFLOAT_HPP
+#ifndef BIGFLOAT_BF_HPP
+#define BIGFLOAT_BF_HPP
 
 #include <gmp.h>
 
@@ -52,6 +52,7 @@ namespace bigfloat {
         bool operator<=(const bf &other) const;
         bool operator>=(const bf &other) const;
         bool operator==(const bf &other) const;
+        bool operator!=(const bf &other) const;
 
         inline bool is_zero() const;
         inline bool is_nan() const;
@@ -62,6 +63,6 @@ namespace bigfloat {
 
 std::ostream &operator<<(std::ostream &os, bigfloat::bf x);
 
-#endif //BIGFLOAT_BIGFLOAT_HPP
+#endif //BIGFLOAT_BF_HPP
 
 #pragma clang diagnostic pop

@@ -8,13 +8,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
-#include <boost/test/data/test_case.hpp>
-#include <boost/test/data/monomorphic.hpp>
-#include "../bf.hpp"
-#include <limits>
-#include <cmath>
-#include <boost/array.hpp>
+#include "_include.hpp"
 
 using namespace std;
 using namespace bigfloat;

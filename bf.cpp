@@ -249,6 +249,10 @@ bool bf::operator==(const bf &other) const {
     return sign == other.sign && mantissa == other.mantissa && exponent == other.exponent;
 }
 
+bool bf::operator!=(const bf &other) const {
+    return sign != other.sign || mantissa != other.mantissa || exponent != other.exponent;
+}
+
 bf bf::operator-() const {
     return bf(!sign, mantissa, exponent);
 }
