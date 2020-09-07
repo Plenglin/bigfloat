@@ -116,29 +116,34 @@ inline bigfloat add_impl(bool sa, int exa, unsigned long mta, int exb, unsigned 
 template <bool calling_addition>
 inline bigfloat norm_sort_signs_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
     // Doing it with a switch statement shaves off about 7ns
+    int flags = (sa != sb) | ((exa >= exb) << 1);
 
-    int flags = sa != sb ? FLAG_DIFF_SIGNS : 0;
-    flags |= exa >= exb ? FLAG_A_GTE_B : 0;
-    if (calling_addition)
-        flags |= FLAG_ADDITION;
-
-    switch (flags) {
-        case FLAG_ADDITION | FLAG_A_GTE_B | FLAG_DIFF_SIGNS:
-            return add_impl<false>(sa, exa, mta, exb, mtb);
-        case FLAG_ADDITION | FLAG_A_GTE_B:
-            return add_impl<true>(sa, exa, mta, exb, mtb);
-        case FLAG_ADDITION | FLAG_DIFF_SIGNS:
-            return add_impl<false>(sb, exb, mtb, exa, mta);
-        case FLAG_ADDITION:
-            return add_impl<true>(sb, exb, mtb, exa, mta);
-        case FLAG_A_GTE_B | FLAG_DIFF_SIGNS:
-            return add_impl<true>(sa, exa, mta, exb, mtb);
-        case FLAG_A_GTE_B:
-            return add_impl<false>(sa, exa, mta, exb, mtb);
-        case FLAG_DIFF_SIGNS:
-            return add_impl<true>(!sb, exb, mtb, exa, mta);
-        case 0:
-            return add_impl<false>(!sb, exb, mtb, exa, mta);
+    // Take your 2 values, a and b. Apply the following operations to them in this order:
+    // 1. If we're not calling addition, we are performing subtraction. Invert the sign of b.
+    // 2. If a < b, swap their values. (The greater one must be on the left side.)
+    // 3. If a's sign != b's sign, then we're performing true subtraction. Otherwise, we're performing true addition.
+    if (calling_addition) {
+        switch (flags) {
+            case FLAG_A_GTE_B | FLAG_DIFF_SIGNS:
+                return add_impl<false>(sa, exa, mta, exb, mtb);
+            case FLAG_A_GTE_B:
+                return add_impl<true>(sa, exa, mta, exb, mtb);
+            case FLAG_DIFF_SIGNS:
+                return add_impl<false>(sb, exb, mtb, exa, mta);
+            case 0:
+                return add_impl<true>(sb, exb, mtb, exa, mta);
+        }
+    } else {
+        switch (flags) {
+            case FLAG_A_GTE_B | FLAG_DIFF_SIGNS:
+                return add_impl<true>(sa, exa, mta, exb, mtb);
+            case FLAG_A_GTE_B:
+                return add_impl<false>(sa, exa, mta, exb, mtb);
+            case FLAG_DIFF_SIGNS:
+                return add_impl<true>(!sb, exb, mtb, exa, mta);
+            case 0:
+                return add_impl<false>(!sb, exb, mtb, exa, mta);
+        }
     }
     throw std::exception();
 }
