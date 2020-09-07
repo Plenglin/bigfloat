@@ -253,34 +253,6 @@ bool bf::operator!=(const bf &other) const {
     return sign != other.sign || mantissa != other.mantissa || exponent != other.exponent;
 }
 
-bf bf::operator-() const {
-    return bf(!sign, mantissa, exponent);
-}
-
-bf bf::operator+() const {
-    return *this;
-}
-
-bool bf::is_zero() const {
-    return !(mantissa || exponent);
-}
-
-bool bf::is_nan() const {
-    return exponent == (unsigned short)-1 && mantissa;
-}
-
-bf bf::inf(bool sign) {
-    return bf(sign, -1, 0);
-}
-
-bf bf::nan(bool sign) {
-    return bf(sign, -1, 1);
-}
-
-short bf::unbiased_exponent() const {
-    return (short)(exponent - 1023);
-}
-
 inline bool le_impl(const bf &a, const bf &b) {
     return a.exponent < b.exponent || a.mantissa < b.mantissa;
 }
@@ -308,8 +280,44 @@ bool bf::operator<(const bf &other) const {
     return cmp_impl<le_impl, true>(*this, other);
 }
 
-bool bf::operator>(const bf &other) const {
+bool bf::operator<=(const bf &other) const {
     return cmp_impl<leq_impl, true>(*this, other);
+}
+
+bool bf::operator>(const bf &other) const {
+    return cmp_impl<le_impl, false>(other, *this);
+}
+
+bool bf::operator>=(const bf &other) const {
+    return cmp_impl<leq_impl, false>(other, *this);
+}
+
+bf bf::operator-() const {
+    return bf(!sign, mantissa, exponent);
+}
+
+bf bf::operator+() const {
+    return *this;
+}
+
+bool bf::is_zero() const {
+    return !(mantissa || exponent);
+}
+
+bool bf::is_nan() const {
+    return exponent == (unsigned short)-1 && mantissa;
+}
+
+bf bf::inf(bool sign) {
+    return bf(sign, -1, 0);
+}
+
+bf bf::nan(bool sign) {
+    return bf(sign, -1, 1);
+}
+
+short bf::unbiased_exponent() const {
+    return (short)(exponent - 1023);
 }
 
 std::ostream &operator<<(std::ostream &os, bf x) {

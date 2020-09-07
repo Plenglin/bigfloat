@@ -50,50 +50,50 @@ BOOST_AUTO_TEST_SUITE(bigfloat_to_str)
     }
 BOOST_AUTO_TEST_SUITE_END();*/
 
-BOOST_AUTO_TEST_SUITE(bigfloat_ops)
-    // Test cases, preferably non-zero/nan/inf ones. The zero ones can get their own test cases.
-    static const auto PAIRS =
-            data::make({
-                               1.0,
-                               1.0,
-                               0.25,
-                               0.625,
-                               0.8,
-                               0.937498723478932789425,
-                               9e-2,
-                               -1.,
-                               -2.,
-                               2.0,
-                               -2.,
-                               -0.,
-                               1.0,
-                               1.0,
-                               1321.0,
-                               234.3,
-                               0.1323,
-                               2332e-5
-                       }) ^
-            data::make({
-                               2.0,
-                               3.0,
-                               0.5,
-                               0.375,
-                               0.6,
-                               0.91267467283412345,
-                               1.23e4,
-                               2.0,
-                               1.0,
-                               -1.0,
-                               1.75,
-                               -0.9,
-                               2.0,
-                               3.0,
-                               3.34,
-                               -234.123,
-                               2739.8,
-                               3.32
-                       });
+// Test cases, preferably non-zero/nan/inf ones. The zero ones can get their own test cases.
+static const auto PAIRS =
+        data::make({
+                           1.0,
+                           1.0,
+                           0.25,
+                           0.625,
+                           0.8,
+                           0.937498723478932789425,
+                           9e-2,
+                           -1.,
+                           -2.,
+                           2.0,
+                           -2.,
+                           -0.,
+                           1.0,
+                           1.0,
+                           1321.0,
+                           234.3,
+                           0.1323,
+                           2332e-5
+                   }) ^
+        data::make({
+                           2.0,
+                           3.0,
+                           0.5,
+                           0.375,
+                           0.6,
+                           0.91267467283412345,
+                           1.23e4,
+                           2.0,
+                           1.0,
+                           -1.0,
+                           1.75,
+                           -0.9,
+                           2.0,
+                           3.0,
+                           3.34,
+                           -234.123,
+                           2739.8,
+                           3.32
+                   });
 
+BOOST_AUTO_TEST_SUITE(bigfloat_ops)
     BOOST_DATA_TEST_CASE(add, PAIRS, a, b) {
         BOOST_REQUIRE_CLOSE(double(bf(a) + bf(b)), a + b, DOUBLE_TOLERANCE);
     }
@@ -119,6 +119,21 @@ BOOST_AUTO_TEST_SUITE(bigfloat_ops)
     }
     BOOST_AUTO_TEST_CASE(div_zero_zero_is_nan) {
         BOOST_REQUIRE(std::isnan(double(bf(0) / bf(0))));
+    }
+BOOST_AUTO_TEST_SUITE_END();
+
+BOOST_AUTO_TEST_SUITE(bigfloat_ops)
+    BOOST_DATA_TEST_CASE(lt, PAIRS, a, b) {
+        BOOST_REQUIRE_EQUAL(double(bf(a) < bf(b)), a < b);
+    }
+    BOOST_DATA_TEST_CASE(lte, PAIRS, a, b) {
+        BOOST_REQUIRE_EQUAL(double(bf(a) <= bf(b)), a <= b);
+    }
+    BOOST_DATA_TEST_CASE(gt, PAIRS, a, b) {
+        BOOST_REQUIRE_EQUAL(double(bf(a) > bf(b)), a > b);
+    }
+    BOOST_DATA_TEST_CASE(gte, PAIRS, a, b) {
+        BOOST_REQUIRE_EQUAL(double(bf(a) >= bf(b)), a >= b);
     }
 BOOST_AUTO_TEST_SUITE_END();
 
