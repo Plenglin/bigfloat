@@ -25,8 +25,9 @@ namespace bigfloat {
 
         bf();
         bf(bool sign, unsigned short exponent, unsigned long mantissa);
-        explicit bf(bf_packed x);
-        explicit bf(double x);
+        bf(bf_packed x);
+        bf(double x);
+        bf(int x);
         bf(std::string x);
 
         explicit operator double() const;
@@ -34,8 +35,8 @@ namespace bigfloat {
 
         short unbiased_exponent() const;
 
-        inline bf operator-() const;
-        inline bf operator+() const;
+        bf operator-() const;
+        bf operator+() const;
 
         bf operator+(const bf &other) const;
         void operator+=(const bf &other);

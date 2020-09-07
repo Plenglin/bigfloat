@@ -1,13 +1,19 @@
 #include "math.hpp"
 
-bigfloat::bf bigfloat::log(bigfloat::bf x) {
-    return bigfloat::bf();
+using namespace bigfloat;
+
+bf math::sqrt(bf x) {
+    return bf(x.sign, x.exponent / 2, x.mantissa);
 }
 
-bigfloat::bf bigfloat::sin(bigfloat::bf x) {
-    return bigfloat::bf();
+bf math::log(bf x) {
+    return bf();
 }
 
-bigfloat::bf bigfloat::cos(bigfloat::bf x) {
-    return bigfloat::bf();
+bf math::sin(bf x) {
+    return bf();
+}
+
+bf math::cos(bf x) {
+    return bf();
 }

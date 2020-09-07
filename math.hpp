@@ -3,7 +3,8 @@
 
 #include "bf.hpp"
 
-namespace bigfloat {
+namespace bigfloat::math {
+    bf sqrt(bf x);
     bf log(bf x);
     bf sin(bf x);
     bf cos(bf x);

@@ -51,6 +51,10 @@ bf::bf(double x) {
     }
 }
 
+bf::bf(int x) : bf(double(x)) {
+
+}
+
 bf::bf(std::string x) {
 
 }
