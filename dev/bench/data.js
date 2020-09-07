@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1599508002984,
+  "lastUpdate": 1599511119489,
   "repoUrl": "https://github.com/Plenglin/bigfloat",
   "entries": {
     "Benchmark": [
@@ -894,6 +894,102 @@ window.BENCHMARK_DATA = {
             "value": 3.4488465949498948,
             "unit": "ns/iter",
             "extra": "iterations: 199428943\ncpu: 3.448555774574809 ns\nthreads: undefined"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "astrid@astrid.tech",
+            "name": "Astrid Yu",
+            "username": "Plenglin"
+          },
+          "committer": {
+            "email": "astrid@astrid.tech",
+            "name": "Astrid Yu",
+            "username": "Plenglin"
+          },
+          "distinct": true,
+          "id": "da4365abb49b4460c67b3c9a758a592db86599fd",
+          "message": "Add a janky bootleg sqrt and nbody sim",
+          "timestamp": "2020-09-07T13:34:27-07:00",
+          "tree_id": "d3cb821f9c44f4d54aa0521d5500bb9256073232",
+          "url": "https://github.com/Plenglin/bigfloat/commit/da4365abb49b4460c67b3c9a758a592db86599fd"
+        },
+        "date": 1599511118968,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "bigfloat_construction",
+            "value": 2.995662825219394,
+            "unit": "ns/iter",
+            "extra": "iterations: 224657075\ncpu: 2.995113490193887 ns\nthreads: undefined"
+          },
+          {
+            "name": "bigfloat_addition",
+            "value": 18.993775236732315,
+            "unit": "ns/iter",
+            "extra": "iterations: 36579865\ncpu: 18.992198276292168 ns\nthreads: undefined"
+          },
+          {
+            "name": "double_addition",
+            "value": 0.7535336977253695,
+            "unit": "ns/iter",
+            "extra": "iterations: 937842455\ncpu: 0.7534668080258748 ns\nthreads: undefined"
+          },
+          {
+            "name": "bigfloat_multiplication",
+            "value": 18.3630680024209,
+            "unit": "ns/iter",
+            "extra": "iterations: 38256241\ncpu: 18.33270095721114 ns\nthreads: undefined"
+          },
+          {
+            "name": "double_multiplication",
+            "value": 0.7508005877589972,
+            "unit": "ns/iter",
+            "extra": "iterations: 928974671\ncpu: 0.7507727969043846 ns\nthreads: undefined"
+          },
+          {
+            "name": "bigfloat_division",
+            "value": 51.380507157748504,
+            "unit": "ns/iter",
+            "extra": "iterations: 13712972\ncpu: 51.36883886293945 ns\nthreads: undefined"
+          },
+          {
+            "name": "double_division",
+            "value": 5.313055004476833,
+            "unit": "ns/iter",
+            "extra": "iterations: 133191268\ncpu: 5.313013748018377 ns\nthreads: undefined"
+          },
+          {
+            "name": "int128_division",
+            "value": 33.8547765903674,
+            "unit": "ns/iter",
+            "extra": "iterations: 20599537\ncpu: 33.844282616643284 ns\nthreads: undefined"
+          },
+          {
+            "name": "int64_division",
+            "value": 11.272213251825962,
+            "unit": "ns/iter",
+            "extra": "iterations: 62493214\ncpu: 11.252174196065507 ns\nthreads: undefined"
+          },
+          {
+            "name": "int32_division",
+            "value": 3.408304098675803,
+            "unit": "ns/iter",
+            "extra": "iterations: 206351257\ncpu: 3.4075888522452815 ns\nthreads: undefined"
+          },
+          {
+            "name": "bigfloat_nbody",
+            "value": 20253.16949683804,
+            "unit": "ns/iter",
+            "extra": "iterations: 35098\ncpu: 20248.03589948148 ns\nthreads: undefined"
+          },
+          {
+            "name": "double_nbody",
+            "value": 1155.6917874599824,
+            "unit": "ns/iter",
+            "extra": "iterations: 615997\ncpu: 1155.487891986485 ns\nthreads: undefined"
           }
         ]
       }
