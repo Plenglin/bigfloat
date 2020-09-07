@@ -166,11 +166,12 @@ bf bf::operator+(const bf &other) const {
     return add_impl_deconstruct<true>(*this, other);
 }
 
-bf bf::operator+=(const bf &other) {
-    bf result = *this + other;
-    sign = result.sign;
-    exponent = result.exponent;
-    mantissa = result.mantissa;
+void bf::operator+=(const bf &other) {
+    *this = *this + other;
+}
+
+void bf::operator*=(const bf &other) {
+    *this = *this + other;
 }
 
 bf bf::operator-(const bf &other) const {
