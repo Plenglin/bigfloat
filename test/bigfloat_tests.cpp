@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_ops)
     }
 BOOST_AUTO_TEST_SUITE_END();
 
-BOOST_AUTO_TEST_SUITE(bigfloat_ops)
+BOOST_AUTO_TEST_SUITE(bigfloat_cmp)
     BOOST_DATA_TEST_CASE(lt, PAIRS, a, b) {
         BOOST_REQUIRE_EQUAL(double(bf(a) < bf(b)), a < b);
     }

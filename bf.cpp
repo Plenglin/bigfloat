@@ -253,43 +253,47 @@ bool bf::operator!=(const bf &other) const {
     return sign != other.sign || mantissa != other.mantissa || exponent != other.exponent;
 }
 
-inline bool le_impl(const bf &a, const bf &b) {
-    return a.exponent < b.exponent || a.mantissa < b.mantissa;
+inline bool lt_impl(const bf &a, const bf &b) {
+    if (a.exponent > b.exponent) return false;
+    if (a.exponent < b.exponent) return true;
+    return a.mantissa < b.mantissa;
 }
 
-inline bool leq_impl(const bf &a, const bf &b) {
-    return a.exponent <= b.exponent || a.mantissa <= b.mantissa;
+inline bool lte_impl(const bf &a, const bf &b) {
+    if (a.exponent > b.exponent) return false;
+    if (a.exponent < b.exponent) return true;
+    return a.mantissa <= b.mantissa;
 }
 
-template<bool (*cmp)(const bf&, const bf&), bool mp_result>
-inline bool cmp_impl(const bf &a, const bf &b) {
+template<bool (*cmp)(const bf&, const bf&)>
+inline bool lcmp_impl(const bf &a, const bf &b) {
     int flags = (a.sign << 1) | b.sign;
     switch (flags) {
         case 0b00:
             return cmp(a, b);
         case 0b01:
-            return !mp_result;
+            return false;
         case 0b10:
-            return mp_result;
+            return true;
         case 0b11:
             return cmp(b, a);
     }
 }
 
 bool bf::operator<(const bf &other) const {
-    return cmp_impl<le_impl, true>(*this, other);
+    return lcmp_impl<lt_impl>(*this, other);
 }
 
 bool bf::operator<=(const bf &other) const {
-    return cmp_impl<leq_impl, true>(*this, other);
+    return lcmp_impl<lte_impl>(*this, other);
 }
 
 bool bf::operator>(const bf &other) const {
-    return cmp_impl<le_impl, false>(other, *this);
+    return lcmp_impl<lt_impl>(other, *this);
 }
 
 bool bf::operator>=(const bf &other) const {
-    return cmp_impl<leq_impl, false>(other, *this);
+    return lcmp_impl<lte_impl>(other, *this);
 }
 
 bf bf::operator-() const {
