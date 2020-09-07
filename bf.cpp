@@ -183,7 +183,7 @@ bf bf::operator-(const bf &other) const {
     return add_impl_deconstruct<false>(*this, other);
 }
 
-inline bf mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsigned long mtb) {
+inline bf mult_impl(bool sign, int exa, unsigned long mta, int exb, unsigned long mtb) {
     // Multiply mantissas
     unsigned __int128 mul = (unsigned __int128)mta * (unsigned __int128)mtb;
 
@@ -195,19 +195,19 @@ inline bf mult_impl(bool sa, int exa, unsigned long mta, bool sb, int exb, unsig
     unsigned long mto = mul >> (64 - leading_zeros);
     int exo = exa + exb - leading_zeros - 1022;  // Bias - 1
 
-    return bf(sa ^ sb, exo, mto);
+    return bf(sign, exo, mto);
 }
 
 bf bf::operator*(const bf &other) const {
     if (is_zero() || other.is_zero()) {
         return bf(sign ^ other.sign, 0, 0);
     }
-    return mult_impl(sign, exponent, mantissa, other.sign, other.exponent, other.mantissa);
+    return mult_impl(sign ^ other.sign, exponent, mantissa, other.exponent, other.mantissa);
 }
 
 inline bf div_impl(bool sign, int exa, unsigned long mta, int exb, unsigned long mtb) {
     // Divide mantissas
-    unsigned __int128 result = ((unsigned __int128)mta << 64) / (unsigned __int128)mtb;
+    unsigned __int128 result = ((unsigned __int128)mta << 64) / mtb;
 
     // Extract leading zeros
     unsigned long result_upper = result >> 64;
@@ -225,24 +225,24 @@ inline bf div_impl(bool sign, int exa, unsigned long mta, int exb, unsigned long
         unsigned long mto = result << leading_zeros;
 
         // Subtract and normalize exponents
-        const auto exo = exa - exb + -leading_zeros + 1022;  // bias + 1 - 64
+        const auto exo = exa - exb - leading_zeros + 1022;  // bias - 1
         return bf(sign, exo, mto);
     }
 }
 
 bf bf::operator/(const bf &other) const {
     int zero = (is_zero() << 1) | other.is_zero();
+    bool s = sign ^ other.sign;
     switch (zero) {
         case 0b00:  // x / y
-            return div_impl(sign ^ other.sign, exponent, mantissa, other.exponent, other.mantissa);
+            return div_impl(s, exponent, mantissa, other.exponent, other.mantissa);
         case 0b10:  // 0 / y
-            return bf(sign ^ other.sign, 0, 0);  // signed zero
+            return bf(s, 0, 0);  // signed zero
         case 0b01:  // x / 0
-            return bf::inf(sign ^ other.sign);
+            return bf::inf(s);
         case 0b11:  // 0 / 0
-            return bf::nan(!sign ^ other.sign);
+            return bf::nan(!s);
     }
-    return bf();
 }
 
 bool bf::operator==(const bf &other) const {
