@@ -19,7 +19,9 @@ void simd::vec4::operator+=(simd::vec4 &other) {
 }
 
 void simd::vec4::operator*=(simd::vec4 &other) {
-    sign = sign ^ other.sign;
+    sign ^= other.sign;
+
+    //
 }
 
 bf simd::vec4::operator[](int i) {
