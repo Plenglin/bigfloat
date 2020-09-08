@@ -60,9 +60,8 @@ namespace bigfloat {
         inline static bf inf(bool sign);
         inline static bf nan(bool sign);
     };
+    std::ostream &operator<<(std::ostream &os, const bigfloat::bf &x);
 }
-
-std::ostream &operator<<(std::ostream &os, bigfloat::bf x);
 
 #endif //BIGFLOAT_BF_HPP
 

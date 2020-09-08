@@ -328,16 +328,12 @@ short bf::unbiased_exponent() const {
     return (short)(exponent - 1023);
 }
 
-std::ostream &operator<<(std::ostream &os, bf x) {
+std::ostream &bigfloat::operator<<(std::ostream &os, const bf &x) {
     std::vector<char> digits;
-    auto ten = bf(1);
-    while (x > ten) {
-
-    }
-    auto remainder = x;
 
     if (x.sign) {
         os << "-";
     }
+    os << "1." << (x.mantissa ^ (1 << 63)) << "e" << (x.exponent - 1023);
     return os;
 }
