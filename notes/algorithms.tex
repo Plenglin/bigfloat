@@ -3,8 +3,10 @@
 \usepackage{enumerate}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{hyperref}
 
-\DeclareMathOperator{\bias}{BIAS}
+\DeclareMathOperator{\bias}{\textbf{Bias}}
+\DeclareMathOperator{\htl}{HtL}
 \DeclareMathOperator{\clz}{clz}
 
 \title{Notes on algorithms used}
@@ -12,13 +14,16 @@
 
 \begin{document}
     \maketitle
+    \tableofcontents
+
+    This document may look like it's me doing a good coding practice and documenting my work, but honestly, it's just here to lay out my ideas.
+
     \section{Assumptions and Conventions}\label{sec:assumptions}
 
     \begin{itemize}
-        \item The constant $\Bias = 1023$ is the exponent bias.
+        \item The constant $\bias = 1023$ is the exponent bias.
         Note that it is the same as the IEEE 754 double bias.
         \item The machine is assumed to be little-endian, like all x86 machines.
-        \item This document may look like it's me doing good coding practices and documenting my work, but honestly, it's just here to lay out my ideas.
         \item Suppose there exists some floating-point number $x$.
         Then, $x_s$, $x_e$, $x_m$ and refer to the sign, exponent, and mantissa of $x$ respectively.
         \item Suppose there exists some integer $n$.
@@ -27,18 +32,48 @@
         Then, $a \bigoplus b$ is the bitwise XOR of $a$ and $b$.
     \end{itemize}
 
+    \subsection{SIMD crap}\label{subsec:simd-assumptions}
+    Suppose $u$, $v$, and $t$ are integer vectors.
+
+    \begin{itemize}
+        \item If $w$ and $i$ are integers, then ${}_w v_i$ refers to the $i$th element of $v$ if it were treated as a vector of $w$-bit integers.
+        \item $\htl_w(v) = {}_w v_i \gg \frac{w}{2}$ (HtL stands for High to Low)
+        Corresponds to either \texttt{\_mm256\_permute4x64\_epi64} or \texttt{\_mm256\_srl\_epi64}.
+        \item If $t = u \stackrel{w}{\cdot} v$ then ${}_{2w} t_{i} = {}_w u_{2i} \cdot {}_w v_{2i}$.
+        Corresponds to \texttt{\_mm256\_mul\_epu32}.
+    \end{itemize}
+
     \section{Multiplication ($a * b$)}\label{sec:multiplication}
     \begin{enumerate}
         \item If either $a$ or $b$ is zero, return 0.
         \item $mul := a_m \cdot b_m$
         \item $lz := \clz mul$
         \item $o_m := mul \gg (64 - lz)$ (Shift the most significant 1 to bit 63)
-        \item $o_e := a_e + b_e - lz - \bias - 1$ (Add exponents, normalize based on leading zeros, and debias)
+        \item $o_e := a_e + b_e - lz - \bias - 1$ (Add exponents, normalize based on leading zeros, and de-bias)
         \item $o_s := a_s \bigoplus b_s$
     \end{enumerate}
 
-    \subsection{SIMD multiplication ($a_i * b_i$)}\label{subsec:multiplication-simd}
+    \subsection{SIMD multiplication of 4-vectors ($A * B$)}\label{subsec:multiplication-simd}
 
+    This is supposed to accelerate computation when AVX2 is enabled.
+
+    \subsubsection{128-bit multiplication}
+
+    No vectorized 128-bit multiplication exists, sadly.
+
+    We use \href{https://stackoverflow.com/a/28904636/12947037}{this method} to compute the upper bits of a 128-bit multiplication using only 32-bit multiplications, omitting the carry flag.
+    In essence, it is the formula $a_1 \cdot b_1 + (a_0 \cdot b_1 \gg 32) + (a_1 \cdot b_0 \gg 32)$
+
+    \begin{enumerate}
+        \item {[insert zero checks here]}
+        \item Compute $\htl_{64} A$ and $\htl_{64} B$
+        \item $X = \htl_{64} A \stackrel{32}{\cdot} \htl_{64} B$ (equivalent to $a_1 \cdot b_1$)
+        \item $Y = A \stackrel{32}{\cdot} \htl_{64} B$ (equivalent to $a_0 \cdot b_1$)
+        \item $Z = \htl_{64} A \stackrel{32}{\cdot} B$ (equivalent to $a_1 \cdot b_0$)
+        \item The result $O = X + \htl_{64} Y + \htl_{64} Z$
+    \end{enumerate}
+
+    I worry that this may be slower than simply looping through the floats and doing a 128-bit multiplication.
 
 
 \end{document}
