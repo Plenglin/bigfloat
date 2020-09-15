@@ -31,6 +31,10 @@ union ieee754_double {
     };
 };
 
+inline int abs_count_zero(long l) {
+    return __builtin_clzl(l >= 0 ? l : -l);
+}
+
 bf::bf() : mantissa(0), exponent(0) {
 
 }
@@ -129,7 +133,7 @@ inline bf add_impl(BINARY_OP_ARGS) {
         }
 
         // Count number of leading zeros
-        const int shift_amount = __builtin_clzl(mto > 0 ? mto : -mto) - 1;
+        const int shift_amount = abs_count_zero(mto) - 1;
         mto <<= shift_amount;
         short exo = exa - shift_amount;
         return bf(exo, mto);
@@ -160,9 +164,7 @@ inline bf mult_impl(BINARY_OP_ARGS) {
     // Multiply mantissas
     __int128 mul = (__int128)mta * (__int128)mtb;
     long upper = mul >> 64;
-    int less_shift = upper > 0
-            ? __builtin_clzl(upper) - 1
-            : __builtin_clzl(-upper) - 1;
+    int less_shift = abs_count_zero(upper) - 1;
 
     long mto = mul >> (64 - less_shift);
     short exo = exa + exb - less_shift + 2;
@@ -179,8 +181,53 @@ void bf::operator*=(const bf &other) {
 
 }
 
+
+inline bf div_impl(BINARY_OP_ARGS) {
+    // Divide mantissas
+    __int128 result = ((__int128)mta << 64) / mtb;
+
+    // Extract leading zeros
+    long result_upper = result >> 64;
+
+    if (result_upper == 0) {
+        // There is no upper stuff and the result is positive
+        int shift_amount = __builtin_clzl((long)result) - 1;
+        long mto = result << shift_amount;
+
+        // Subtract and normalize exponents
+        const auto exo = exa - exb - shift_amount;
+        return bf(exo, mto);
+    } else if (result_upper == -1) {
+        // There is no upper stuff and the result is negative
+        int shift_amount = __builtin_clzl((long)result) - 1;
+        long mto = result << shift_amount;
+
+        // Subtract and normalize exponents
+        const auto exo = exa - exb - shift_amount;
+        return bf(exo, mto);
+    } else {
+        // There is upper stuff
+        int shift_amount = 65 - abs_count_zero(result_upper);
+        long mto = result >> shift_amount;
+
+        // Subtract and normalize exponents
+        const auto exo = exa - exb + shift_amount - 2;  // bias - 1
+        return bf(exo, mto);
+    }
+}
+
 bf bf::operator/(const bf &other) const {
-    return bf();
+    int zero = (is_zero() << 1) | other.is_zero();
+    switch (zero) {
+        case 0b00:  // x / y
+            return div_impl(exponent, mantissa, other.exponent, other.mantissa);
+        case 0b10:  // 0 / y
+            return 0;
+        case 0b01:  // x / 0
+            return bf::inf((mantissa >= 0) ^ (other.mantissa >= 0));
+        case 0b11:  // 0 / 0
+            return bf::nan((mantissa < 0) ^ (other.mantissa < 0));
+    }
 }
 
 bool bf::operator<(const bf &other) const {
