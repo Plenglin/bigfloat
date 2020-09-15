@@ -7,6 +7,8 @@
 #include <xmmintrin.h>
 #include <vector>
 
+#define BINARY_OP_ARGS short exa, long mta, short exb, long mtb
+
 using namespace bigfloat;
 
 union ieee754_float {
@@ -100,7 +102,7 @@ bf bf::operator-() const {
     return bf(exponent, -mantissa);
 }
 
-inline bf add_impl(short exa, long mta, short exb, long mtb) {
+inline bf add_impl(BINARY_OP_ARGS) {
     // Shift to align decimal points
     mtb >>= exa - exb;
 
@@ -134,7 +136,7 @@ inline bf add_impl(short exa, long mta, short exb, long mtb) {
     }
 }
 
-inline bf sort_add_impl(short exa, long mta, short exb, long mtb) {
+inline bf sort_add_impl(BINARY_OP_ARGS) {
     if (exa == exb && mta == mtb)  // doubling case. takes care of -1 + -1
         return bf(exa + 1, mta);
     if (exa > exb)
@@ -154,8 +156,23 @@ bf bf::operator-(const bf &other) const {
     return sort_add_impl(exponent, mantissa, other.exponent, -other.mantissa);
 }
 
+inline bf mult_impl(BINARY_OP_ARGS) {
+    // Multiply mantissas
+    __int128 mul = (__int128)mta * (__int128)mtb;
+    long upper = mul >> 64;
+    int less_shift = upper > 0
+            ? __builtin_clzl(upper) - 1
+            : __builtin_clzl(-upper) - 1;
+
+    long mto = mul >> (64 - less_shift);
+    short exo = exa + exb - less_shift + 2;
+
+    return bf(exo, mto);
+}
+
 bf bf::operator*(const bf &other) const {
-    return bf();
+    if (is_zero() || other.is_zero()) return 0;
+    return mult_impl(exponent, mantissa, other.exponent, other.mantissa);
 }
 
 void bf::operator*=(const bf &other) {
