@@ -111,15 +111,10 @@ bf add_impl(short exa, long mta, short exb, long mtb) {
 
         // Overflow handling
         if (__builtin_add_overflow(mta, mtb, &mto)){
-            if (mto > 0) {
-                mto |= (1L << 62);
-            } else {
-                if (mto < 0) {
-                    mto = ((unsigned long)mto >> 1) | (1L << 62);
-                } else {
-                    mto = (mto >> 1) | (1L << 62);
-                }
+            if (mto <= 0) {
+                mto = ((mto < 0 ? (unsigned long) mto : mto) >> 1);
             }
+            mto |= (1L << 62);
             short exo = exa + 1;
             return bf(exo, mto);
         }
@@ -131,17 +126,11 @@ bf add_impl(short exa, long mta, short exb, long mtb) {
             return 0;
         }
 
-        if (mto > 0) {
-            int shift_amount = __builtin_clzl(mto) - 1;
-            mto <<= shift_amount;
-            short exo = exa - shift_amount;
-            return bf(exo, mto);
-        } else {
-            int shift_amount = __builtin_clzl(-mto) - 1;
-            mto <<= shift_amount;
-            short exo = exa - shift_amount;
-            return bf(exo, mto);
-        }
+        // Count number of leading zeros
+        const int shift_amount = __builtin_clzl(mto > 0 ? mto : -mto) - 1;
+        mto <<= shift_amount;
+        short exo = exa - shift_amount;
+        return bf(exo, mto);
     }
 }
 
