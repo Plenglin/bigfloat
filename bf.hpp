@@ -11,20 +11,18 @@
 namespace bigfloat {
     // A packed software-based floating point number object.
     struct bf_packed {
-        unsigned long mantissa: 63;
-        bool sign: 1;
-        unsigned short exponent;
+        long mantissa;
+        short exponent;
     };
 
     // A software-based floating point number object.
     struct bf {
-        // The mantissa is 63 bits wide. The uppermost bit is always 1.
-        unsigned long mantissa;
-        unsigned short exponent;
-        bool sign;
+        // The mantissa is 62 bits. It has an EXPLICIT 1 for its 63rd bit. Its 64th bit is the sign bit.
+        long mantissa;
+        short exponent;
 
         bf();
-        bf(bool sign, unsigned short exponent, unsigned long mantissa);
+        bf(short exponent, long mantissa);
         bf(bf_packed x);
         bf(double x);
         bf(int x);
@@ -33,10 +31,8 @@ namespace bigfloat {
         explicit operator double() const;
         explicit operator bf_packed() const;
 
-        short unbiased_exponent() const;
-
-        bf operator-() const;
         bf operator+() const;
+        bf operator-() const;
 
         bf operator+(const bf &other) const;
         void operator+=(const bf &other);

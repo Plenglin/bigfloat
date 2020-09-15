@@ -3,7 +3,7 @@
 using namespace bigfloat;
 
 bf math::sqrt(bf x) {
-    return bf(x.sign, x.exponent / 2, x.mantissa);
+    return bf(x.exponent / 2, x.mantissa);
 }
 
 bf math::log(bf x) {
