@@ -135,6 +135,8 @@ inline bf add_impl(short exa, long mta, short exb, long mtb) {
 }
 
 inline bf sort_add_impl(short exa, long mta, short exb, long mtb) {
+    if (exa == exb && mta == mtb)  // doubling case. takes care of -1 + -1
+        return bf(exa + 1, mta);
     if (exa > exb)
         return add_impl(exa, mta, exb, mtb);
     return add_impl(exb, mtb, exa, mta);
