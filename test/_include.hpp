@@ -15,6 +15,8 @@ namespace mono = data::monomorphic;
 
 static const double ARR1[] = {
         1.0,
+        -1.0,
+        1.0,
         1.0,
         0.25,
         0.625,
@@ -29,11 +31,14 @@ static const double ARR1[] = {
         1.0,
         1321.0,
         234.3,
+        234.123,
         0.1323,
         2332e-5
 };
 
 static const double ARR2[] = {
+        1.0,
+        -1.0,
         2.0,
         0.5,
         0.375,
@@ -49,6 +54,7 @@ static const double ARR2[] = {
         3.0,
         3.34,
         -234.123,
+        -234.3,
         2739.8,
         3.32
 };

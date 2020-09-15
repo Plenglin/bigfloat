@@ -58,6 +58,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_ops)
     BOOST_DATA_TEST_CASE(sub, PAIRS, a, b) {
         BOOST_REQUIRE_CLOSE(double(bf(a) - bf(b)), a - b, DOUBLE_TOLERANCE);
     }
+
     BOOST_DATA_TEST_CASE(mul, PAIRS, a, b) {
         BOOST_REQUIRE_CLOSE(double(bf(a) * bf(b)), a * b, DOUBLE_TOLERANCE);
     }
@@ -68,9 +69,8 @@ BOOST_AUTO_TEST_SUITE(bigfloat_ops)
     BOOST_DATA_TEST_CASE(div, PAIRS, a, b) {
         BOOST_REQUIRE_CLOSE(double(bf(a) / bf(b)), a / b, DOUBLE_TOLERANCE);
     }
-
     BOOST_AUTO_TEST_CASE(div_x_zero_is_p_inf) {
-        BOOST_REQUIRE_EQUAL(double(bf(2349.23) / bf(0)), 2349.23 / 0.0);
+        BOOST_REQUIRE((bf(2349.23) / bf(0)).is_inf());
     }
     BOOST_AUTO_TEST_CASE(div_zero_x_is_zero) {
         BOOST_REQUIRE_EQUAL(double(bf(0) / bf(2349.23)), 0.0 / 2349.23);

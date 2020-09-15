@@ -1,9 +1,7 @@
 name: Verification
 
 on:
-  push:
-    branches:
-      - master
+  - push
 
 env:
   BUILD_TYPE: Release
