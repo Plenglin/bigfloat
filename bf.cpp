@@ -112,7 +112,7 @@ bf add_impl(short exa, long mta, short exb, long mtb) {
         // Overflow handling
         if (__builtin_add_overflow(mta, mtb, &mto)){
             if (mto <= 0) {
-                mto = ((mto < 0 ? (unsigned long) mto : mto) >> 1);
+                mto = (mto < 0 ? (unsigned long) mto : mto) >> 1;
             }
             mto |= (1L << 62);
             short exo = exa + 1;

@@ -2,20 +2,25 @@
 #define BIGFLOAT_CONTROL_HPP
 
 #include <benchmark/benchmark.h>
+#include "shared.hpp"
 
 static void double_addition(benchmark::State &state) {
+    int i = 0;
+    double a, b;
     for (auto _ : state) {
-        double a = 31.1234;
-        volatile double b = 31.1234;
-        volatile double c = a + b;
+        a = d_as[i % NUMBERS_COUNT];
+        b = d_bs[i++ % NUMBERS_COUNT];
+        volatile auto c = a + b;
     }
 }
 
 static void double_multiplication(benchmark::State &state) {
+    int i = 0;
+    double a, b;
     for (auto _ : state) {
-        double a = 31.1234;
-        volatile double b = 31.1234;
-        volatile double c = a * b;
+        a = d_as[i % NUMBERS_COUNT];
+        b = d_bs[i++ % NUMBERS_COUNT];
+        volatile auto c = a * b;
     }
 }
 
