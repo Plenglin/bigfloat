@@ -51,6 +51,7 @@ namespace bigfloat {
         bool operator==(const bf &other) const;
         bool operator!=(const bf &other) const;
 
+        inline bool sign() const;
         inline bool is_zero() const;
         inline bool is_nan() const;
         inline bool is_inf() const;

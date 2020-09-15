@@ -220,28 +220,59 @@ bf bf::operator/(const bf &other) const {
     }
 }
 
-bool bf::operator<(const bf &other) const {
-    return false;
+inline bool lt_impl(const bf &a, const bf &b) {
+    if (a.exponent > b.exponent) return false;
+    if (a.exponent < b.exponent) return true;
+    return a.mantissa < b.mantissa;
 }
 
-bool bf::operator>(const bf &other) const {
-    return false;
+inline bool lte_impl(const bf &a, const bf &b) {
+    if (a.exponent > b.exponent) return false;
+    if (a.exponent < b.exponent) return true;
+    return a.mantissa <= b.mantissa;
+}
+
+template<bool (*cmp)(const bf&, const bf&)>
+inline bool lcmp_impl(const bf &a, const bf &b) {
+    int flags = (a.sign() << 1) | b.sign();
+    switch (flags) {
+        case 0b00:
+            return cmp(a, b);
+        case 0b01:
+            return false;
+        case 0b10:
+            return true;
+        case 0b11:
+            return cmp(b, a);
+    }
+}
+
+bool bf::operator<(const bf &other) const {
+    return lcmp_impl<lt_impl>(*this, other);
 }
 
 bool bf::operator<=(const bf &other) const {
-    return false;
+    return lcmp_impl<lte_impl>(*this, other);
+}
+
+bool bf::operator>(const bf &other) const {
+    return lcmp_impl<lt_impl>(other, *this);
 }
 
 bool bf::operator>=(const bf &other) const {
-    return false;
+    return lcmp_impl<lte_impl>(other, *this);
 }
 
 bool bf::operator==(const bf &other) const {
-    return false;
+    return exponent == other.exponent && mantissa == other.mantissa;
 }
 
 bool bf::operator!=(const bf &other) const {
     return false;
+}
+
+bool bf::sign() const {
+    return mantissa < 0;
 }
 
 bool bf::is_zero() const {
