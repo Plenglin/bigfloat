@@ -31,6 +31,8 @@ union ieee754_double {
     };
 };
 
+bf getBf(short exa, short exb, __int128_t result);
+
 inline int abs_count_zero(long l) {
     return __builtin_clzl(l >= 0 ? l : -l);
 }
@@ -181,6 +183,39 @@ void bf::operator*=(const bf &other) {
 
 }
 
+template <bool result_is_positive>
+inline bf div_helper_upper_nonzero(short exa, short exb, __int128 result, long result_upper) {
+    int shift_amount = 65 - __builtin_clzl(result_is_positive ? result_upper : -result_upper);
+    long mto = result >> shift_amount;
+
+    // Subtract and normalize exponents
+    const auto exo = exa - exb + shift_amount - 2;  // bias - 1
+    return bf(exo, mto);
+}
+
+template <bool result_is_positive>
+inline bf div_helper_upper_nonzero(short exa, short exb, __int128 result) {
+    long mto = result >> 1;
+
+    // Subtract and normalize exponents
+    const auto exo = exa - exb - 1;  // bias - 1
+    return bf(exo, mto);
+}
+
+template <bool result_is_positive>
+inline bf div_helper_upper_zero(short exa, short exb, __int128 result) {
+    long result_lower = result;
+    int leading_zeros = __builtin_clzl(result_is_positive ? result_lower : -result_lower);
+    if ((leading_zeros == 0)) {
+        return div_helper_upper_nonzero<result_is_positive>(exa, exb, result);
+    }
+    int shift_amount = leading_zeros - 1;
+    long mto = result << shift_amount;
+
+    // Subtract and normalize exponents
+    const auto exo = exa - exb - shift_amount;
+    return bf(exo, mto);
+}
 
 inline bf div_impl(BINARY_OP_ARGS) {
     // Divide mantissas
@@ -191,28 +226,17 @@ inline bf div_impl(BINARY_OP_ARGS) {
 
     if (result_upper == 0) {
         // There is no upper stuff and the result is positive
-        int shift_amount = __builtin_clzl((long)result) - 1;
-        long mto = result << shift_amount;
-
-        // Subtract and normalize exponents
-        const auto exo = exa - exb - shift_amount;
-        return bf(exo, mto);
+        return div_helper_upper_zero<true>(exa, exb, result);
     } else if (result_upper == -1) {
         // There is no upper stuff and the result is negative
-        int shift_amount = __builtin_clzl((long)result) - 1;
-        long mto = result << shift_amount;
-
-        // Subtract and normalize exponents
-        const auto exo = exa - exb - shift_amount;
-        return bf(exo, mto);
+        return div_helper_upper_zero<false>(exa, exb, result);
     } else {
         // There is upper stuff
-        int shift_amount = 65 - abs_count_zero(result_upper);
-        long mto = result >> shift_amount;
-
-        // Subtract and normalize exponents
-        const auto exo = exa - exb + shift_amount - 2;  // bias - 1
-        return bf(exo, mto);
+        if ((long)result >= 0) {
+            return div_helper_upper_nonzero<true>(exa, exb, result, result_upper);
+        } else {
+            return div_helper_upper_nonzero<false>(exa, exb, result, result_upper);
+        }
     }
 }
 
