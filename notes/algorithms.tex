@@ -6,7 +6,7 @@
 \usepackage{hyperref}
 
 \DeclareMathOperator{\bias}{\textbf{Bias}}
-\DeclareMathOperator{\htl}{HtL}
+\DeclareMathOperator{\htl}{htl}
 \DeclareMathOperator{\clz}{clz}
 
 \title{Notes on algorithms used}
@@ -44,16 +44,19 @@
     \end{itemize}
 
     \section{Multiplication ($a * b$)}\label{sec:multiplication}
+
+    Note that the 128-bit multiplication of $a_m$ and $b_m$ will either have 127 or 128 bits because both of these values are of length 64.
+
     \begin{enumerate}
         \item If either $a$ or $b$ is zero, return 0.
         \item $mul := a_m \cdot b_m$
-        \item $lz := \clz mul$
+        \item $lz := \clz mul$ (Note that since this is either 0 or 1, the rest of this section can be optimized with an if statement.)
         \item $o_m := mul \gg (64 - lz)$ (Shift the most significant 1 to bit 63)
         \item $o_e := a_e + b_e - lz - \bias - 1$ (Add exponents, normalize based on leading zeros, and de-bias)
         \item $o_s := a_s \bigoplus b_s$
     \end{enumerate}
 
-    \subsection{SIMD multiplication of 4-vectors ($A * B$)}\label{subsec:multiplication-simd}
+    \subsection{Fast, but slightly inaccurate, SIMD multiplication of 4-vectors ($A * B$)}\label{subsec:multiplication-simd}
 
     This is supposed to accelerate computation when AVX2 is enabled.
 
@@ -66,14 +69,22 @@
 
     \begin{enumerate}
         \item {[insert zero checks here]}
-        \item Compute $\htl_{64} A$ and $\htl_{64} B$
-        \item $X = \htl_{64} A \stackrel{32}{\cdot} \htl_{64} B$ (equivalent to $a_1 \cdot b_1$)
-        \item $Y = A \stackrel{32}{\cdot} \htl_{64} B$ (equivalent to $a_0 \cdot b_1$)
-        \item $Z = \htl_{64} A \stackrel{32}{\cdot} B$ (equivalent to $a_1 \cdot b_0$)
-        \item The result $O = X + \htl_{64} Y + \htl_{64} Z$
+        \item Compute $\htl_{64}(A)$ and $\htl_{64}(B)$
+        \item $X = \htl_{64}(A) \stackrel{32}{\cdot} \htl_{64}(B)$ (equivalent to $a_1 \cdot b_1$)
+        \item $Y = A \stackrel{32}{\cdot} \htl_{64}(B)$ (equivalent to $a_0 \cdot b_1$)
+        \item $Z = \htl_{64}(A) \stackrel{32}{\cdot} B$ (equivalent to $a_1 \cdot b_0$)
+        \item The result $P = X + \htl_{64}(Y) + \htl_{64}(Z)$
     \end{enumerate}
 
     I worry that this may be slower than simply looping through the floats and doing a 128-bit multiplication.
+
+    \subsubsection{Leading zero count}
+
+    \[M = P \stackrel{64}{\geq} 0\]
+
+    \subsubsection{Shifting MS1 to MSB of long}
+
+
 
 
 \end{document}
