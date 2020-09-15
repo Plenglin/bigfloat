@@ -189,38 +189,18 @@ inline bf div_impl(BINARY_OP_ARGS) {
 
     // Extract leading zeros
     __int128 normalized_result = result >= 0 ? result : -result;
-    int leading_zeros;
-    if (normalized_result >= 0) {
-        long normalized_result_upper = (unsigned __int128)normalized_result >> 64;
-        leading_zeros = normalized_result_upper
-                        ? __builtin_clzl(normalized_result_upper)
-                        : 64 + __builtin_clzl(normalized_result);
-    } else {
-        long normalized_result_upper = (unsigned __int128)normalized_result >> 64;
-        if (normalized_result_upper >= 0) {
-            leading_zeros = normalized_result_upper
-                            ? __builtin_clzl(normalized_result_upper)
-                            : 64 + __builtin_clzl(normalized_result);
-        } else {
-            leading_zeros = 64 + __builtin_clzl(-normalized_result);
-        }
-    }
+    long normalized_result_upper = (unsigned __int128)normalized_result >> 64;
+    int leading_zeros = normalized_result_upper
+                    ? __builtin_clzl(normalized_result_upper)
+                    : 64 + __builtin_clzl(normalized_result);
 
-    if (leading_zeros >= 65) {
-        int shift_amount = leading_zeros - 65;
-        long mto = result << shift_amount;
+    // Perform shifting
+    int shift_amount = 65 - leading_zeros;
+    long mto = result >> shift_amount;
 
-        // Subtract and normalize exponents
-        const auto exo = exa - exb - shift_amount;
-        return bf(exo, mto);
-    } else {
-        int shift_amount = 65 - leading_zeros;
-        long mto = result >> shift_amount;
-
-        // Subtract and normalize exponents
-        const auto exo = exa - exb + shift_amount - 2;  // bias - 1
-        return bf(exo, mto);
-    }
+    // Subtract and normalize exponents
+    const auto exo = exa - exb + shift_amount - 2;  // bias - 1
+    return bf(exo, mto);
 }
 
 bf bf::operator/(const bf &other) const {
