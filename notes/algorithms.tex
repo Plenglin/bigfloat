@@ -1,0 +1,44 @@
+\documentclass[12pt]{article}
+
+\usepackage{enumerate}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\DeclareMathOperator{\bias}{BIAS}
+\DeclareMathOperator{\clz}{clz}
+
+\title{Notes on algorithms used}
+\author{Astrid Yu}
+
+\begin{document}
+    \maketitle
+    \section{Assumptions and Conventions}\label{sec:assumptions}
+
+    \begin{itemize}
+        \item The constant $\Bias = 1023$ is the exponent bias.
+        Note that it is the same as the IEEE 754 double bias.
+        \item The machine is assumed to be little-endian, like all x86 machines.
+        \item This document may look like it's me doing good coding practices and documenting my work, but honestly, it's just here to lay out my ideas.
+        \item Suppose there exists some floating-point number $x$.
+        Then, $x_s$, $x_e$, $x_m$ and refer to the sign, exponent, and mantissa of $x$ respectively.
+        \item Suppose there exists some integer $n$.
+        Then, $\clz(n) =$ the number of leading zeros in the upper bits of $n$.
+        \item Suppose $a$ and $b$ are integers.
+        Then, $a \bigoplus b$ is the bitwise XOR of $a$ and $b$.
+    \end{itemize}
+
+    \section{Multiplication ($a * b$)}\label{sec:multiplication}
+    \begin{enumerate}
+        \item If either $a$ or $b$ is zero, return 0.
+        \item $mul := a_m \cdot b_m$
+        \item $lz := \clz mul$
+        \item $o_m := mul \gg (64 - lz)$ (Shift the most significant 1 to bit 63)
+        \item $o_e := a_e + b_e - lz - \bias - 1$ (Add exponents, normalize based on leading zeros, and debias)
+        \item $o_s := a_s \bigoplus b_s$
+    \end{enumerate}
+
+    \subsection{SIMD multiplication ($a_i * b_i$)}\label{subsec:multiplication-simd}
+
+
+
+\end{document}
