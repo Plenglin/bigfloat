@@ -127,11 +127,21 @@ bf add_impl(short exa, long mta, short exb, long mtb) {
     } else {
         // Perform addition (actually subtraction)
         long mto = mta + mtb;
+        if (mto == 0) {
+            return 0;
+        }
 
-        int leading_zeros = __builtin_clzl(mto >= 0 ? mto : -mto);
-        mto <<= leading_zeros;
-        short exo = exa - leading_zeros;
-        return bf(exo, mto);
+        if (mto > 0) {
+            int shift_amount = __builtin_clzl(mto) - 1;
+            mto <<= shift_amount;
+            short exo = exa - shift_amount;
+            return bf(exo, mto);
+        } else {
+            int leading_zeros = __builtin_clzl(-mto);
+            mto <<= leading_zeros - 1;
+            short exo = exa - leading_zeros;
+            return bf(exo, mto);
+        }
     }
 }
 
