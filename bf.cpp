@@ -100,7 +100,7 @@ bf bf::operator-() const {
     return bf(exponent, -mantissa);
 }
 
-bf add_impl(short exa, long mta, short exb, long mtb) {
+inline bf add_impl(short exa, long mta, short exb, long mtb) {
     // Shift to align decimal points
     mtb >>= exa - exb;
 
@@ -134,18 +134,22 @@ bf add_impl(short exa, long mta, short exb, long mtb) {
     }
 }
 
+inline bf sort_add_impl(short exa, long mta, short exb, long mtb) {
+    if (exa > exb)
+        return add_impl(exa, mta, exb, mtb);
+    return add_impl(exb, mtb, exa, mta);
+}
+
 bf bf::operator+(const bf &other) const {
-    if (exponent > other.exponent)
-        return add_impl(exponent, mantissa, other.exponent, other.mantissa);
-    return add_impl(other.exponent, other.mantissa, exponent, mantissa);
+    return sort_add_impl(exponent, mantissa, other.exponent, other.mantissa);
 }
 
 void bf::operator+=(const bf &other) {
-
+    *this = *this + other;
 }
 
 bf bf::operator-(const bf &other) const {
-    return bf();
+    return sort_add_impl(exponent, mantissa, other.exponent, -other.mantissa);
 }
 
 bf bf::operator*(const bf &other) const {
