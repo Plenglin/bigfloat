@@ -100,8 +100,45 @@ bf bf::operator-() const {
     return bf(exponent, -mantissa);
 }
 
+bf add_impl(short exa, long mta, short exb, long mtb) {
+    // Shift to align decimal points
+    mtb >>= exa - exb;
+
+    // Same signs?
+    if ((mta ^ mtb) >= 0) {
+        // Perform addition
+        long mto;
+
+        // Overflow handling
+        if (__builtin_add_overflow(mta, mtb, &mto)){
+            if (mto > 0) {
+                mto |= (1L << 62);
+            } else {
+                if (mto < 0) {
+                    mto = ((unsigned long)mto >> 1) | (1L << 62);
+                } else {
+                    mto = (mto >> 1) | (1L << 62);
+                }
+            }
+            short exo = exa + 1;
+            return bf(exo, mto);
+        }
+        return bf(exa, mto);
+    } else {
+        // Perform addition (actually subtraction)
+        long mto = mta + mtb;
+
+        int leading_zeros = __builtin_clzl(mto >= 0 ? mto : -mto);
+        mto <<= leading_zeros;
+        short exo = exa - leading_zeros;
+        return bf(exo, mto);
+    }
+}
+
 bf bf::operator+(const bf &other) const {
-    return bf();
+    if (exponent > other.exponent)
+        return add_impl(exponent, mantissa, other.exponent, other.mantissa);
+    return add_impl(other.exponent, other.mantissa, exponent, mantissa);
 }
 
 void bf::operator+=(const bf &other) {
