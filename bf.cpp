@@ -85,6 +85,9 @@ bf::operator double() const {
     if (is_zero()) {
         return 0.0;
     }
+    if (is_inf()) {
+        return std::numeric_limits<double>::infinity() * exponent;
+    }
 
     ieee754_double d;
     d.exponent = static_cast<unsigned short>(exponent + 1023);
@@ -246,13 +249,17 @@ bool bf::is_zero() const {
 }
 
 bool bf::is_nan() const {
-    return false;
+    return (exponent == 32767 || exponent == -32768) && mantissa != 0;
+}
+
+bool bf::is_inf() const {
+    return (exponent == 32767 || exponent == -32768) && mantissa == 0;
 }
 
 bf bf::inf(bool sign) {
-    return bf();
+    return bf(sign ? 32767 : -32768, 0);
 }
 
 bf bf::nan(bool sign) {
-    return bf();
+    return bf(sign ? 32767 : -32768, 1);
 }

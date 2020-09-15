@@ -53,6 +53,7 @@ namespace bigfloat {
 
         inline bool is_zero() const;
         inline bool is_nan() const;
+        inline bool is_inf() const;
         inline static bf inf(bool sign);
         inline static bf nan(bool sign);
     };
