@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1599511119489,
+  "lastUpdate": 1600162366520,
   "repoUrl": "https://github.com/Plenglin/bigfloat",
   "entries": {
     "Benchmark": [
@@ -990,6 +990,102 @@ window.BENCHMARK_DATA = {
             "value": 1155.6917874599824,
             "unit": "ns/iter",
             "extra": "iterations: 615997\ncpu: 1155.487891986485 ns\nthreads: undefined"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "astrid@astrid.tech",
+            "name": "Astrid Yu",
+            "username": "Plenglin"
+          },
+          "committer": {
+            "email": "astrid@astrid.tech",
+            "name": "Astrid Yu",
+            "username": "Plenglin"
+          },
+          "distinct": true,
+          "id": "ac6543098f7fb2fb182ea10d5a4cdf9f1f20cd65",
+          "message": "Fix inf acting up during compile?",
+          "timestamp": "2020-09-15T02:31:17-07:00",
+          "tree_id": "48bb6725bd2d83898644c7b3432a4f77984046d8",
+          "url": "https://github.com/Plenglin/bigfloat/commit/ac6543098f7fb2fb182ea10d5a4cdf9f1f20cd65"
+        },
+        "date": 1600162366015,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "bigfloat_construction",
+            "value": 4.686748794678435,
+            "unit": "ns/iter",
+            "extra": "iterations: 145300405\ncpu: 4.68645901571988 ns\nthreads: undefined"
+          },
+          {
+            "name": "bigfloat_addition",
+            "value": 6.286465676380257,
+            "unit": "ns/iter",
+            "extra": "iterations: 111870282\ncpu: 6.285942713543888 ns\nthreads: undefined"
+          },
+          {
+            "name": "double_addition",
+            "value": 1.586420445708301,
+            "unit": "ns/iter",
+            "extra": "iterations: 445337665\ncpu: 1.5862722278386228 ns\nthreads: undefined"
+          },
+          {
+            "name": "bigfloat_multiplication",
+            "value": 8.431546667142015,
+            "unit": "ns/iter",
+            "extra": "iterations: 82197298\ncpu: 8.431398316767055 ns\nthreads: undefined"
+          },
+          {
+            "name": "double_multiplication",
+            "value": 1.6007552430512506,
+            "unit": "ns/iter",
+            "extra": "iterations: 435046174\ncpu: 1.6005867597861005 ns\nthreads: undefined"
+          },
+          {
+            "name": "bigfloat_division",
+            "value": 50.90627739127156,
+            "unit": "ns/iter",
+            "extra": "iterations: 13772632\ncpu: 50.90499985768878 ns\nthreads: undefined"
+          },
+          {
+            "name": "double_division",
+            "value": 1.7948505956205951,
+            "unit": "ns/iter",
+            "extra": "iterations: 374575399\ncpu: 1.7946637200271653 ns\nthreads: undefined"
+          },
+          {
+            "name": "int128_division",
+            "value": 35.58784787498494,
+            "unit": "ns/iter",
+            "extra": "iterations: 19849911\ncpu: 35.58468372981621 ns\nthreads: undefined"
+          },
+          {
+            "name": "int64_division",
+            "value": 10.531272137652545,
+            "unit": "ns/iter",
+            "extra": "iterations: 64872508\ncpu: 10.530297857452977 ns\nthreads: undefined"
+          },
+          {
+            "name": "int32_division",
+            "value": 3.144896053721048,
+            "unit": "ns/iter",
+            "extra": "iterations: 220771299\ncpu: 3.1446483403623997 ns\nthreads: undefined"
+          },
+          {
+            "name": "bigfloat_nbody",
+            "value": 11075.791407566872,
+            "unit": "ns/iter",
+            "extra": "iterations: 63521\ncpu: 11075.352151257079 ns\nthreads: undefined"
+          },
+          {
+            "name": "double_nbody",
+            "value": 659.053377552319,
+            "unit": "ns/iter",
+            "extra": "iterations: 1025506\ncpu: 659.0057903122959 ns\nthreads: undefined"
           }
         ]
       }
