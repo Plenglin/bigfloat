@@ -191,15 +191,19 @@ inline bf mult_impl(bool sign, int exa, unsigned long mta, int exb, unsigned lon
     // Multiply mantissas
     unsigned __int128 mul = (unsigned __int128)mta * (unsigned __int128)mtb;
 
-    // Extract leading zeros
-    unsigned long result_upper = mul >> 64;
-    int leading_zeros = __builtin_clzl(result_upper);
+    if (mul >> 127) {
+        // No leading zeros
+        unsigned long mto = mul >> 64;
+        int exo = exa + exb - 1022;  // Bias - 1
 
-    // Normalize exponent and mantissa
-    unsigned long mto = mul >> (64 - leading_zeros);
-    int exo = exa + exb - leading_zeros - 1022;  // Bias - 1
+        return bf(sign, exo, mto);
+    } else {
+        // Single leading zero
+        unsigned long mto = mul >> 63;
+        int exo = exa + exb - 1023;  // Bias
 
-    return bf(sign, exo, mto);
+        return bf(sign, exo, mto);
+    }
 }
 
 bf bf::operator*(const bf &other) const {
