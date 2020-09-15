@@ -137,9 +137,9 @@ bf add_impl(short exa, long mta, short exb, long mtb) {
             short exo = exa - shift_amount;
             return bf(exo, mto);
         } else {
-            int leading_zeros = __builtin_clzl(-mto);
-            mto <<= leading_zeros - 1;
-            short exo = exa - leading_zeros;
+            int shift_amount = __builtin_clzl(-mto) - 1;
+            mto <<= shift_amount;
+            short exo = exa - shift_amount;
             return bf(exo, mto);
         }
     }
