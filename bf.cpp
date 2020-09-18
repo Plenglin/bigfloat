@@ -107,22 +107,8 @@ inline bf add_impl(BINARY_OP_ARGS) {
     // Shift to align decimal points
     mtb >>= exa - exb;
 
-    // Same signs?
-    if ((mta ^ mtb) >= 0) {
-        // Perform addition
-        long mto;
-
-        // Overflow handling
-        if (__builtin_add_overflow(mta, mtb, &mto)){
-            if (mto <= 0) {
-                mto = (mto < 0 ? (unsigned long) mto : mto) >> 1;
-            }
-            mto |= (1L << 62);
-            short exo = exa + 1;
-            return bf(exo, mto);
-        }
-        return bf(exa, mto);
-    } else {
+    // Different signs?
+    if ((bool) ((unsigned long) (mta ^ mtb) >> 63)) {
         // Perform addition (actually subtraction)
         long mto = mta + mtb;
         if (mto == 0) {
@@ -134,6 +120,20 @@ inline bf add_impl(BINARY_OP_ARGS) {
         mto <<= shift_amount;
         short exo = exa - shift_amount;
         return bf(exo, mto);
+    } else {
+        // Perform addition
+        long mto;
+
+        // Overflow handling
+        if (__builtin_add_overflow(mta, mtb, &mto)) {
+            if (mto <= 0) {
+                mto = (unsigned long) mto >> 1;
+            }
+            mto |= (1L << 62);
+            short exo = exa + 1;
+            return bf(exo, mto);
+        }
+        return bf(exa, mto);
     }
 }
 
@@ -172,7 +172,7 @@ bf bf::operator*(const bf &other) const {
     auto mta = mantissa;
     auto mtb = other.mantissa;
 
-    auto sign = ((mta < 0) << 1) | (mtb < 0);
+    auto sign = (((unsigned long)mta >> 63) << 1) | ((unsigned long)mtb >> 63);
     switch (sign) {
         case 0b00:
             return mult_impl(exa, mta, exb, mtb);
