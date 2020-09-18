@@ -103,18 +103,6 @@ bf::operator double() const {
     return d.value;
 }
 
-bf bf::operator+() const {
-    return *this;
-}
-
-bf bf::operator-() const {
-    return bf(exponent, -mantissa);
-}
-
-void bf::operator-=(const bf &other) {
-    *this = *this - other;
-}
-
 inline bf add_impl(BINARY_OP_ARGS) {
     // Shift to align decimal points
     mtb >>= exa - exb;
@@ -161,10 +149,6 @@ bf bf::operator+(const bf &other) const {
     return sort_add_impl(exponent, mantissa, other.exponent, other.mantissa);
 }
 
-void bf::operator+=(const bf &other) {
-    *this = *this + other;
-}
-
 bf bf::operator-(const bf &other) const {
     return sort_add_impl(exponent, mantissa, other.exponent, -other.mantissa);
 }
@@ -199,10 +183,6 @@ bf bf::operator*(const bf &other) const {
         case 0b11:
             return mult_impl(exa, -mta, exb, -mtb);
     }
-}
-
-void bf::operator*=(const bf &other) {
-    *this = *this * other;
 }
 
 inline bf div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
@@ -313,38 +293,6 @@ bool bf::operator>(const bf &other) const {
 
 bool bf::operator>=(const bf &other) const {
     return lcmp_impl<lte_impl>(other, *this);
-}
-
-bool bf::operator==(const bf &other) const {
-    return exponent == other.exponent && mantissa == other.mantissa;
-}
-
-bool bf::operator!=(const bf &other) const {
-    return false;
-}
-
-bool bf::sign() const {
-    return mantissa < 0;
-}
-
-bool bf::is_zero() const {
-    return exponent == 0 && mantissa == 0;
-}
-
-bool bf::is_nan() const {
-    return (exponent == 32767 || exponent == -32768) && mantissa != 0;
-}
-
-bool bf::is_inf() const {
-    return (exponent == 32767 || exponent == -32768) && mantissa == 0;
-}
-
-bf bf::inf(bool sign) {
-    return bf(sign ? 32767 : -32768, 0);
-}
-
-bf bf::nan(bool sign) {
-    return bf(sign ? 32767 : -32768, 1);
 }
 
 bf bf::truncated() const {

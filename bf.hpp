@@ -31,39 +31,73 @@ namespace bigfloat {
         explicit operator double() const;
         explicit operator bf_packed() const;
 
-        bf operator+() const;
-        bf operator-() const;
+        inline bf operator+() const {
+            return *this;
+        }
+        inline bf operator-() const {
+            return bf(exponent, -mantissa);
+        }
 
         bf operator+(const bf &other) const;
-        void operator+=(const bf &other);
+        inline void operator+=(const bf &other) {
+            *this = *this + other;
+        }
 
         bf operator-(const bf &other) const;
-        void operator-=(const bf &other);
+        inline void operator-=(const bf &other) {
+            *this = *this - other;
+        }
 
         bf operator*(const bf &other) const;
-        void operator*=(const bf &other);
+        inline void operator*=(const bf &other) {
+            *this = *this * other;
+        }
 
         bf operator/(const bf &other) const;
+        inline void operator/=(const bf &other) {
+            *this = *this / other;
+        }
+
         bf operator%(const bf &other) const;
+        inline void operator%=(const bf &other) {
+            *this = *this % other;
+        }
 
         bool operator<(const bf &other) const;
         bool operator>(const bf &other) const;
         bool operator<=(const bf &other) const;
         bool operator>=(const bf &other) const;
-        bool operator==(const bf &other) const;
-        bool operator!=(const bf &other) const;
+        inline bool operator==(const bf &other) const {
+            return exponent == other.exponent && mantissa == other.mantissa;
+        }
+        inline bool operator!=(const bf &other) const {
+            return exponent != other.exponent || mantissa != other.mantissa;
+        }
 
         bf truncated() const;
 
-        inline bool sign() const;
-        inline bool is_zero() const;
-        inline bool is_nan() const;
-        bool is_inf() const;
-        inline static bf inf(bool sign);
-        inline static bf nan(bool sign);
+        inline bool sign() const {
+            return mantissa < 0;
+        }
+        inline bool is_zero() const {
+            return exponent == 0 && mantissa == 0;
+        }
+        inline bool is_nan() const {
+            return (exponent == 32767 || exponent == -32768) && mantissa != 0;
+        }
+        inline bool is_inf() const {
+            return (exponent == 32767 || exponent == -32768) && mantissa == 0;
+        }
+        inline static bf inf(bool sign) {
+            return bf(sign ? 32767 : -32768, 0);
+        }
+        inline static bf nan(bool sign) {
+            return bf(sign ? 32767 : -32768, 1);
+        }
     };
     std::ostream &operator<<(std::ostream &os, const bigfloat::bf &x);
 }
+
 
 #endif //BIGFLOAT_BF_HPP
 
