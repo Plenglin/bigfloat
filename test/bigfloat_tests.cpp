@@ -9,6 +9,7 @@
 #include "_include.hpp"
 
 using namespace std;
+using namespace boost;
 using namespace bigfloat;
 namespace data = boost::unit_test::data;
 namespace mono = data::monomorphic;
@@ -93,10 +94,24 @@ BOOST_AUTO_TEST_SUITE(bigfloat_cmp)
     }
 BOOST_AUTO_TEST_SUITE_END();
 
+static const bf numbers[] = {
+        bf(382373.0)
+};
+static const std::string strs[] = {
+        "382373"
+};
+static const auto NUM_STR_PAIRS =
+        data::make(numbers) ^
+        data::make(strs);
+
 BOOST_AUTO_TEST_SUITE(bigfloat_str)
-    BOOST_AUTO_TEST_CASE(str) {
-        bf a = 382373;
-        std::cout << a << endl;
+
+    BOOST_DATA_TEST_CASE(bf2str, NUM_STR_PAIRS, val, expected) {
+        std::stringstream ss;
+        bf x = val;
+        ss << x;
+        auto actual = ss.str();
+        BOOST_REQUIRE_EQUAL(expected, actual);
     }
 BOOST_AUTO_TEST_SUITE_END();
 

@@ -366,7 +366,7 @@ bf bf::operator%(const bf &other) const {
 }
 
 std::ostream &bigfloat::operator<<(std::ostream &os, const bf &x) {
-    bf abs = x < 0 ? -x : x;
+    bf remainder = x;
 
     // Accumulate tens until we exceed the target
     bf tens_acc = 1;
@@ -374,14 +374,13 @@ std::ostream &bigfloat::operator<<(std::ostream &os, const bf &x) {
     do {
         gt1_powers.push_back(tens_acc);
         tens_acc *= 10;
-    } while (tens_acc < abs);
+    } while (tens_acc < remainder);
 
     // Divide by powers of 10 until we reach zero
-    bf remainder = abs;
     std::vector<char> digits;
     for (auto it = gt1_powers.rbegin(); it != gt1_powers.rend(); it++) {
         auto p10 = *it;
-        if (p10 > abs) {  // Too big
+        if (p10 > remainder) {  // Too big
             os << '0';
             continue;
         }
