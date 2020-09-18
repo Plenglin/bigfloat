@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd)
         auto bx1 = bf(x1);
         auto bx2 = bf(x2);
         auto bx3 = bf(x3);
-        auto as = vec4(bx0, bx1, bx2, bx3);
+        auto as = simd_vec4(bx0, bx1, bx2, bx3);
 
         BOOST_REQUIRE_EQUAL(as[0], bx0);
         BOOST_REQUIRE_EQUAL(as[1], bx1);
@@ -40,8 +40,8 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd)
         auto bx6 = bf(x6);
         auto bx7 = bf(x7);
 
-        vec4 as = vec4(bx0, bx1, bx2, bx3);
-        vec4 bs = vec4(bx4, bx5, bx6, bx7);
+        simd_vec4 as = simd_vec4(bx0, bx1, bx2, bx3);
+        simd_vec4 bs = simd_vec4(bx4, bx5, bx6, bx7);
 
         as *= bs;
 
