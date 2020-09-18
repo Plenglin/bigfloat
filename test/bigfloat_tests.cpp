@@ -123,7 +123,9 @@ static const bf numbers[] = {
         bf(0.5),
         bf(0.1),
         bf(0.00001),
-        bf(923.23002)
+        bf(923.23002),
+        bf(-21419.13),
+        bf(-38231231.2)
 };
 static const std::string strs[] = {
         "382373",
@@ -132,7 +134,9 @@ static const std::string strs[] = {
         "0.5",
         "0.1",
         "0.00001",
-        "923.230De019"
+        "923.230019",
+        "-21419.13",
+        "-38231231.2"
 };
 static const auto NUM_STR_PAIRS =
         data::make(numbers) ^

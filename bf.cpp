@@ -373,6 +373,10 @@ bf bf::operator%(const bf &other) const {
 
 std::ostream &bigfloat::operator<<(std::ostream &os, const bf &x) {
     bf remainder = x;
+    if (remainder.sign()) {
+        remainder = -remainder;
+        os << '-';
+    }
 
     // Accumulate tens until we exceed the target
     bf tens_acc = 1;
