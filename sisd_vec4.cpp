@@ -31,7 +31,7 @@ void sisd_vec4::negate() {
 
 void sisd_vec4::invert() {
     for (int i = 0; i < 4; i++) {
-        xs[i] = 1 / xs[i];
+        xs[i] = bf(1) / xs[i];
     }
 }
 

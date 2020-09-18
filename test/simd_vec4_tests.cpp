@@ -10,13 +10,13 @@
 using namespace bigfloat;
 using namespace bigfloat::simd;
 
-BOOST_AUTO_TEST_SUITE(bigfloat_simd)
+BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
     // Test cases, preferably non-zero/nan/inf ones. The zero ones can get their own test cases.
     static const auto DATA =
               data::make(ARR1) ^ data::make(ARR2) ^ data::make(ARR1) ^ data::make(ARR2)
             ^ data::make(ARR2) ^ data::make(ARR1) ^ data::make(ARR2) ^ data::make(ARR1);
 
-    BOOST_DATA_TEST_CASE(vec4_preserves_bf, DATA, x0, x1, x2, x3, _0, _1, _2, _3) {
+    BOOST_DATA_TEST_CASE(preserves_bf, DATA, x0, x1, x2, x3, _0, _1, _2, _3) {
         auto bx0 = bf(x0);
         auto bx1 = bf(x1);
         auto bx2 = bf(x2);
