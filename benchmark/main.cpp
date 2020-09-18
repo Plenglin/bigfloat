@@ -14,6 +14,8 @@ BENCHMARK(double_addition);
 
 BENCHMARK(bigfloat_multiplication);
 BENCHMARK(double_multiplication);
+BENCHMARK(sisd_mkunc);
+BENCHMARK(simd_mkunc);
 
 BENCHMARK(bigfloat_division);
 BENCHMARK(double_division);

@@ -3,6 +3,7 @@
 
 #include <benchmark/benchmark.h>
 #include "shared.hpp"
+#include "../avx_helper.hpp"
 
 static void double_addition(benchmark::State &state) {
     int i = 0;
@@ -53,6 +54,14 @@ static void int32_division(benchmark::State &state) {
         int a = 931212343;
         volatile int b = 12;
         volatile int c = a / b;
+    }
+}
+
+static void sisd_mkunc(benchmark::State &state) {
+    for (auto _ : state) {
+        unsigned long a = 3191236748126UL | MKUNC_MSB;
+        volatile unsigned long b = 12391236748126UL | MKUNC_MSB;
+        volatile unsigned long c = bigfloat::helper::multiply_keep_upper_no_carry(a, b);
     }
 }
 

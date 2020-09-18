@@ -5,6 +5,8 @@
 #include <xmmintrin.h>
 #include <immintrin.h>
 
+#define MKUNC_MSB 1UL << 62
+
 namespace bigfloat::helper {
     union m256_union {
         unsigned int i[8];
