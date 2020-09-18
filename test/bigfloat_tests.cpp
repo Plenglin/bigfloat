@@ -86,12 +86,34 @@ BOOST_AUTO_TEST_SUITE(bigfloat_cmp)
     BOOST_DATA_TEST_CASE(lte, PAIRS, a, b) {
         BOOST_REQUIRE_EQUAL(double(bf(a) <= bf(b)), a <= b);
     }
+
     BOOST_DATA_TEST_CASE(gt, PAIRS, a, b) {
         BOOST_REQUIRE_EQUAL(double(bf(a) > bf(b)), a > b);
     }
     BOOST_DATA_TEST_CASE(gte, PAIRS, a, b) {
         BOOST_REQUIRE_EQUAL(double(bf(a) >= bf(b)), a >= b);
     }
+
+    BOOST_AUTO_TEST_CASE(zero_lt_pos) {
+        BOOST_REQUIRE_LT(bf(0), bf(1));
+    }
+    BOOST_AUTO_TEST_CASE(zero_nlt_zero) {
+        BOOST_REQUIRE(!(bf(0) < bf(0)));
+    }
+    BOOST_AUTO_TEST_CASE(neg_lt_zero) {
+        BOOST_REQUIRE_LT(bf(-1), bf(0));
+    }
+
+    BOOST_AUTO_TEST_CASE(zero_lte_pos) {
+        BOOST_REQUIRE_LE(bf(0), bf(1));
+    }
+    BOOST_AUTO_TEST_CASE(zero_lte_zero) {
+        BOOST_REQUIRE_LE(bf(0), bf(0));
+    }
+    BOOST_AUTO_TEST_CASE(neg_lte_zero) {
+        BOOST_REQUIRE_LE(bf(-1), bf(0));
+    }
+
 BOOST_AUTO_TEST_SUITE_END();
 
 static const bf numbers[] = {
@@ -117,7 +139,6 @@ static const auto NUM_STR_PAIRS =
         data::make(strs);
 
 BOOST_AUTO_TEST_SUITE(bigfloat_str)
-
     BOOST_DATA_TEST_CASE(bf2str, NUM_STR_PAIRS, val, expected) {
         std::stringstream ss;
         bf x = val;

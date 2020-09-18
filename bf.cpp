@@ -274,12 +274,18 @@ bf bf::operator/(const bf &other) const {
 }
 
 inline bool lt_impl(const bf &a, const bf &b) {
+    if (a.is_zero()) {
+        return !b.is_zero() && !b.sign();
+    }
     if (a.exponent > b.exponent) return false;
     if (a.exponent < b.exponent) return true;
     return a.mantissa < b.mantissa;
 }
 
 inline bool lte_impl(const bf &a, const bf &b) {
+    if (a.is_zero()) {
+        return b.is_zero() || !b.sign();
+    }
     if (a.exponent > b.exponent) return false;
     if (a.exponent < b.exponent) return true;
     return a.mantissa <= b.mantissa;
