@@ -6,27 +6,41 @@
 #include <immintrin.h>
 
 namespace bigfloat::helper {
-    union m128_union {
-        unsigned int i[4];
-        unsigned long q[2];
-        __m128i v;
+    union m256_union {
+        unsigned int i[8];
+        unsigned long q[4];
+        __m256i v;
     };
+
     inline unsigned long multiply_keep_upper_no_carry(unsigned long a, unsigned long b) {
-        m128_union prods;
+        unsigned __int128 mul = (unsigned __int128)a * (unsigned __int128)b;
+        unsigned long upper = mul >> 64;
+        upper >>= (upper >> 63);
+        return upper;
+    }
 
-        __m128i vab = _mm_set_epi64x(a, b);
-        m128_union va1b1;
-        va1b1.v = _mm_srli_epi64(vab, 32);
+    inline __m256i multiply_keep_upper_no_carry(__m256i a, __m256i b) {
+        // HTL vectors
+        __m256i a1 = _mm256_srli_epi64(a, 32);
+        __m256i b1 = _mm256_srli_epi64(b, 32);
 
-        __m128i vb0a0 = _mm_set_epi32(0, b, 0, a);
-        prods.v = _mm_mul_epu32(va1b1.v, vb0a0);
+        // Perform multiplications and add together
+        __m256i a1b1 = _mm256_mul_epu32(a1, b1);
+        __m256i a1b0 = _mm256_mul_epu32(a1, b);
+        a1b0 = _mm256_srli_epi64(a1b0, 32);
+        __m256i sum = _mm256_add_epi64(a1b1, a1b0);
 
-        unsigned long upper_prod = va1b1.q[0] * va1b1.q[1];
-        unsigned long sum = upper_prod;
-        sum += prods.i[1];
-        sum += prods.i[3];
+        __m256i a0b1 = _mm256_mul_epu32(a, b1);
+        a0b1 = _mm256_srli_epi64(a0b1, 32);
+        sum = _mm256_add_epi64(sum, a0b1);
 
-        return sum;
+        // Correct for MSB position
+        __m256i has_upper_bit_mask = _mm256_srai_epi32(sum, 31);
+        has_upper_bit_mask = (__m256i)_mm256_permute_ps((__m256)has_upper_bit_mask, 0b11011101);
+        __m256i sum_sr = _mm256_srli_epi64(sum, 1);
+        __m256i sum_corrected = _mm256_blendv_epi8(sum, sum_sr, has_upper_bit_mask);
+
+        return sum_corrected;
     }
 }
 
