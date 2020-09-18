@@ -21,9 +21,6 @@ BENCHMARK(int128_division);
 BENCHMARK(int64_division);
 BENCHMARK(int32_division);
 
-BENCHMARK(int64_mul_upper);
-BENCHMARK(multiply_keep_upper_no_carry);
-
 BENCHMARK(bigfloat_nbody);
 BENCHMARK(double_nbody);
 
