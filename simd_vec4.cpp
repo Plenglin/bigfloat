@@ -23,6 +23,11 @@ void simd::vec4::operator*=(simd::vec4 &other) {
     //
 }
 
-bf simd::vec4::operator[](int i) {
+bf simd::vec4::operator[](int i) const {
     return bf(((unsigned long*)&exponent)[i], ((unsigned long*)&mantissa)[i]);
+}
+
+std::ostream &simd::operator<<(std::ostream &os, const simd::vec4 &x) {
+    os << "vec4[" << x[0] << "," << x[1] << "," << x[2] << "," << x[3] << "]";
+    return os;
 }
