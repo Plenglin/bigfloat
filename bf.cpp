@@ -392,7 +392,36 @@ std::ostream &bigfloat::operator<<(std::ostream &os, const bf &x) {
         remainder -= trunc * p10;
     }
 
+    if (remainder.is_zero()) return os;
 
+    os << '.';
+    tens_acc = 1;
+    static const bf one_tenth = bf(1) / 10;
+
+    int buffered_zeros = 0;
+    for (int i = os.precision(); !remainder.is_zero() && i > 0; i--) {
+        tens_acc *= one_tenth;
+        if (tens_acc > remainder) {
+            buffered_zeros++;
+            continue;
+        }
+
+        auto result = remainder / tens_acc;
+        auto trunc = result.truncated();
+        auto d = double(trunc);
+        auto digit = int(d);
+        remainder -= trunc * tens_acc;
+
+        if (digit == 0) {
+            buffered_zeros++;
+        } else {
+            while (buffered_zeros > 0) {
+                os << '0';
+                buffered_zeros--;
+            }
+            os << digit;
+        }
+    }
 
     return os;
 }

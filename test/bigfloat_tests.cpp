@@ -95,10 +95,22 @@ BOOST_AUTO_TEST_SUITE(bigfloat_cmp)
 BOOST_AUTO_TEST_SUITE_END();
 
 static const bf numbers[] = {
-        bf(382373.0)
+        bf(382373.0),
+        bf(1),
+        bf(0),
+        bf(0.5),
+        bf(0.1),
+        bf(0.00001),
+        bf(923.23002)
 };
 static const std::string strs[] = {
-        "382373"
+        "382373",
+        "1",
+        "0",
+        "0.5",
+        "0.1",
+        "0.00001",
+        "923.230De019"
 };
 static const auto NUM_STR_PAIRS =
         data::make(numbers) ^
