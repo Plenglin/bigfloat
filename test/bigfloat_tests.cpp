@@ -5,6 +5,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <iostream>
 #include "_include.hpp"
 
 using namespace std;
@@ -91,5 +92,13 @@ BOOST_AUTO_TEST_SUITE(bigfloat_cmp)
         BOOST_REQUIRE_EQUAL(double(bf(a) >= bf(b)), a >= b);
     }
 BOOST_AUTO_TEST_SUITE_END();
+
+BOOST_AUTO_TEST_SUITE(bigfloat_str)
+    BOOST_AUTO_TEST_CASE(str) {
+        bf a = 382373;
+        std::cout << a << endl;
+    }
+BOOST_AUTO_TEST_SUITE_END();
+
 
 #pragma clang diagnostic pop

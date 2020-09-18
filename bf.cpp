@@ -111,6 +111,10 @@ bf bf::operator-() const {
     return bf(exponent, -mantissa);
 }
 
+void bf::operator-=(const bf &other) {
+    *this = *this - other;
+}
+
 inline bf add_impl(BINARY_OP_ARGS) {
     // Shift to align decimal points
     mtb >>= exa - exb;
@@ -205,7 +209,7 @@ bf bf::operator*(const bf &other) const {
 }
 
 void bf::operator*=(const bf &other) {
-
+    *this = *this * other;
 }
 
 inline bf div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
@@ -342,4 +346,54 @@ bf bf::inf(bool sign) {
 
 bf bf::nan(bool sign) {
     return bf(sign ? 32767 : -32768, 1);
+}
+
+bf bf::truncated() const {
+    if (exponent < 0) {
+        return 0;
+    }
+    auto fraction_length = 62 - exponent;
+    if (fraction_length < 0) {
+        return *this;
+    }
+    auto mask = (-1L) << fraction_length;
+    return bf(exponent, mantissa & mask);
+}
+
+bf bf::operator%(const bf &other) const {
+    auto div_result = *this / other;
+    return *this - (div_result.truncated() * other);
+}
+
+std::ostream &bigfloat::operator<<(std::ostream &os, const bf &x) {
+    bf abs = x < 0 ? -x : x;
+
+    // Accumulate tens until we exceed the target
+    bf tens_acc = 1;
+    std::vector<bf> gt1_powers;
+    do {
+        gt1_powers.push_back(tens_acc);
+        tens_acc *= 10;
+    } while (tens_acc < abs);
+
+    // Divide by powers of 10 until we reach zero
+    bf remainder = abs;
+    std::vector<char> digits;
+    for (auto it = gt1_powers.rbegin(); it != gt1_powers.rend(); it++) {
+        auto p10 = *it;
+        if (p10 > abs) {  // Too big
+            os << '0';
+            continue;
+        }
+        auto result = remainder / p10;
+        auto trunc = result.truncated();
+        auto d = double(trunc);
+        auto digit = int(d);
+        os << digit;
+        remainder -= trunc * p10;
+    }
+
+
+
+    return os;
 }

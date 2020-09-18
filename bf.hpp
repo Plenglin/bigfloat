@@ -38,11 +38,13 @@ namespace bigfloat {
         void operator+=(const bf &other);
 
         bf operator-(const bf &other) const;
+        void operator-=(const bf &other);
 
         bf operator*(const bf &other) const;
         void operator*=(const bf &other);
 
         bf operator/(const bf &other) const;
+        bf operator%(const bf &other) const;
 
         bool operator<(const bf &other) const;
         bool operator>(const bf &other) const;
@@ -50,6 +52,8 @@ namespace bigfloat {
         bool operator>=(const bf &other) const;
         bool operator==(const bf &other) const;
         bool operator!=(const bf &other) const;
+
+        bf truncated() const;
 
         inline bool sign() const;
         inline bool is_zero() const;
