@@ -48,6 +48,14 @@ static void int64_division(benchmark::State &state) {
     }
 }
 
+static void int64_mul_upper(benchmark::State &state) {
+    for (auto _ : state) {
+        long a = 31231L << 32;
+        volatile long b = 3129389;
+        volatile long c = ((__int128)a * (__int128)b) >> 32;
+    }
+}
+
 static void int32_division(benchmark::State &state) {
     for (auto _ : state) {
         int a = 931212343;

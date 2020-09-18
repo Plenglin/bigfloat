@@ -5,6 +5,7 @@
 #include "control.hpp"
 #include "ops.hpp"
 #include "advanced.hpp"
+#include "helper.hpp"
 
 BENCHMARK(bigfloat_construction);
 
@@ -19,6 +20,9 @@ BENCHMARK(double_division);
 BENCHMARK(int128_division);
 BENCHMARK(int64_division);
 BENCHMARK(int32_division);
+
+BENCHMARK(int64_mul_upper);
+BENCHMARK(multiply_keep_upper_no_carry);
 
 BENCHMARK(bigfloat_nbody);
 BENCHMARK(double_nbody);
