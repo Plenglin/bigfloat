@@ -172,20 +172,13 @@ bf bf::operator-(const bf &other) const {
 inline bf mult_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
     // Multiply mantissas
     unsigned __int128 mul = (unsigned __int128)((unsigned long)mta << 1) * (unsigned __int128)((unsigned long)mtb << 1);
+    unsigned long upper = mul >> 64;
 
-    if (mul >> 127) {
-        // No leading zeros
-        unsigned long mto = mul >> 65;
-        int exo = exa + exb + 1;  // Bias - 1
+    int sign = upper >> 63;
+    unsigned long mto = upper >> sign;
+    int exo = exa + exb + sign;  // Bias - 1
 
-        return bf(exo, mto);
-    } else {
-        // Single leading zero
-        unsigned long mto = mul >> 64;
-        int exo = exa + exb;  // Bias
-
-        return bf(exo, mto);
-    }
+    return bf(exo, mto);
 }
 
 bf bf::operator*(const bf &other) const {
