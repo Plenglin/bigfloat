@@ -29,6 +29,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd)
         BOOST_REQUIRE_EQUAL(as[3], bx3);
     }
 
+    /*
     BOOST_DATA_TEST_CASE(vec4_mul_is_correct, DATA, x0, x1, x2, x3, x4, x5, x6, x7) {
         auto bx0 = bf(x0);
         auto bx1 = bf(x1);
@@ -48,7 +49,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd)
         BOOST_REQUIRE_CLOSE(as[1], bx1 * bx5, DOUBLE_TOLERANCE);
         BOOST_REQUIRE_CLOSE(as[2], bx2 * bx6, DOUBLE_TOLERANCE);
         BOOST_REQUIRE_CLOSE(as[3], bx3 * bx7, DOUBLE_TOLERANCE);
-    }
+    }*/
 
 BOOST_AUTO_TEST_SUITE_END();
 #pragma clang diagnostic pop
