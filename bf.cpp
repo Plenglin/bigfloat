@@ -210,29 +210,56 @@ void bf::operator*=(const bf &other) {
 
 inline bf div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
     // Divide mantissas
-    __int128 result = ((__int128)mta << 64) / mtb;
+    auto dividend = (unsigned __int128)mta << 65;
+    unsigned __int128 result = dividend / mtb;
+
+    // First, we shift such that the MSB is at bit 63 of the long. This makes the else branch simpler.
 
     // Extract leading zeros
-    __int128 normalized_result = result >= 0 ? result : -result;
-    long normalized_result_upper = (unsigned __int128)normalized_result >> 64;
-    int leading_zeros = normalized_result_upper
-                    ? __builtin_clzl(normalized_result_upper)
-                    : 64 + __builtin_clzl(normalized_result);
+    unsigned long result_upper = result >> 64;
+    unsigned long mto;
+    int exo = exa - exb;
+    if (result_upper) {
+        // There is upper stuff
+        int leading_zeros = __builtin_clzl(result_upper);
+        int shift_amount = 64 - leading_zeros;
+        mto = result >> shift_amount;
 
-    // Perform shifting
-    int shift_amount = 65 - leading_zeros;
-    long mto = result >> shift_amount;
+        // Subtract and normalize exponents
+        exo += shift_amount - 2;
+    } else {
+        // There is no upper stuff
+        int leading_zeros = __builtin_clzl((unsigned long) result);
+        mto = result << leading_zeros;
 
-    // Subtract and normalize exponents
-    const auto exo = exa - exb + shift_amount - 2;  // bias - 1
+        // Subtract and normalize exponents
+        exo -= leading_zeros;
+    }
+
+    // Before constructing the float, we will shift the MSB to its proper place (bit 62).
+    mto >>= 1;
     return bf(exo, mto);
+}
+
+inline bf normalize_sign_div(short exa, long mta, short exb, long mtb) {
+    int sign = ((mta < 0) << 1) | (mtb < 0);
+    switch (sign) {
+        case 0b00:
+            return div_impl(exa, mta, exb, mtb);
+        case 0b01:
+            return -div_impl(exa, mta, exb, -mtb);
+        case 0b10:
+            return -div_impl(exa, -mta, exb, mtb);
+        case 0b11:
+            return div_impl(exa, -mta, exb, -mtb);
+    }
 }
 
 bf bf::operator/(const bf &other) const {
     int zero = (is_zero() << 1) | other.is_zero();
     switch (zero) {
-        case 0b00:  // x / y
-            return div_impl(exponent, mantissa, other.exponent, other.mantissa);
+        case 0b00: // x / y
+            return normalize_sign_div(exponent, mantissa, other.exponent, other.mantissa);
         case 0b10:  // 0 / y
             return 0;
         case 0b01:  // x / 0
