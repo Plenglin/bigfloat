@@ -12,7 +12,7 @@ sisd_vec4::sisd_vec4(bf x) : sisd_vec4(x, x, x, x) {
 
 }
 
-sisd_vec4::sisd_vec4(bf x0, bf x1, bf x2, bf x3) {
+sisd_vec4::sisd_vec4(const bf &x0, const bf &x1, const bf &x2, const bf &x3) {
     xs[0] = x0;
     xs[1] = x1;
     xs[2] = x2;
@@ -24,14 +24,14 @@ bf sisd_vec4::operator[](int i) const {
 }
 
 void sisd_vec4::negate() {
-    for (int i = 0; i < 4; i++) {
-        xs[i] = -xs[i];
+    for (auto & x : xs) {
+        x = -x;
     }
 }
 
 void sisd_vec4::invert() {
-    for (int i = 0; i < 4; i++) {
-        xs[i] = bf(1) / xs[i];
+    for (auto & x : xs) {
+        x = bf(1) / x;
     }
 }
 

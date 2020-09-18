@@ -77,7 +77,7 @@ namespace bigfloat {
         bf truncated() const;
 
         inline bool sign() const {
-            return mantissa < 0;
+            return (unsigned long)mantissa >> 63;
         }
         inline bool is_zero() const {
             return exponent == 0 && mantissa == 0;

@@ -12,7 +12,7 @@ namespace bigfloat::simd {
         bf xs[4];
 
         explicit sisd_vec4(bf x);
-        sisd_vec4(bf x0, bf x1, bf x2, bf x3);
+        sisd_vec4(const bf &x0, const bf &x1, const bf &x2, const bf &x3);
 
         bf operator[](int i) const;
         void invert();
