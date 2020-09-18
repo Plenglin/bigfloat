@@ -16,6 +16,8 @@ BENCHMARK(bigfloat_multiplication);
 BENCHMARK(double_multiplication);
 BENCHMARK(sisd_mkunc);
 BENCHMARK(simd_mkunc);
+BENCHMARK(simd_int32x8_multiply);
+BENCHMARK(sisd_int32x8_multiply);
 
 BENCHMARK(bigfloat_division);
 BENCHMARK(double_division);
