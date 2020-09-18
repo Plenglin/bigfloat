@@ -1,9 +1,6 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedMacroInspection"
 #pragma ide diagnostic ignored "cert-err58-cpp"
-//
-// Created by astrid on 8/18/20.
-//
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
