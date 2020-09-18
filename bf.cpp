@@ -165,28 +165,50 @@ bf bf::operator-(const bf &other) const {
     return sort_add_impl(exponent, mantissa, other.exponent, -other.mantissa);
 }
 
-inline bf mult_impl(BINARY_OP_ARGS) {
+inline bf mult_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
     // Multiply mantissas
-    __int128 mul = (__int128)mta * (__int128)mtb;
-    long upper = mul >> 64;
-    int less_shift = abs_count_zero(upper) - 1;
+    unsigned __int128 mul = (unsigned __int128)((unsigned long)mta << 1) * (unsigned __int128)((unsigned long)mtb << 1);
 
-    long mto = mul >> (64 - less_shift);
-    short exo = exa + exb - less_shift + 2;
+    if (mul >> 127) {
+        // No leading zeros
+        unsigned long mto = mul >> 65;
+        int exo = exa + exb + 1;  // Bias - 1
 
-    return bf(exo, mto);
+        return bf(exo, mto);
+    } else {
+        // Single leading zero
+        unsigned long mto = mul >> 64;
+        int exo = exa + exb;  // Bias
+
+        return bf(exo, mto);
+    }
 }
 
 bf bf::operator*(const bf &other) const {
     if (is_zero() || other.is_zero()) return 0;
-    return mult_impl(exponent, mantissa, other.exponent, other.mantissa);
+    auto exa = exponent;
+    auto exb = other.exponent;
+    auto mta = mantissa;
+    auto mtb = other.mantissa;
+
+    auto sign = ((mta < 0) << 1) | (mtb < 0);
+    switch (sign) {
+        case 0b00:
+            return mult_impl(exa, mta, exb, mtb);
+        case 0b01:
+            return -mult_impl(exa, mta, exb, -mtb);
+        case 0b10:
+            return -mult_impl(exa, -mta, exb, mtb);
+        case 0b11:
+            return mult_impl(exa, -mta, exb, -mtb);
+    }
 }
 
 void bf::operator*=(const bf &other) {
 
 }
 
-inline bf div_impl(BINARY_OP_ARGS) {
+inline bf div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
     // Divide mantissas
     __int128 result = ((__int128)mta << 64) / mtb;
 
