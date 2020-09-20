@@ -39,6 +39,8 @@ void simd_vec4::operator+=(simd_vec4 &other) {
 
 
 void simd_vec4::operator*=(simd_vec4 &other) {
+    // Force the data to be aligned to a 4-byte boundary.
+    long _padding;
     // Handle signs
     sign ^= other.sign;
 
@@ -51,23 +53,25 @@ void simd_vec4::operator*=(simd_vec4 &other) {
     }
 
     // Build vector
-    __m256i mulv = *(__m256i*)muls;
+    __m256i mulv = _mm256_loadu_si256((__m256i*)muls);
 
-    // Bootleg 64-bit sra 63 (spread sign bit across all bits) to build a mask
+    // Bootleg 64-bit sra 63 (spread bit 63 across all bits) to build a mask
     __m256i has_upper_bit_mask = _mm256_srai_epi32(mulv, 31);
     has_upper_bit_mask = (__m256i)_mm256_permute_ps((__m256)has_upper_bit_mask, 0b11011101);
 
-    // Shift masked mantissas right by 1
-    __m256i mto_all_srl1 = _mm256_srli_epi64(mulv, 1);
-    mantissa = _mm256_blendv_epi8(mulv, mto_all_srl1, has_upper_bit_mask);
+    // Shift unmasked mantissas left by 1
+    __m256i mulv_all_sll1 = _mm256_slli_epi64(mulv, 1);
+    mantissa = _mm256_blendv_epi8(mulv_all_sll1, mulv, has_upper_bit_mask);
 
     // Add exponents
-    __m256i exo = _mm256_add_epi64(exponent, other.exponent);
+    __m256i exp_sum = _mm256_add_epi64(exponent, other.exponent);
 
-    // Increment masked exponents by 1
-    __m256i ones = _mm256_set1_epi8(1);
-    __m256i masked_ones = _mm256_and_si256(ones, has_upper_bit_mask);
-    exponent = _mm256_add_epi64(exo, masked_ones);
+    // Decrement unmasked exponents by 1. Note that performing a bitwise NOT on the
+    // mask creates -1's where the zeros used to be.
+    //__m256i all1s = _mm256_set1_epi32(-1);
+    //__m256i addend = _mm256_xor_si256(has_upper_bit_mask, all1s);
+    //exponent = _mm256_add_epi64(exp_sum, addend);
+    exponent = exp_sum;
 }
 
 bf simd_vec4::operator[](int i) const {
