@@ -10,14 +10,13 @@ namespace bigfloat::simd {
     struct simd_vec4 {
         union {
             __m256i mantissa;
-            unsigned long mantissa_array[4];
+            long mantissa_array[4];
         };
         union {
             // Although exponents are still 16 bits, this is more efficient for computation.
             __m256i exponent;
             long exponent_array[4];
         };
-        int sign;
 
         explicit simd_vec4(bf x);
         simd_vec4(__m256i exponent, __m256i mantissa);

@@ -44,6 +44,10 @@ namespace bigfloat::helper {
 
         return sum_corrected;
     }
+
+    inline int abs_count_zero(long l) {
+        return __builtin_clzl(l >= 0 ? l : -l);
+    }
 }
 
 #endif //BIGFLOAT_AVX_HELPER_HPP

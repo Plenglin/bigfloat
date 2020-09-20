@@ -17,16 +17,11 @@ simd_vec4::simd_vec4(__m256i exponent, __m256i mantissa) : exponent(exponent), m
 }
 
 simd_vec4::simd_vec4(const bf &x0, const bf &x1, const bf &x2, const bf &x3) {
-    bool s0 = x0.sign();
-    bool s1 = x1.sign();
-    bool s2 = x2.sign();
-    bool s3 = x3.sign();
-    sign = (s3 << 3) | (s2 << 2) | (s1 << 1) | s0;
     mantissa = _mm256_set_epi64x(
-            CONDITIONAL_INV(s3, x3.mantissa),
-            CONDITIONAL_INV(s2, x2.mantissa),
-            CONDITIONAL_INV(s1, x1.mantissa),
-            CONDITIONAL_INV(s0, x0.mantissa));
+            x3.mantissa,
+            x2.mantissa,
+            x1.mantissa,
+            x0.mantissa);
     exponent = _mm256_set_epi64x(x3.exponent, x2.exponent, x1.exponent, x0.exponent);
 }
 
@@ -39,15 +34,29 @@ void simd_vec4::operator+=(simd_vec4 &other) {
 
 
 void simd_vec4::operator*=(simd_vec4 &other) {
+    __m256i mta = mantissa;
+    __m256i mtb = other.mantissa;
+
     // Handle signs
-    sign ^= other.sign;
+    __m256i zero = _mm256_setzero_si256();
+    __m256i sa = _mm256_cmpgt_epi64(zero, mta);
+    __m256i sb = _mm256_cmpgt_epi64(zero, mtb);
+
+    // Absolute value of the factors
+    helper::m256_union abs_mta, abs_mtb;
+
+    __m256i mta_all_neg = _mm256_sub_epi64(zero, mta);
+    abs_mta.v = _mm256_blendv_epi8(mta, mta_all_neg, sa);
+
+    __m256i mtb_all_neg = _mm256_sub_epi64(zero, mtb);
+    abs_mtb.v = _mm256_blendv_epi8(mtb, mtb_all_neg, sb);
 
     // Multiply mantissas
     helper::m256_union muls;
     for (int i = 0; i < 4; i++) {
         unsigned __int128 mul =
-                (unsigned __int128)(mantissa_array[i]) *
-                (unsigned __int128)(other.mantissa_array[i]);
+                (unsigned __int128)(abs_mta.q[i]) *
+                (unsigned __int128)(abs_mtb.q[i]);
         unsigned long upper = mul >> 62;
         muls.q[i] = upper;
     }
@@ -56,12 +65,16 @@ void simd_vec4::operator*=(simd_vec4 &other) {
     __m256i mulv = muls.v;
 
     // Build a mask for items with 1 in bit 63
-    __m256i zeros = _mm256_setzero_si256();
-    __m256i has_upper_bit_mask = _mm256_cmpgt_epi64(zeros, mulv);
+    __m256i has_upper_bit_mask = _mm256_cmpgt_epi64(zero, mulv);
 
     // Shift upper bit mantissas right by 1
     __m256i mulv_all_srl1 = _mm256_srli_epi64(mulv, 1);
     __m256i mto = _mm256_blendv_epi8(mulv, mulv_all_srl1, has_upper_bit_mask);
+
+    // Apply sign
+    __m256i mto_all_neg = _mm256_sub_epi64(zero, mto);
+    __m256i so = _mm256_xor_si256(sa, sb);
+    mto = _mm256_blendv_epi8(mto, mto_all_neg, so);
 
     // Add exponents
     __m256i exp_sum = _mm256_add_epi64(exponent, other.exponent);
@@ -76,7 +89,7 @@ void simd_vec4::operator*=(simd_vec4 &other) {
 bf simd_vec4::operator[](int i) const {
     return bf(
             exponent_array[i],
-            CONDITIONAL_INV((sign >> i) & 1, (mantissa_array[i]))
+            mantissa_array[i]
     );
 }
 
