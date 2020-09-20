@@ -21,6 +21,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
         auto bx1 = bf(x1);
         auto bx2 = bf(x2);
         auto bx3 = bf(x3);
+
         auto as = simd_vec4(bx0, bx1, bx2, bx3);
 
         BOOST_REQUIRE_EQUAL(as[0], bx0);
@@ -38,16 +39,24 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
         auto bx5 = bf(x5);
         auto bx6 = bf(x6);
         auto bx7 = bf(x7);
+        auto e0 = bx0 * bx4;
+        auto e1 = bx1 * bx5;
+        auto e2 = bx2 * bx6;
+        auto e3 = bx3 * bx7;
 
         simd_vec4 as = simd_vec4(bx0, bx1, bx2, bx3);
         simd_vec4 bs = simd_vec4(bx4, bx5, bx6, bx7);
 
         as *= bs;
 
-        BOOST_REQUIRE_CLOSE(as[0], bx0 * bx4, DOUBLE_TOLERANCE);
-        BOOST_REQUIRE_CLOSE(as[1], bx1 * bx5, DOUBLE_TOLERANCE);
-        BOOST_REQUIRE_CLOSE(as[2], bx2 * bx6, DOUBLE_TOLERANCE);
-        BOOST_REQUIRE_CLOSE(as[3], bx3 * bx7, DOUBLE_TOLERANCE);
+        auto a0 = as[0];
+        auto a1 = as[1];
+        auto a2 = as[2];
+        auto a3 = as[3];
+        BOOST_REQUIRE_CLOSE(a0, e0, DOUBLE_TOLERANCE);
+        BOOST_REQUIRE_CLOSE(a1, e1, DOUBLE_TOLERANCE);
+        BOOST_REQUIRE_CLOSE(a2, e2, DOUBLE_TOLERANCE);
+        BOOST_REQUIRE_CLOSE(a3, e3, DOUBLE_TOLERANCE);
     }
 
 BOOST_AUTO_TEST_SUITE_END();

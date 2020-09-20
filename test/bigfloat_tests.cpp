@@ -57,6 +57,9 @@ BOOST_AUTO_TEST_SUITE(bigfloat_ops)
     BOOST_DATA_TEST_CASE(sub, PAIRS, a, b) {
         BOOST_REQUIRE_CLOSE(double(bf(a) - bf(b)), a - b, DOUBLE_TOLERANCE);
     }
+    BOOST_AUTO_TEST_CASE(sub_x_x_is_zero) {
+        BOOST_REQUIRE_EQUAL(bf(32.13) - bf(32.13), bf(0));
+    }
 
     BOOST_DATA_TEST_CASE(mul, PAIRS, a, b) {
         BOOST_REQUIRE_CLOSE(double(bf(a) * bf(b)), a * b, DOUBLE_TOLERANCE);
