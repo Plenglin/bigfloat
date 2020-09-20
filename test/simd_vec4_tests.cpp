@@ -5,6 +5,7 @@
 #include "_include.hpp"
 #include "../bf.hpp"
 #include "../simd_vec4.hpp"
+#include "../boost_interop.hpp"
 
 
 using namespace bigfloat;

@@ -7,7 +7,7 @@ if(OPTIMIZE_FOR_NATIVE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 endif()
 
-add_library(bigfloat bigfloat.hpp bf.cpp bf.hpp test/bigfloat_tests.cpp benchmark/main.cpp interop_mpfr.hpp math.hpp math.cpp interop_eigen.hpp simd.hpp simd.cpp simd_vec4.cpp simd_vec4.hpp avx_helper.hpp sisd_vec4.cpp sisd_vec4.hpp)
+add_library(bigfloat bigfloat.hpp bf.cpp bf.hpp test/bigfloat_tests.cpp benchmark/main.cpp interop_mpfr.hpp math.hpp math.cpp interop_eigen.hpp simd.hpp simd.cpp simd_vec4.cpp simd_vec4.hpp avx_helper.hpp sisd_vec4.cpp sisd_vec4.hpp boost_interop.hpp)
 # target_link_libraries(bigfloat mpfr)
 
 add_subdirectory(benchmark)

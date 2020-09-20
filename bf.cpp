@@ -79,11 +79,11 @@ bf::operator bf_packed() const {
 }
 
 bf::operator double() const {
-    if (is_zero()) {
-        return 0.0;
-    }
     if (is_nan()) {
         return std::numeric_limits<double>::quiet_NaN();
+    }
+    if (is_zero()) {
+        return 0.0;
     }
     if (is_inf()) {
         return std::numeric_limits<double>::infinity() * exponent;
@@ -104,14 +104,11 @@ bf::operator double() const {
 }
 
 inline bf add_impl(BINARY_OP_ARGS) {
+    // Shift to align decimal points
+    mtb >>= exa - exb;
+
     // Different signs?
     if ((bool) ((unsigned long) (mta ^ mtb) >> 63)) {
-        if (mta == mtb && exa == exb) {
-            return 0;
-        }
-        // Shift to align decimal points
-        mtb >>= exa - exb;
-
         // Perform addition (actually subtraction)
         long mto = mta + mtb;
         if (mto == 0) {
@@ -124,11 +121,10 @@ inline bf add_impl(BINARY_OP_ARGS) {
         short exo = exa - shift_amount;
         return bf(exo, mto);
     } else {
-        // Shift to align decimal points
-        mtb >>= exa - exb;
-
-        // Perform addition with overflow handling
+        // Perform addition
         long mto;
+
+        // Overflow handling
         if (__builtin_add_overflow(mta, mtb, &mto)) {
             if (mto <= 0) {
                 mto = (unsigned long) mto >> 1;
@@ -142,11 +138,8 @@ inline bf add_impl(BINARY_OP_ARGS) {
 }
 
 inline bf sort_add_impl(BINARY_OP_ARGS) {
-    if (exa == exb)
-        if (mta == mtb) // doubling case. takes care of x + x
-            return bf(exa + 1, mta);
-        if (mta == -mtb)  // zeroing case. takes care of x - x
-            return 0;
+    if (exa == exb && mta == mtb)  // doubling case. takes care of -1 + -1
+        return bf(exa + 1, mta);
     if (exa > exb)
         return add_impl(exa, mta, exb, mtb);
     return add_impl(exb, mtb, exa, mta);

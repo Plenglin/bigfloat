@@ -56,8 +56,8 @@ void simd_vec4::operator*=(simd_vec4 &other) {
     __m256i mulv = _mm256_loadu_si256((__m256i*)muls);
 
     // Bootleg 64-bit sra 63 (spread bit 63 across all bits) to build a "has upper bit" mask.
-    __m256i has_upper_bit_mask = _mm256_srai_epi32(mulv, 31);
-    has_upper_bit_mask = (__m256i)_mm256_permute_ps((__m256)has_upper_bit_mask, 0b11011101);
+    __m256i zeros = _mm256_setzero_si256();
+    __m256i has_upper_bit_mask = _mm256_cmpgt_epi64(zeros, mulv);
 
     // Shift non-upper bit mantissas left by 1
     __m256i mulv_all_sll1 = _mm256_slli_epi64(mulv, 1);

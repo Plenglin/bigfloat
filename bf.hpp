@@ -94,6 +94,13 @@ namespace bigfloat {
         inline static bf nan(bool sign) {
             return bf(sign ? 32767 : -32768, 1);
         }
+
+        inline static bf max_value() {
+            return bf::inf(false);
+        }
+        inline static bf min_value() {
+            return bf::inf(true);
+        }
     };
     std::ostream &operator<<(std::ostream &os, const bigfloat::bf &x);
 }
