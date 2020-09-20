@@ -4,6 +4,7 @@
 
 #include <smmintrin.h>
 #include "simd_vec4.hpp"
+#include "avx_helper.hpp"
 
 using namespace bigfloat;
 using namespace bigfloat::simd;
@@ -42,17 +43,19 @@ void simd_vec4::operator*=(simd_vec4 &other) {
     sign ^= other.sign;
 
     // Multiply mantissas
-    unsigned long muls[4];
+    helper::m256_union muls;
     for (int i = 0; i < 4; i++) {
-        unsigned __int128 mul = (unsigned __int128)(mantissa_array[i]<<1) * (unsigned __int128)(other.mantissa_array[i]<<1);
-        unsigned long upper = mul >> 64;
-        muls[i] = upper;
+        unsigned __int128 mul =
+                (unsigned __int128)(mantissa_array[i]) *
+                (unsigned __int128)(other.mantissa_array[i]);
+        unsigned long upper = mul >> 62;
+        muls.q[i] = upper;
     }
 
     // Build vector
-    __m256i mulv = _mm256_loadu_si256((__m256i*)muls);
+    __m256i mulv = muls.v;
 
-    // Bootleg 64-bit sra 63 (spread bit 63 across all bits) to build a "has upper bit" mask.
+    // Build a mask for items with 1 in bit 63
     __m256i zeros = _mm256_setzero_si256();
     __m256i has_upper_bit_mask = _mm256_cmpgt_epi64(zeros, mulv);
 
