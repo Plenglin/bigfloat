@@ -185,6 +185,10 @@ bf bf::operator*(const bf &other) const {
     }
 }
 
+inline bf fast_div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
+    return bf(exa, mta) * bf(1 / double(bf(exb, mtb)));
+}
+
 inline bf slow_div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
     // Divide mantissas
     auto dividend = (unsigned __int128)mta << 65;
@@ -253,8 +257,7 @@ bf bf::slow_div(const bf &other) const {
 }
 
 bf bf::fast_div(const bf &other) const {
-    // TODO
-    return filter_zero_div(slow_div_impl, *this, other);
+    return filter_zero_div(fast_div_impl, *this, other);
 }
 
 bf bf::operator/(const bf &other) const {

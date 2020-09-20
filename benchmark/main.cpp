@@ -18,6 +18,7 @@ BENCHMARK(bigfloatx4_multiplication);
 BENCHMARK(doublex4_multiplication);
 
 BENCHMARK(bigfloat_division);
+BENCHMARK(bigfloat_division_fast);
 BENCHMARK(double_division);
 BENCHMARK(int128_division);
 BENCHMARK(int64_division);

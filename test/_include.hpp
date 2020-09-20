@@ -70,6 +70,7 @@ static const bf BF_ARR1[] = {
         bf(-192, 1234L | BF_MSB),
         bf(-8593, 123431L | BF_MSB),
         bf(823, 432L | BF_MSB),
+        bf(0, BF_MSB),
 };
 
 static const bf BF_ARR2[] = {
@@ -81,6 +82,7 @@ static const bf BF_ARR2[] = {
         bf(-92, 1892045121234L | BF_MSB),
         bf(-83, 1263748123431L | BF_MSB),
         bf(83, 984231432L | BF_MSB),
+        bf(0, 50000L | BF_MSB),
 };
 
 #endif //BIGFLOAT__INCLUDE_HPP
