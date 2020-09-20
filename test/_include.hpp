@@ -61,4 +61,26 @@ static const double ARR2[] = {
         3.32
 };
 
+static const bf BF_ARR1[] = {
+        bf(232, 8267349124619L | BF_MSB),
+        bf(-578, 8267124619L | BF_MSB),
+        bf(198, 123124134L | BF_MSB),
+        bf(42, 2323L | BF_MSB),
+        bf(42, 1513124123L | BF_MSB),
+        bf(-192, 1234L | BF_MSB),
+        bf(-8593, 123431L | BF_MSB),
+        bf(823, 432L | BF_MSB),
+};
+
+static const bf BF_ARR2[] = {
+        bf(92, 24619L | BF_MSB),
+        bf(-78, 826619L | BF_MSB),
+        bf(-38, 6987903412314L | BF_MSB),
+        bf(92, 9123323L | BF_MSB),
+        bf(2, 1301513124123L | BF_MSB),
+        bf(-92, 1892045121234L | BF_MSB),
+        bf(-83, 1263748123431L | BF_MSB),
+        bf(83, 984231432L | BF_MSB),
+};
+
 #endif //BIGFLOAT__INCLUDE_HPP

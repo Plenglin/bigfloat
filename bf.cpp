@@ -185,7 +185,7 @@ bf bf::operator*(const bf &other) const {
     }
 }
 
-inline bf div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
+inline bf slow_div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
     // Divide mantissas
     auto dividend = (unsigned __int128)mta << 65;
     unsigned __int128 result = dividend / mtb;
@@ -218,7 +218,8 @@ inline bf div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
     return bf(exo, mto);
 }
 
-inline bf normalize_sign_div(short exa, long mta, short exb, long mtb) {
+template<typename F>
+inline bf normalize_sign_div(F div_impl, short exa, long mta, short exb, long mtb) {
     int sign = ((mta < 0) << 1) | (mtb < 0);
     switch (sign) {
         case 0b00:
@@ -232,18 +233,32 @@ inline bf normalize_sign_div(short exa, long mta, short exb, long mtb) {
     }
 }
 
-bf bf::operator/(const bf &other) const {
-    int zero = (is_zero() << 1) | other.is_zero();
+template<typename F>
+inline bf filter_zero_div(F div_impl, const bf &a, const bf &b) {
+    int zero = (a.is_zero() << 1) | b.is_zero();
     switch (zero) {
         case 0b00: // x / y
-            return normalize_sign_div(exponent, mantissa, other.exponent, other.mantissa);
+            return normalize_sign_div(div_impl, a.exponent, a.mantissa, b.exponent, b.mantissa);
         case 0b10:  // 0 / y
             return 0;
         case 0b01:  // x / 0
-            return bf::inf((mantissa >= 0) ^ (other.mantissa >= 0));
+            return bf::inf((a.mantissa >= 0) ^ (b.mantissa >= 0));
         case 0b11:  // 0 / 0
-            return bf::nan((mantissa < 0) ^ (other.mantissa < 0));
+            return bf::nan((a.mantissa < 0) ^ (b.mantissa < 0));
     }
+}
+
+bf bf::slow_div(const bf &other) const {
+    return filter_zero_div(slow_div_impl, *this, other);
+}
+
+bf bf::fast_div(const bf &other) const {
+    // TODO
+    return filter_zero_div(slow_div_impl, *this, other);
+}
+
+bf bf::operator/(const bf &other) const {
+    return slow_div(other);
 }
 
 inline bool lt_impl(const bf &a, const bf &b) {
