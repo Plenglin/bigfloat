@@ -33,6 +33,13 @@ static void double_division(benchmark::State &state) {
     }
 }
 
+static void doublex4_multiplication(benchmark::State &state) {
+    __m256d vec = _mm256_set_pd(91234, 83.3123789, 1728781.1237, 134289);
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(_mm256_mul_pd(vec, vec));
+    }
+}
+
 static void int128_division(benchmark::State &state) {
     for (auto _ : state) {
         __int128 a = (__int128)31231 << 64;
@@ -54,14 +61,6 @@ static void int32_division(benchmark::State &state) {
         int a = 931212343;
         volatile int b = 12;
         volatile int c = a / b;
-    }
-}
-
-static void sisd_mkunc(benchmark::State &state) {
-    for (auto _ : state) {
-        unsigned long a = 3191236748126UL | MKUNC_MSB;
-        volatile unsigned long b = 12391236748126UL | MKUNC_MSB;
-        volatile unsigned long c = bigfloat::helper::multiply_keep_upper_no_carry(a, b);
     }
 }
 

@@ -5,7 +5,7 @@
 #include "control.hpp"
 #include "ops.hpp"
 #include "advanced.hpp"
-#include "helper.hpp"
+#include "bench_simd.h"
 
 BENCHMARK(bigfloat_construction);
 
@@ -14,10 +14,8 @@ BENCHMARK(double_addition);
 
 BENCHMARK(bigfloat_multiplication);
 BENCHMARK(double_multiplication);
-BENCHMARK(sisd_mkunc);
-BENCHMARK(simd_mkunc);
-BENCHMARK(simd_int32x8_multiply);
-BENCHMARK(sisd_int32x8_multiply);
+BENCHMARK(bigfloatx4_multiplication);
+BENCHMARK(doublex4_multiplication);
 
 BENCHMARK(bigfloat_division);
 BENCHMARK(double_division);
