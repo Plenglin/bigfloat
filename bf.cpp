@@ -8,6 +8,7 @@
 #include <vector>
 
 #define BINARY_OP_ARGS short exa, long mta, short exb, long mtb
+#define IEEE_754_EXP_BIAS 1023
 
 using namespace bigfloat;
 
@@ -47,14 +48,16 @@ bf::bf(short exponent, long mantissa) :
 { }
 
 bf::bf(double x) {
-    ieee754_double d = {.value = x};
-    if (x == 0.0 || x == -0.0) {
+    unsigned long bits = *(unsigned long*)&x;
+    unsigned long bits_no_sign = bits << 1;
+    if (!(bits_no_sign)) {  // mantissa and exponent are zero
         mantissa = 0;
         exponent = 0;
     } else {
-        auto mt = (((unsigned long)d.mantissa << 10) | (1UL << 62));
-        mantissa = d.sign ? -mt : mt;
-        exponent = (short)d.exponent - 1023;
+        bool sign = bits >> 63;
+        auto mt = ((bits << 10) | BF_MSB) & ~(1L << 63);
+        mantissa = sign ? -mt : mt;
+        exponent = (short)(bits_no_sign >> 53) - IEEE_754_EXP_BIAS;
     }
 }
 
@@ -79,28 +82,27 @@ bf::operator bf_packed() const {
 }
 
 bf::operator double() const {
+    // load into registers
+    auto ex = exponent;
+    auto mt = mantissa;
     if (is_nan()) {
         return std::numeric_limits<double>::quiet_NaN();
     }
-    if (is_zero()) {
+
+    short bexp = ex + IEEE_754_EXP_BIAS;
+    if (bexp < 0 || !(ex || mt)) {  // exponent below limit or value is zero
         return 0.0;
     }
-    if (is_inf()) {
-        return std::numeric_limits<double>::infinity() * exponent;
+    if (bexp & (-1U << 11)) {  // exponent above 2048
+        return std::numeric_limits<double>::infinity();
     }
 
-    ieee754_double d;
-    d.exponent = static_cast<unsigned short>(exponent + 1023);
-
-    if (mantissa >= 0) {
-        d.mantissa = static_cast<unsigned long>(mantissa >> 10);
-        d.sign = false;
-    } else {
-        auto abs_mt = -mantissa;
-        d.mantissa = static_cast<unsigned long>(abs_mt >> 10);
-        d.sign = true;
-    }
-    return d.value;
+    unsigned long sign = mt & (1L << 63);
+    unsigned long abs_mt = sign ? -mantissa : mantissa;
+    unsigned long bits = (abs_mt >> 10) & (-1UL >> 12);
+    bits |= ((unsigned long)bexp << 52);
+    bits |= sign;
+    return *(double*)&bits;
 }
 
 inline bf add_impl(BINARY_OP_ARGS) {
@@ -185,7 +187,11 @@ bf bf::operator*(const bf &other) const {
     }
 }
 
-inline bf div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
+inline bf fast_div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
+    return bf(exa, mta) * bf(1 / double(bf(exb, mtb)));
+}
+
+inline bf slow_div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
     // Divide mantissas
     auto dividend = (unsigned __int128)mta << 65;
     unsigned __int128 result = dividend / mtb;
@@ -218,7 +224,8 @@ inline bf div_impl(short exa, unsigned long mta, short exb, unsigned long mtb) {
     return bf(exo, mto);
 }
 
-inline bf normalize_sign_div(short exa, long mta, short exb, long mtb) {
+template<typename F>
+inline bf normalize_sign_div(F div_impl, short exa, long mta, short exb, long mtb) {
     int sign = ((mta < 0) << 1) | (mtb < 0);
     switch (sign) {
         case 0b00:
@@ -232,18 +239,31 @@ inline bf normalize_sign_div(short exa, long mta, short exb, long mtb) {
     }
 }
 
-bf bf::operator/(const bf &other) const {
-    int zero = (is_zero() << 1) | other.is_zero();
+template<typename F>
+inline bf filter_zero_div(F div_impl, const bf &a, const bf &b) {
+    int zero = (a.is_zero() << 1) | b.is_zero();
     switch (zero) {
         case 0b00: // x / y
-            return normalize_sign_div(exponent, mantissa, other.exponent, other.mantissa);
+            return normalize_sign_div(div_impl, a.exponent, a.mantissa, b.exponent, b.mantissa);
         case 0b10:  // 0 / y
             return 0;
         case 0b01:  // x / 0
-            return bf::inf((mantissa >= 0) ^ (other.mantissa >= 0));
+            return bf::inf((a.mantissa >= 0) ^ (b.mantissa >= 0));
         case 0b11:  // 0 / 0
-            return bf::nan((mantissa < 0) ^ (other.mantissa < 0));
+            return bf::nan((a.mantissa < 0) ^ (b.mantissa < 0));
     }
+}
+
+bf bf::slow_div(const bf &other) const {
+    return filter_zero_div(slow_div_impl, *this, other);
+}
+
+bf bf::fast_div(const bf &other) const {
+    return filter_zero_div(fast_div_impl, *this, other);
+}
+
+bf bf::operator/(const bf &other) const {
+    return fast_div(other);
 }
 
 inline bool lt_impl(const bf &a, const bf &b) {

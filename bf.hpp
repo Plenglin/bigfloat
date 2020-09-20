@@ -8,6 +8,8 @@
 
 #include "ostream"
 
+#define BF_MSB 1L << 62
+
 namespace bigfloat {
     // A packed software-based floating point number object.
     struct bf_packed {
@@ -53,6 +55,8 @@ namespace bigfloat {
             *this = *this * other;
         }
 
+        bf fast_div(const bf &other) const;
+        bf slow_div(const bf &other) const;
         bf operator/(const bf &other) const;
         inline void operator/=(const bf &other) {
             *this = *this / other;

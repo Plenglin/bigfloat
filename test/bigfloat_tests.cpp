@@ -26,7 +26,8 @@ BOOST_AUTO_TEST_SUITE(bigfloat_conversion)
         });
 
     BOOST_DATA_TEST_CASE(double_to_bf_to_double_preserves_value, VALUES, x) {
-        BOOST_REQUIRE_EQUAL(double(bf(x)), x);
+        auto y = double(bf(x));
+        BOOST_REQUIRE_EQUAL(y, x);
     }
 
     BOOST_AUTO_TEST_CASE(db_construct_special) {
@@ -49,6 +50,7 @@ BOOST_AUTO_TEST_SUITE_END();*/
 
 // Test cases, preferably non-zero/nan/inf ones. The zero ones can get their own test cases.
 static const auto PAIRS = data::make(ARR1) ^ data::make(ARR2);
+static const auto BF_PAIRS = data::make(BF_ARR1) ^ data::make(BF_ARR2);
 
 BOOST_AUTO_TEST_SUITE(bigfloat_ops)
     BOOST_DATA_TEST_CASE(add, PAIRS, a, b) {
@@ -68,8 +70,11 @@ BOOST_AUTO_TEST_SUITE(bigfloat_ops)
         BOOST_REQUIRE_EQUAL(double(bf(32.13) * bf(0)), 0.0);
     }
 
-    BOOST_DATA_TEST_CASE(div, PAIRS, a, b) {
-        BOOST_REQUIRE_CLOSE(double(bf(a) / bf(b)), a / b, DOUBLE_TOLERANCE);
+    BOOST_DATA_TEST_CASE(slow_div, PAIRS, a, b) {
+        BOOST_REQUIRE_CLOSE(double(bf(a).slow_div(bf(b))), a / b, DOUBLE_TOLERANCE);
+    }
+    BOOST_DATA_TEST_CASE(fast_div, BF_PAIRS, a, b) {
+        BOOST_REQUIRE_CLOSE(a.fast_div(b), a.slow_div(b), DOUBLE_TOLERANCE);
     }
     BOOST_AUTO_TEST_CASE(div_x_zero_is_p_inf) {
         BOOST_REQUIRE((bf(2349.23) / bf(0)).is_inf());
@@ -136,7 +141,7 @@ static const std::string strs[] = {
         "0",
         "0.5",
         "0.1",
-        "0.00001",
+        "0.000009",
         "923.230019",
         "-21419.13",
         "-38231231.2"

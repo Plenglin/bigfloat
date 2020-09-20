@@ -44,4 +44,14 @@ static void bigfloat_division(benchmark::State &state) {
     }
 }
 
+static void bigfloat_division_fast(benchmark::State &state) {
+    int i = 0;
+    bf a, b;
+    for (auto _ : state) {
+        a = bf_as[i % NUMBERS_COUNT];
+        b = bf_bs[i++ % NUMBERS_COUNT];
+        volatile auto c = a.fast_div(b);
+    }
+}
+
 #endif //BIGFLOAT_OPS_HPP
