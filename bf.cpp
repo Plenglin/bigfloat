@@ -263,7 +263,7 @@ bf bf::fast_div(const bf &other) const {
 }
 
 bf bf::operator/(const bf &other) const {
-    return slow_div(other);
+    return fast_div(other);
 }
 
 inline bool lt_impl(const bf &a, const bf &b) {
