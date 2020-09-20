@@ -3,7 +3,6 @@
 //
 
 #include "bf.hpp"
-#include "avx_helper.hpp"
 #include <immintrin.h>
 #include <xmmintrin.h>
 #include <vector>
@@ -31,6 +30,12 @@ union ieee754_double {
         bool sign : 1;
     };
 };
+
+bf getBf(short exa, short exb, __int128_t result);
+
+inline int abs_count_zero(long l) {
+    return __builtin_clzl(l >= 0 ? l : -l);
+}
 
 bf::bf() : mantissa(0), exponent(0) {
 
@@ -111,7 +116,7 @@ inline bf add_impl(BINARY_OP_ARGS) {
         }
 
         // Count number of leading zeros
-        const int shift_amount = helper::abs_count_zero(mto) - 1;
+        const int shift_amount = abs_count_zero(mto) - 1;
         mto <<= shift_amount;
         short exo = exa - shift_amount;
         return bf(exo, mto);
