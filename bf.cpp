@@ -47,14 +47,16 @@ bf::bf(short exponent, long mantissa) :
 { }
 
 bf::bf(double x) {
-    ieee754_double d = {.value = x};
-    if (x == 0.0 || x == -0.0) {
+    unsigned long bits = *(unsigned long*)&x;
+    unsigned long bits_no_sign = bits << 1;
+    if (!(bits_no_sign)) {  // mantissa and exponent are zero
         mantissa = 0;
         exponent = 0;
     } else {
-        auto mt = (((unsigned long)d.mantissa << 10) | (1UL << 62));
-        mantissa = d.sign ? -mt : mt;
-        exponent = (short)d.exponent - 1023;
+        bool sign = bits >> 63;
+        auto mt = ((bits << 10) | BF_MSB) & ~(1L << 63);
+        mantissa = sign ? -mt : mt;
+        exponent = (short)(bits_no_sign >> 53) - 1023;
     }
 }
 

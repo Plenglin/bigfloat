@@ -26,7 +26,8 @@ BOOST_AUTO_TEST_SUITE(bigfloat_conversion)
         });
 
     BOOST_DATA_TEST_CASE(double_to_bf_to_double_preserves_value, VALUES, x) {
-        BOOST_REQUIRE_EQUAL(double(bf(x)), x);
+        auto y = double(bf(x));
+        BOOST_REQUIRE_EQUAL(y, x);
     }
 
     BOOST_AUTO_TEST_CASE(db_construct_special) {
