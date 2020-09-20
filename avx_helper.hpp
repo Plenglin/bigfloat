@@ -44,6 +44,11 @@ namespace bigfloat::helper {
 
         return sum_corrected;
     }
+
+    inline __m256i conditional_negate(__m256i sign, __m256i val) {
+        __m256i sub1 = _mm256_add_epi64(val, sign);
+        return _mm256_xor_si256(sub1, sign);
+    }
 }
 
 #endif //BIGFLOAT_AVX_HELPER_HPP

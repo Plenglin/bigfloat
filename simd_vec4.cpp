@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "portability-simd-intrinsics"
 //
 // Created by astrid on 9/7/20.
 //
@@ -35,6 +37,52 @@ simd_vec4::simd_vec4(bf x) : simd_vec4(x, x, x, x) {
 }
 
 void simd_vec4::operator+=(simd_vec4 &other) {
+    helper::m256_union sa, sb;
+    for (int i = 0; i < 4; i++) {
+        sa.q[i] = ((sign >> i) & 1) ? 0 : -1;
+        sb.q[i] = ((other.sign >> i) & 1) >= 0 ? 0 : -1;
+    }
+
+    // Perform addition or subtraction. Note that both operations are
+    // guaranteed to not overflow because the MSB is always at bit 62.
+    __m256i mta = mantissa;
+    __m256i mtb = other.mantissa;
+    __m256i mto_add = _mm256_add_epi64(mta, mtb);
+    __m256i mto_sub = _mm256_add_epi64(mta, mtb);
+
+    // Select the results from the correct operation.
+    __m256i operation = _mm256_xor_si256(sa.v, sb.v);
+    helper::m256_union result;
+    result.v = _mm256_blendv_epi8(mto_add, mto_sub, operation);
+
+    // Check for change of sign.
+    __m256i zeros = _mm256_setzero_si256();
+    __m256i sign_change = _mm256_cmpgt_epi64(zeros, result.v);
+
+    // Get result sign and perform absolute value.
+    result.v = helper::conditional_negate(sign_change, result.v);
+    __m256i so = _mm256_xor_si256(sa.v, sign_change);
+
+    // Count number of leading zeros.
+    helper::m256_union lz;
+    for (int i = 0; i < 4; i++) {
+        lz.q[i] = __builtin_clzl(result.q[i]);
+    }
+
+    // Shift right by 1, or shift left by lz - 1.
+    __m256i result_sr1 = _mm256_srli_epi64(result.v, 1);
+    __m256i shift_count = _mm256_sub_epi64(lz.v, _mm256_set1_epi64x(1));
+    __m256i result_sll_lz = _mm256_sllv_epi64(result.v, shift_count);
+
+    // Select the correct operation.
+    __m256i has_upper_bit = sign_change;
+    __m256i mto = _mm256_blendv_epi8(result_sr1, result_sll_lz, has_upper_bit);
+
+    // Adjust exponent.
+    __m256i exo = _mm256_sub_epi64(exponent, shift_count);
+
+    mantissa = mto;
+    exponent = exo;
 }
 
 
@@ -96,3 +144,5 @@ std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
     os << "simd_vec4[" << x[0] << "," << x[1] << "," << x[2] << "," << x[3] << "]";
     return os;
 }
+
+#pragma clang diagnostic pop
