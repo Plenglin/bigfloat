@@ -34,7 +34,7 @@ static void double_division(benchmark::State &state) {
 }
 
 static void doublex4_multiplication(benchmark::State &state) {
-    __m256d vec = _mm256_set_pd(91234, 83.3123789, 1728781.1237, 134289);
+    volatile __m256d vec = _mm256_set_pd(91234, 83.3123789, 1728781.1237, 134289);
     for (auto _ : state) {
         benchmark::DoNotOptimize(_mm256_mul_pd(vec, vec));
     }

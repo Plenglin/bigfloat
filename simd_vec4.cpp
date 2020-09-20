@@ -59,13 +59,16 @@ void simd_vec4::operator*=(simd_vec4 &other) {
 
     // Shift non-upper bit mantissas left by 1
     __m256i mulv_all_sll1 = _mm256_slli_epi64(mulv, 1);
-    mantissa = _mm256_blendv_epi8(mulv_all_sll1, mulv, has_upper_bit_mask);
+    __m256i mto = _mm256_blendv_epi8(mulv_all_sll1, mulv, has_upper_bit_mask);
 
     // Add exponents
     __m256i exp_sum = _mm256_add_epi64(exponent, other.exponent);
 
     // Increment upper bit exponents by 1.
-    exponent = _mm256_sub_epi64(exp_sum, has_upper_bit_mask);
+    __m256i exo = _mm256_sub_epi64(exp_sum, has_upper_bit_mask);
+
+    mantissa = mto;
+    exponent = exo;
 }
 
 bf simd_vec4::operator[](int i) const {
