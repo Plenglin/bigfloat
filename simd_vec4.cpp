@@ -39,8 +39,6 @@ void simd_vec4::operator+=(simd_vec4 &other) {
 
 
 void simd_vec4::operator*=(simd_vec4 &other) {
-    // Force the data to be aligned to a 4-byte boundary.
-    long _padding;
     // Handle signs
     sign ^= other.sign;
 
@@ -66,11 +64,8 @@ void simd_vec4::operator*=(simd_vec4 &other) {
     // Add exponents
     __m256i exp_sum = _mm256_add_epi64(exponent, other.exponent);
 
-    // Decrement upper bit exponents by 1. Note that performing a bitwise NOT on the
-    // mask creates -1's where the zeros used to be.
-    __m256i all1s = _mm256_set1_epi32(-1);
-    __m256i addend = _mm256_xor_si256(has_upper_bit_mask, all1s);
-    exponent = _mm256_add_epi64(exp_sum, has_upper_bit_mask);
+    // Increment upper bit exponents by 1.
+    exponent = _mm256_sub_epi64(exp_sum, has_upper_bit_mask);
 }
 
 bf simd_vec4::operator[](int i) const {
