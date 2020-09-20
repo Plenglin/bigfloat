@@ -8,6 +8,7 @@
 #include <vector>
 
 #define BINARY_OP_ARGS short exa, long mta, short exb, long mtb
+#define IEEE_754_EXP_BIAS 1023
 
 using namespace bigfloat;
 
@@ -56,7 +57,7 @@ bf::bf(double x) {
         bool sign = bits >> 63;
         auto mt = ((bits << 10) | BF_MSB) & ~(1L << 63);
         mantissa = sign ? -mt : mt;
-        exponent = (short)(bits_no_sign >> 53) - 1023;
+        exponent = (short)(bits_no_sign >> 53) - IEEE_754_EXP_BIAS;
     }
 }
 
@@ -81,28 +82,27 @@ bf::operator bf_packed() const {
 }
 
 bf::operator double() const {
+    // load into registers
+    auto ex = exponent;
+    auto mt = mantissa;
     if (is_nan()) {
         return std::numeric_limits<double>::quiet_NaN();
     }
-    if (is_zero()) {
+
+    short bexp = ex + IEEE_754_EXP_BIAS;
+    if (bexp < 0 || !(ex || mt)) {  // exponent below limit or value is zero
         return 0.0;
     }
-    if (is_inf()) {
-        return std::numeric_limits<double>::infinity() * exponent;
+    if (bexp & (-1U << 11)) {  // exponent above 2048
+        return std::numeric_limits<double>::infinity();
     }
 
-    ieee754_double d;
-    d.exponent = static_cast<unsigned short>(exponent + 1023);
-
-    if (mantissa >= 0) {
-        d.mantissa = static_cast<unsigned long>(mantissa >> 10);
-        d.sign = false;
-    } else {
-        auto abs_mt = -mantissa;
-        d.mantissa = static_cast<unsigned long>(abs_mt >> 10);
-        d.sign = true;
-    }
-    return d.value;
+    unsigned long sign = mt & (1L << 63);
+    unsigned long abs_mt = sign ? -mantissa : mantissa;
+    unsigned long bits = (abs_mt >> 10) & (-1UL >> 12);
+    bits |= ((unsigned long)bexp << 52);
+    bits |= sign;
+    return *(double*)&bits;
 }
 
 inline bf add_impl(BINARY_OP_ARGS) {
