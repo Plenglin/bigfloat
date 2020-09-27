@@ -36,57 +36,106 @@ simd_vec4::simd_vec4(bf x) : simd_vec4(x, x, x, x) {
 
 }
 
-void simd_vec4::operator+=(simd_vec4 &other) {
-    __m256i zeros = _mm256_setzero_si256();
-    helper::m256_union sa, sb;
-    for (int i = 0; i < 4; i++) {
-        sa.q[i] = ((sign >> i) & 1) ? -1 : 0;
-        sb.q[i] = ((other.sign >> i) & 1) ? -1 : 0;
+inline __m256i has_high_bit(__m256i x) {
+    x = _mm256_srai_epi32(x, 32);
+    return (__m256i)_mm256_movehdup_ps((__m256)x);
+}
+
+// Swaps a and b, if their corresponding mask term is 1.
+inline void masked_swap(__m256i &a, __m256i &b, __m256i mask) {
+    __m256i ta = _mm256_blendv_epi8(a, b, mask);
+    __m256i tb = _mm256_blendv_epi8(b, a, mask);
+    a = ta;
+    b = tb;
+}
+
+// Sorts and aligns exponents.
+inline void sort_align_exponent(__m256i &sa, __m256i &exa, __m256i &mta, __m256i &sb, __m256i exb, __m256i &mtb, __m256i zeros) {
+    // Subtract exponents to compare
+    __m256i sediff = _mm256_sub_epi64(exa, exb);
+
+    {
+        // Swap values to have greater on left
+        __m256i swap_mask = _mm256_cmpgt_epi64(zeros, sediff);
+        masked_swap(mta, mtb, swap_mask);
+        masked_swap(exa, exb, swap_mask);
+        masked_swap(sa, sb, swap_mask);
     }
 
-    // Perform addition or subtraction. Note that both operations are
-    // guaranteed to not overflow because the MSB is always at bit 62.
-    __m256i mta = mantissa;
-    __m256i mtb = other.mantissa;
-    __m256i add_result = _mm256_add_epi64(mta, mtb);
-    __m256i sub_result = _mm256_sub_epi64(mta, mtb);
+    // Shift smaller mantissa and add to exponent
+    __m256i neg_exb = has_high_bit(exb);
+    // abs shift
+    __m256i shift = _mm256_add_epi64(sediff, neg_exb);
+    shift = _mm256_sub_epi64(shift, _mm256_set1_epi64x(1));
+    mtb = _mm256_srlv_epi64(mtb, shift);
+}
 
-    // Select the results from the correct operation.
-    __m256i operation = _mm256_xor_si256(sa.v, sb.v);
-    __m256i result = _mm256_blendv_epi8(add_result, sub_result, operation);
+inline __m256i addition(__m256i exa, __m256i mta, __m256i mtb, __m256i &exo, __m256i &mto) {
+    __m256i sum = _mm256_add_epi64(mta, mtb);
 
-    // Upper bit/sign change
-    __m256i ubsc = _mm256_cmpgt_epi64(zeros, result);
+    __m256i overflow = has_high_bit(sum);
+    __m256i ones = _mm256_set1_epi64x(1);
 
-    // FOR ADDITION: if upper bit then srl 1 (overflow handling)
-    __m256i result_srl1 = _mm256_srli_epi64(result, 1);
-    add_result = _mm256_blendv_epi8(add_result, result_srl1, ubsc);
+    __m256i mt_srl1 = _mm256_srlv_epi64(sum, ones);
+    __m256i ex_add1 = _mm256_add_epi64(exa, ones);
 
-    // FOR SUBTRACTION: if sign change then negate (for absolute value)
-    helper::m256_union sub_negate;
-    sub_negate.v = helper::conditional_negate(ubsc, result);
+    mto = _mm256_blendv_epi8(sum, mt_srl1, overflow);
+    exo = _mm256_blendv_epi8(exa, ex_add1, overflow);
+}
 
-    __m256i neg_sc = (sa.v, ubsc);
+inline __m256i subtraction(__m256i sa, __m256i exa, __m256i mta, __m256i mtb, __m256i &so, __m256i &exo, __m256i &mto) {
+    helper::m256_union abs, lz;
+
+    __m256i diff = _mm256_sub_epi64(mta, mtb);
+
+    // Sign adjustment
+    __m256i sc = has_high_bit(diff);
+    so = _mm256_xor_si256(sa, sc);
+
+    // Absolute value
+    __m256i neg = _mm256_sub_epi64(_mm256_setzero_si256(), diff);
+    abs.v = _mm256_blendv_epi8(diff, neg, sc);
 
     // Count number of leading zeros
-    helper::m256_union lz;
     for (int i = 0; i < 4; i++) {
-        lz.q[i] = __builtin_clzl(result.q[i]);
+        lz.q[i] = __builtin_clzl(abs.q[i]);
     }
 
-    // Shift right by 1, or shift left by lz - 1.
+    // Shift left by lz - 1.
     __m256i shift_count = _mm256_sub_epi64(lz.v, _mm256_set1_epi64x(1));
-    __m256i result_sll_lz = _mm256_sllv_epi64(result.v, shift_count);
+    __m256i result_sll_lz = _mm256_sllv_epi64(abs.v, shift_count);
 
-    // Select the correct operation.
-    __m256i has_upper_bit = ubsc;
-    __m256i mto = _mm256_blendv_epi8(result_srl1, result_sll_lz, has_upper_bit);
+    // Exponent adjustment
+    exo = _mm256_sub_epi64(exa, shift_count);
+    mto = result_sll_lz;
+}
 
-    // Adjust exponent.
-    __m256i exo = _mm256_sub_epi64(exponent, shift_count);
+void simd_vec4::operator+=(simd_vec4 &other) {
+    __m256i zeros = _mm256_setzero_si256();
+    helper::m256_union sau, sbu;
+    for (int i = 0; i < 4; i++) {
+        sau.q[i] = ((sign >> i) & 1) ? -1 : 0;
+        sbu.q[i] = ((other.sign >> i) & 1) ? -1 : 0;
+    }
 
-    mantissa = mto;
-    exponent = exo;
+    __m256i exa = exponent;
+    __m256i mta = mantissa;
+    __m256i exb = other.exponent;
+    __m256i mtb = other.mantissa;
+    __m256i sa = sau.v;
+    __m256i sb = sbu.v;
+
+    sort_align_exponent(sa, exa, mta, sb, exb, mtb, zeros);
+
+    __m256i add_so, add_exo, add_mto, sub_so, sub_exo, sub_mto;
+    __m256i op = _mm256_xor_si256(sa, sb);
+    add_so = sa;
+    addition(exa, mta, mtb, add_exo, add_mto);
+    subtraction(sa, exa, mta, mtb, sub_so, sub_exo, sub_mto);
+
+    __m256i so = _mm256_blendv_epi8(add_so, sub_so, op);
+    exponent = _mm256_blendv_epi8(add_exo, sub_exo, op);
+    mantissa = _mm256_blendv_epi8(add_mto, sub_mto, op);
 }
 
 
@@ -108,8 +157,7 @@ void simd_vec4::operator*=(simd_vec4 &other) {
     __m256i mulv = muls.v;
 
     // Build a mask for items with 1 in bit 63
-    __m256i zeros = _mm256_setzero_si256();
-    __m256i has_upper_bit_mask = _mm256_cmpgt_epi64(zeros, mulv);
+    __m256i has_upper_bit_mask = has_high_bit(mulv);
 
     // Shift upper bit mantissas right by 1
     __m256i mulv_all_srl1 = _mm256_srli_epi64(mulv, 1);
