@@ -64,9 +64,10 @@ inline void sort_align_exponent(__m256i &sa, __m256i &exa, __m256i &mta, __m256i
 
     // Shift smaller mantissa and add to exponent
     __m256i neg_exb = has_high_bit(exb);
-    // abs shift
+
+    // abs(shift) via 2's complement
     __m256i shift = _mm256_add_epi64(sediff, neg_exb);
-    shift = _mm256_sub_epi64(shift, _mm256_set1_epi64x(1));
+    shift = _mm256_xor_si256(shift, neg_exb);
     mtb = _mm256_srlv_epi64(mtb, shift);
 }
 
