@@ -11,6 +11,7 @@ BENCHMARK(bigfloat_construction);
 
 BENCHMARK(bigfloat_addition);
 BENCHMARK(double_addition);
+BENCHMARK(bigfloatx4_additionx2);
 
 BENCHMARK(bigfloat_multiplication);
 BENCHMARK(double_multiplication);
