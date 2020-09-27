@@ -134,7 +134,10 @@ void simd_vec4::operator+=(simd_vec4 &other) {
     addition(exa, mta, mtb, add_exo, add_mto);
     subtraction(sa, exa, mta, mtb, sub_so, sub_exo, sub_mto);
 
-    __m256i so = _mm256_blendv_epi8(add_so, sub_so, op);
+    helper::m256_union sou;
+    sou.v = _mm256_blendv_epi8(add_so, sub_so, op);
+    sign = ((sou.q[3] >> 63) << 3) | ((sou.q[2] >> 63) << 2) | ((sou.q[1] >> 63) << 1) | (sou.q[0] >> 63);
+
     exponent = _mm256_blendv_epi8(add_exo, sub_exo, op);
     mantissa = _mm256_blendv_epi8(add_mto, sub_mto, op);
 }
