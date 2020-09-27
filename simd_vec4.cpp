@@ -109,6 +109,10 @@ inline __m256i subtraction(__m256i sa, __m256i exa, __m256i mta, __m256i mtb, __
     // Exponent adjustment
     exo = _mm256_sub_epi64(exa, shift_count);
     mto = result_sll_lz;
+
+    // Zero checking
+    __m256i is_zero = _mm256_cmpeq_epi64(_mm256_setzero_si256(), mto);
+    exo = _mm256_andnot_si256(is_zero, exo);
 }
 
 void simd_vec4::operator+=(simd_vec4 &other) {
