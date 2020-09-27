@@ -4,16 +4,16 @@
 #include "bf.hpp"
 
 namespace bigfloat::math {
-    bf sqrt(bf x);
-    bf log(bf x);
-    bf sin(bf x);
-    bf cos(bf x);
-    bf tan(bf x);
-    bf asin(bf x);
-    bf acos(bf x);
-    bf atan(bf x);
-    bf exp(bf x);
-    bf pow(bf x);
+    bf sqrt(const bf x);
+    bf log(const bf x);
+    bf sin(const bf x);
+    bf cos(const bf x);
+    bf tan(const bf x);
+    bf asin(const bf x);
+    bf acos(const bf x);
+    bf atan(const bf x);
+    bf exp(const bf x);
+    bf pow(const bf x);
 }
 
 #endif //BIGFLOAT_MATH_HPP
