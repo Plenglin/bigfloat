@@ -202,22 +202,14 @@ inline bf slow_div_impl(short exa, unsigned long mta, short exb, unsigned long m
     unsigned long result_upper = result >> 64;
     unsigned long mto;
     int exo = exa - exb;
-    if (result_upper) {
-        // There is upper stuff
-        int leading_zeros = __builtin_clzl(result_upper);
-        int shift_amount = 64 - leading_zeros;
-        mto = result >> shift_amount;
 
-        // Subtract and normalize exponents
-        exo += shift_amount - 2;
-    } else {
-        // There is no upper stuff
-        int leading_zeros = __builtin_clzl((unsigned long) result);
-        mto = result << leading_zeros;
+    // There is upper stuff
+    int leading_zeros = __builtin_clzl(result_upper);
+    int shift_amount = 64 - leading_zeros;
+    mto = result >> shift_amount;
 
-        // Subtract and normalize exponents
-        exo -= leading_zeros;
-    }
+    // Subtract and normalize exponents
+    exo += shift_amount - 2;
 
     // Before constructing the float, we will shift the MSB to its proper place (bit 62).
     mto >>= 1;
