@@ -36,6 +36,28 @@ simd_vec4::simd_vec4(bf x) : simd_vec4(x, x, x, x) {
 
 }
 
+simd_vec4::simd_vec4(__m256d ds) {
+    helper::m256_union du;
+    du.v = (__m256i)ds;
+    sign = ((du.q[3] >> 63) << 3) |
+            ((du.q[2] >> 63) << 2) |
+            ((du.q[1] >> 63) << 1) |
+            (du.q[0] >> 63);
+
+    auto mt = (__m256i)ds;
+    mt = _mm256_slli_epi64(mt, 12);  // cut off exp
+    mt = _mm256_srli_epi64(mt, 2);
+    mt = _mm256_or_si256(mt, _mm256_set1_epi64x(BF_MSB));
+
+    auto ex = (__m256i)ds;
+    ex = _mm256_slli_epi64(ex, 1);  // cut off sign
+    ex = _mm256_srli_epi64(ex, 53);
+    ex = _mm256_sub_epi64(ex, _mm256_set1_epi64x(1023));
+
+    mantissa = mt;
+    exponent = ex;
+}
+
 simd_vec4::operator __m256d() const {
     helper::m256_union s;
     for (int i = 0; i < 4; i++) {

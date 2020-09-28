@@ -52,6 +52,21 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
         BOOST_REQUIRE_EQUAL(ds[3], double(bx3));
     }
 
+    BOOST_DATA_TEST_CASE(converts_from_double, DATA, x0, x1, x2, x3, _0, _1, _2, _3) {
+        auto bx0 = bf(x0);
+        auto bx1 = bf(x1);
+        auto bx2 = bf(x2);
+        auto bx3 = bf(x3);
+        auto bfvec = simd_vec4(bx0, bx1, bx2, bx3);
+
+        auto as = simd_vec4(__m256d(bfvec));
+
+        BOOST_REQUIRE_EQUAL(as[0], bf(double(bx0)));
+        BOOST_REQUIRE_EQUAL(as[1], bf(double(bx1)));
+        BOOST_REQUIRE_EQUAL(as[2], bf(double(bx2)));
+        BOOST_REQUIRE_EQUAL(as[3], bf(double(bx3)));
+    }
+
     BOOST_DATA_TEST_CASE(vec4_add_is_correct, DATA, x0, x1, x2, x3, x4, x5, x6, x7) {
         auto bx0 = bf(x0);
         auto bx1 = bf(x1);
