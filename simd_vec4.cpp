@@ -236,7 +236,9 @@ void simd_vec4::invert() {
 }
 
 void simd_vec4::operator/=(simd_vec4 &other) {
-
+    auto inv = _mm256_div_pd(_mm256_set1_pd(1), __m256d(other));
+    auto other_inv = simd_vec4(inv);
+    *this *= other_inv;
 }
 
 void simd_vec4::negate() {
