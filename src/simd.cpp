@@ -50,8 +50,8 @@ vec4 vecn::get_vec(int offset) const {
 }
 
 vec4 vecn::set_vec(int offset, vec4 &v) {
-    _mm256_store_epi64(exponent + offset, v.exponent);
-    _mm256_store_epi64(mantissa + offset, v.mantissa);
+    _mm256_store_pd((double*)exponent + offset, (__m256d)v.exponent);
+    _mm256_store_pd((double*)mantissa + offset, (__m256d)v.mantissa);
     sign[offset] = v.sign & 1;
     sign[offset + 1] = (v.sign >> 1) & 1;
     sign[offset + 2] = (v.sign >> 2) & 1;
@@ -68,7 +68,7 @@ void vecn::invert() {
 
 void vecn::negate() {
     for (int i = 0; i < count; i += 4) {
-        sign[i] = !sign[i];
+        sign[i] = ~sign[i];
     }
 }
 

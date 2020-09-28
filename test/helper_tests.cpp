@@ -1,6 +1,6 @@
 #include "_include.hpp"
 
-#include "../avx_helper.hpp"
+#include "../src/avx_helper.hpp"
 
 #define MSB 1UL << 62
 

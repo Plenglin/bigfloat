@@ -3,7 +3,7 @@
 
 #include <benchmark/benchmark.h>
 #include "shared.hpp"
-#include "../avx_helper.hpp"
+#include "../src/avx_helper.hpp"
 
 static void double_addition(benchmark::State &state) {
     int i = 0;

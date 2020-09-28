@@ -1,4 +1,4 @@
-#include "../bf.hpp"
+#include "../src/bf.hpp"
 
 using namespace bigfloat;
 
