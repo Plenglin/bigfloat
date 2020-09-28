@@ -3,6 +3,7 @@
 
 #include <xmmintrin.h>
 #include <vector>
+#include <memory>
 #include "bf.hpp"
 
 
@@ -25,10 +26,18 @@ namespace bigfloat::simd {
 
 namespace bigfloat::simd {
     class vecn {
-        std::vector<vec4> vecs;
+        size_t count;
+        unsigned long *mantissa;
+        long *exponent;
+        char *sign;
     public:
-        explicit vecn(const std::vector<bf>& xs);
-        bf operator[](int i) const;
+        explicit vecn(size_t count);
+        explicit vecn(std::vector<bf> vecs);
+        ~vecn();
+
+        bf operator[](int offset) const;
+        vec4 get_vec(int offset) const;
+        vec4 set_vec(int offset, vec4 &v);
         void invert();
         void negate();
         void operator+=(vecn &other);

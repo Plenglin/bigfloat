@@ -14,7 +14,10 @@ using namespace bigfloat::simd;
 #define CONDITIONAL_INV(s, m) s ? -m : m
 
 
-simd_vec4::simd_vec4(__m256i exponent, __m256i mantissa) : exponent(exponent), mantissa(mantissa) {
+simd_vec4::simd_vec4(int sign, __m256i exponent, __m256i mantissa) :
+        sign(sign),
+        exponent(exponent),
+        mantissa(mantissa) {
 
 }
 

@@ -11,25 +11,48 @@
 #include "../../simd.hpp"
 
 using namespace bigfloat;
+using namespace bigfloat::simd;
+
+const bf G = bf(6.67430e-11);
+const std::vector<bf> mass_vector = std::vector {
+        bf(0.33e24),
+        bf(4.87e24),
+        bf(5.97e24),
+        bf(0.642e24),
+        bf(1898e24),
+        bf(568e24),
+        bf(86.8e24),
+        bf(102e24),
+        bf(0.0146e24)
+};
+const std::vector<bf> radius_vector = std::vector {
+        bf(46e9),
+        bf(108.2e9),
+        bf(149.6e9),
+        bf(227.9e9),
+        bf(778.6e9),
+        bf(1433.5e9),
+        bf(2872.5e9),
+        bf(4495.1e9),
+        bf(5906.4e9)
+};
+const std::vector<bf> velocity_vector = std::vector {
+        bf(47.4e3),
+        bf(35.0e3),
+        bf(29.8e3),
+        bf(24.1e3),
+        bf(13.1e3),
+        bf(9.7e3),
+        bf(6.8e3),
+        bf(5.4e3),
+        bf(4.7e3)
+};
 
 class nbody_bf_simd {
-    const bf G = bf(6.67430e-11);
-    std::vector<body<bf>> bodies = {
-            body(bf(0.33e24),      bf(46e9),        bf(47.4e3)),
-            body(bf(4.87e24),      bf(108.2e9),     bf(35.0e3)),
-            body(bf(5.97e24),      bf(149.6e9),     bf(29.8e3)),
-            body(bf(0.642e24),     bf(227.9e9),     bf(24.1e3)),
-            body(bf(1898e24),      bf(778.6e9),     bf(13.1e3)),
-            body(bf(568e24),       bf(1433.5e9),    bf(9.7e3)),
-            body(bf(86.8e24),      bf(2872.5e9),    bf(6.8e3)),
-            body(bf(102e24),       bf(4495.1e9),    bf(5.4e3)),
-            body(bf(0.0146e24),    bf(5906.4e9),    bf(4.7e3)),
-    };
+    vecn radius = vecn(radius_vector.begin(), radius_vector.end());
+    vecn mass = vecn(mass_vector.begin(), mass_vector.end());
+    vecn velocity = vecn(velocity_vector.begin(), velocity_vector.end());
 public:
-    nbody_bf_simd() {
-
-    }
-
     void step(bf dt) {
         for (auto b1 = bodies.begin(); b1 != bodies.end(); b1++) {
             bf ax = bf(0);
@@ -57,30 +80,6 @@ public:
         for (auto body: bodies) {
             body.step(dt);
         }
-    }
-
-    bf get_total_energy() {
-        bf energy = bf(0);
-
-        for (auto b1: bodies) {
-            energy += b1->get_kinetic_energy();
-
-            bf pe = bf(0);
-            for (auto b2: bodies) {
-                if (b1 == b2) continue;
-
-                bf dx = b1.x - b2.x;
-                bf dy = b1.y - b2.y;
-                bf r2 = dx * dx + dy * dy;
-                bf r = t_sqrt(r2);
-                bf pg = G * b2.m / r;
-                pe += pg;
-            }
-
-            energy += pe * b1.mass;
-        }
-
-        return energy;
     }
 };
 
