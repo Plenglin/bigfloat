@@ -96,6 +96,35 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
         BOOST_REQUIRE_EQUAL(a3, e3);
     }
 
+    BOOST_DATA_TEST_CASE(vec4_sub_is_correct, DATA, x0, x1, x2, x3, x4, x5, x6, x7) {
+        auto bx0 = bf(x0);
+        auto bx1 = bf(x1);
+        auto bx2 = bf(x2);
+        auto bx3 = bf(x3);
+        auto bx4 = bf(x4);
+        auto bx5 = bf(x5);
+        auto bx6 = bf(x6);
+        auto bx7 = bf(x7);
+        auto e0 = bx0 - bx4;
+        auto e1 = bx1 - bx5;
+        auto e2 = bx2 - bx6;
+        auto e3 = bx3 - bx7;
+
+        simd_vec4 as = simd_vec4(bx0, bx1, bx2, bx3);
+        simd_vec4 bs = simd_vec4(bx4, bx5, bx6, bx7);
+
+        as -= bs;
+
+        auto a0 = as[0];
+        auto a1 = as[1];
+        auto a2 = as[2];
+        auto a3 = as[3];
+        BOOST_REQUIRE_EQUAL(a0, e0);
+        BOOST_REQUIRE_EQUAL(a1, e1);
+        BOOST_REQUIRE_EQUAL(a2, e2);
+        BOOST_REQUIRE_EQUAL(a3, e3);
+    }
+
     BOOST_DATA_TEST_CASE(vec4_mul_is_correct, DATA, x0, x1, x2, x3, x4, x5, x6, x7) {
         auto bx0 = bf(x0);
         auto bx1 = bf(x1);
