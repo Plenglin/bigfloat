@@ -10,7 +10,7 @@
 #include "util.hpp"
 
 template <typename real>
-class nbody_sisd {
+class nbody_bf_simd {
     const real G = real(6.67430e-11);
     std::vector<body<real>> bodies = {
             body(real(0.33e24),      real(46e9),        real(47.4e3)),

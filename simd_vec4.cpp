@@ -140,12 +140,17 @@ void simd_vec4::operator+=(simd_vec4 &other) {
 
     helper::m256_union sou;
     sou.v = _mm256_blendv_epi8(add_so, sub_so, op);
-    sign = ((sou.q[3] >> 63) << 3) | ((sou.q[2] >> 63) << 2) | ((sou.q[1] >> 63) << 1) | (sou.q[0] >> 63);
 
+    sign = ((sou.q[3] >> 63) << 3) | ((sou.q[2] >> 63) << 2) | ((sou.q[1] >> 63) << 1) | (sou.q[0] >> 63);
     exponent = _mm256_blendv_epi8(add_exo, sub_exo, op);
     mantissa = _mm256_blendv_epi8(add_mto, sub_mto, op);
 }
 
+void simd_vec4::operator-=(simd_vec4 &other) {
+    other.negate();
+    *this += other;
+    other.negate();
+}
 
 void simd_vec4::operator*=(simd_vec4 &other) {
     // Handle signs
@@ -197,7 +202,7 @@ void simd_vec4::operator/=(simd_vec4 &other) {
 }
 
 void simd_vec4::negate() {
-
+    sign = ~sign;
 }
 
 std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {

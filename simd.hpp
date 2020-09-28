@@ -2,6 +2,7 @@
 #define BIGFLOAT_SIMD_HPP
 
 #include <xmmintrin.h>
+#include <vector>
 #include "bf.hpp"
 
 
@@ -21,5 +22,20 @@ namespace bigfloat::simd {
     typedef sisd_vec4 vec4;
 }
 #endif
+
+namespace bigfloat::simd {
+    class vecn {
+        std::vector<vec4> vecs;
+    public:
+        explicit vecn(const std::vector<bf>& xs);
+        bf operator[](int i) const;
+        void invert();
+        void negate();
+        void operator+=(vecn &other);
+        void operator-=(vecn &other);
+        void operator*=(vecn &other);
+        void operator/=(vecn &other);
+    };
+}
 
 #endif //BIGFLOAT_SIMD_HPP
