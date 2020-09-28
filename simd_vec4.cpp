@@ -36,17 +36,17 @@ simd_vec4::simd_vec4(bf x) : simd_vec4(x, x, x, x) {
 
 }
 
-__m256d simd_vec4::to_m256d() const {
+simd_vec4::operator __m256d() const {
     helper::m256_union s;
     for (int i = 0; i < 4; i++) {
         s.q[i] = ((sign >> i) & 1) ? (1UL << 63) : 0;
     }
 
-    __m256i mt = _mm256_slli_epi64(mantissa, 1);  // cut off 1
-    mt = _mm256_srli_epi64(mt, 11);
+    __m256i mt = _mm256_slli_epi64(mantissa, 2);  // cut off 1
+    mt = _mm256_srli_epi64(mt, 12);
 
-    __m256i ex = _mm256_sub_epi64(exponent, _mm256_set1_epi64x(1023));
-    ex = _mm256_slli_epi64(ex, 13);  // cut off upper bits
+    __m256i ex = _mm256_add_epi64(exponent, _mm256_set1_epi64x(1023));
+    ex = _mm256_slli_epi64(ex, 53);  // cut off upper bits
     ex = _mm256_srli_epi64(ex, 1);
 
     return (__m256d)_mm256_or_si256(_mm256_or_si256(s.v, mt), ex);

@@ -5,7 +5,7 @@
 #include "simd.hpp"
 
 using namespace bigfloat::simd;
-
+/*
 vecn::vecn(const std::vector<bf>& xs) : vecs(xs.size() / 4) {
     for (int i = 0; i < xs.size();) {
         bf x0 = xs[i++];
@@ -55,3 +55,4 @@ void vecn::operator/=(vecn &other) {
         vecs[i] /= other.vecs[i];
     }
 }
+*/
