@@ -113,21 +113,23 @@ inline void sort_align_exponent(__m256i &sa, __m256i &exa, __m256i &mta, __m256i
 }
 
 inline __m256i addition(__m256i exa, __m256i mta, __m256i mtb, __m256i &exo, __m256i &mto) {
+    // Perform the operation
     __m256i sum = _mm256_add_epi64(mta, mtb);
 
+    // Overflow handling: shift right 1, with correct sign
     __m256i overflow = has_high_bit(sum);
     __m256i ones = _mm256_set1_epi64x(1);
 
     __m256i mt_srl1 = _mm256_srlv_epi64(sum, ones);
-    __m256i ex_add1 = _mm256_add_epi64(exa, ones);
 
     mto = _mm256_blendv_epi8(sum, mt_srl1, overflow);
-    exo = _mm256_blendv_epi8(exa, ex_add1, overflow);
+    exo = _mm256_sub_epi64(exa, overflow);
 }
 
 inline __m256i subtraction(__m256i sa, __m256i exa, __m256i mta, __m256i mtb, __m256i &so, __m256i &exo, __m256i &mto) {
     helper::m256_union abs, lz;
 
+    // Perform the operation
     __m256i diff = _mm256_sub_epi64(mta, mtb);
 
     // Sign adjustment
