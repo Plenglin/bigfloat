@@ -125,18 +125,30 @@ inline bf add_impl(BINARY_OP_ARGS) {
     } else {
         // Perform addition
         long mto;
+        short exo;
+        bool sign = mta < 0;
+
+        if (sign) {
+            mta = -mta;
+            mtb = -mtb;
+        }
 
         // Overflow handling
         if (__builtin_add_overflow(mta, mtb, &mto)) {
-            long sign = (mta ^ mto) & (1L << 63);  // Isolate sign bit
-            if (sign) {
-                mto = (mto >> 1) ^ sign;  // Arithmetic shift right, but treat it as the opposite sign
+            if (mto < 0) {
+                mto = (unsigned long)mto >> 1;  // Arithmetic shift right, but treat it as the opposite sign
             }
             mto |= (1L << 62);
-            short exo = exa + 1;
-            return bf(exo, mto);
+            exo = exa + 1;
+        } else {
+            exo = exa;
         }
-        return bf(exa, mto);
+
+        if (sign) {
+            mto = -mto;
+        }
+
+        return bf(exo, mto);
     }
 }
 
