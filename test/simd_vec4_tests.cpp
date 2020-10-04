@@ -118,10 +118,10 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
         auto a1 = as[1];
         auto a2 = as[2];
         auto a3 = as[3];
-        BOOST_REQUIRE_EQUAL(a0, e0);
-        BOOST_REQUIRE_EQUAL(a1, e1);
-        BOOST_REQUIRE_EQUAL(a2, e2);
-        BOOST_REQUIRE_EQUAL(a3, e3);
+        BOOST_REQUIRE_CLOSE(a0, e0, bf(1e-9));
+        BOOST_REQUIRE_CLOSE(a1, e1, bf(1e-9));
+        BOOST_REQUIRE_CLOSE(a2, e2, bf(1e-9));
+        BOOST_REQUIRE_CLOSE(a3, e3, bf(1e-9));
     }
 
     BOOST_DATA_TEST_CASE(vec4_mul_is_correct, DATA, x0, x1, x2, x3, x4, x5, x6, x7) {

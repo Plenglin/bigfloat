@@ -35,7 +35,8 @@ static const double ARR1[] = {
         234.3,
         234.123,
         0.1323,
-        2332e-5
+        2332e-5,
+        -0x1p0
 };
 
 static const double ARR2[] = {
@@ -58,7 +59,8 @@ static const double ARR2[] = {
         -234.123,
         -234.3,
         2739.8,
-        3.32
+        3.32,
+        0x1.8p0
 };
 
 static const bf BF_ARR1[] = {

@@ -135,8 +135,8 @@ inline __m256i subtraction(__m256i sa, __m256i exa, __m256i mta, __m256i mtb, __
     so = _mm256_xor_si256(sa, sc);
 
     // Absolute value
-    __m256i neg = _mm256_sub_epi64(_mm256_setzero_si256(), diff);
-    abs.v = _mm256_blendv_epi8(diff, neg, sc);
+    abs.v = _mm256_add_epi64(diff, sc);
+    abs.v = _mm256_xor_si256(abs.v, sc);
 
     // Count number of leading zeros
     for (int i = 0; i < 4; i++) {
