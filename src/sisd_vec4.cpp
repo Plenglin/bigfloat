@@ -2,7 +2,7 @@
 // Created by astrid on 9/18/20.
 //
 
-#include "sisd_vec4.hpp"
+#include "../include/sisd_vec4.hpp"
 
 using namespace bigfloat;
 using namespace bigfloat::simd;

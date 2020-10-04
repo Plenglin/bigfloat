@@ -2,7 +2,7 @@
 // Created by astrid on 8/18/20.
 //
 
-#include "bf.hpp"
+#include "../include/bf.hpp"
 #include <immintrin.h>
 #include <xmmintrin.h>
 #include <vector>

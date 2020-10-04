@@ -5,8 +5,8 @@
 #include <boost/test/data/test_case.hpp>
 #include <boost/test/data/monomorphic.hpp>
 #include <boost/compressed_pair.hpp>
-#include "../src/bigfloat.hpp"
-#include "../src/boost_interop.hpp"
+#include "bigfloat.hpp"
+#include "boost_interop.hpp"
 
 using namespace std;
 using namespace bigfloat;

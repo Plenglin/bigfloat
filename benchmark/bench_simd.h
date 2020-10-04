@@ -8,7 +8,7 @@
 
 #include <benchmark/benchmark.h>
 #include "shared.hpp"
-#include "../src/simd_vec4.hpp"
+#include "simd_vec4.hpp"
 
 using namespace bigfloat::simd;
 

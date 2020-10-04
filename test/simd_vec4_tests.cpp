@@ -3,10 +3,9 @@
 
 #include <iostream>
 #include "_include.hpp"
-#include "../src/bf.hpp"
-#include "../src/simd_vec4.hpp"
-#include "../src/boost_interop.hpp"
-#include "../src/avx_helper.hpp"
+#include "bf.hpp"
+#include "simd_vec4.hpp"
+#include "avx_helper.hpp"
 
 
 using namespace bigfloat;

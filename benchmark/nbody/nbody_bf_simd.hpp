@@ -6,9 +6,9 @@
 #define BIGFLOAT_NBODY_BF_SIMD_HPP
 
 #include <vector>
-#include "../../src/bigfloat.hpp"
+#include "bigfloat.hpp"
+#include "simd.hpp"
 #include "body.hpp"
-#include "../../src/simd.hpp"
 
 using namespace bigfloat;
 using namespace bigfloat::simd;

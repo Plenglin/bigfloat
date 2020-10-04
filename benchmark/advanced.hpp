@@ -3,7 +3,7 @@
 
 #include <benchmark/benchmark.h>
 #include "nbody/nbody_sisd.hpp"
-#include "../src/bigfloat.hpp"
+#include "bigfloat.hpp"
 
 using namespace bigfloat;
 

@@ -3,7 +3,6 @@
 
 #include <benchmark/benchmark.h>
 
-
 #include "shared.hpp"
 
 static void bigfloat_addition(benchmark::State &state) {
