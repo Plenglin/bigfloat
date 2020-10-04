@@ -128,8 +128,9 @@ inline bf add_impl(BINARY_OP_ARGS) {
 
         // Overflow handling
         if (__builtin_add_overflow(mta, mtb, &mto)) {
-            if (mto <= 0) {
-                mto = (unsigned long) mto >> 1;
+            long sign = (mta ^ mto) & (1L << 63);  // Isolate sign bit
+            if (sign) {
+                mto = (mto >> 1) ^ sign;  // Arithmetic shift right, but treat it as the opposite sign
             }
             mto |= (1L << 62);
             short exo = exa + 1;
