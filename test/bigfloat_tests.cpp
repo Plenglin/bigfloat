@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_to_str)
 BOOST_AUTO_TEST_SUITE_END();*/
 
 // Test cases, preferably non-zero/nan/inf ones. The zero ones can get their own test cases.
-static const auto PAIRS = data::make(ARR1) ^ data::make(ARR2);
+static const auto PAIRS = (data::make(ARR1) + data::make(ARR2)) * (data::make(ARR2) + data::make(ARR1));
 static const auto BF_PAIRS = data::make(BF_ARR1) ^ data::make(BF_ARR2);
 
 BOOST_AUTO_TEST_SUITE(bigfloat_ops)
@@ -89,17 +89,17 @@ BOOST_AUTO_TEST_SUITE_END();
 
 BOOST_AUTO_TEST_SUITE(bigfloat_cmp)
     BOOST_DATA_TEST_CASE(lt, PAIRS, a, b) {
-        BOOST_REQUIRE_EQUAL(double(bf(a) < bf(b)), a < b);
+        BOOST_REQUIRE_EQUAL(bf(a) < bf(b), a < b);
     }
     BOOST_DATA_TEST_CASE(lte, PAIRS, a, b) {
-        BOOST_REQUIRE_EQUAL(double(bf(a) <= bf(b)), a <= b);
+        BOOST_REQUIRE_EQUAL(bf(a) <= bf(b), a <= b);
     }
 
     BOOST_DATA_TEST_CASE(gt, PAIRS, a, b) {
-        BOOST_REQUIRE_EQUAL(double(bf(a) > bf(b)), a > b);
+        BOOST_REQUIRE_EQUAL(bf(a) > bf(b), a > b);
     }
     BOOST_DATA_TEST_CASE(gte, PAIRS, a, b) {
-        BOOST_REQUIRE_EQUAL(double(bf(a) >= bf(b)), a >= b);
+        BOOST_REQUIRE_EQUAL(bf(a) >= bf(b), a >= b);
     }
 
     BOOST_AUTO_TEST_CASE(zero_lt_pos) {
