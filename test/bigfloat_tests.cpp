@@ -87,6 +87,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_ops)
     }
 BOOST_AUTO_TEST_SUITE_END();
 
+/*
 BOOST_AUTO_TEST_SUITE(bigfloat_cmp)
     BOOST_DATA_TEST_CASE(lt, PAIRS, a, b) {
         BOOST_REQUIRE_EQUAL(bf(a) < bf(b), a < b);
@@ -121,8 +122,8 @@ BOOST_AUTO_TEST_SUITE(bigfloat_cmp)
     BOOST_AUTO_TEST_CASE(neg_lte_zero) {
         BOOST_REQUIRE_LE(bf(-1), bf(0));
     }
-
 BOOST_AUTO_TEST_SUITE_END();
+*/
 
 static const bf numbers[] = {
         bf(382373.0),
