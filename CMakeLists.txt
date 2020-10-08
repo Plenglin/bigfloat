@@ -7,10 +7,8 @@ add_library(bigfloat
         include/bigfloat.hpp
         src/bf.cpp
         include/bf.hpp
-        include/interop_mpfr.hpp
         include/math.hpp
         src/math.cpp
-        include/interop_eigen.hpp
         include/simd.hpp
         src/simd_vec4.cpp
         include/simd_vec4.hpp

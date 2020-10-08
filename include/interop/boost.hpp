@@ -2,8 +2,8 @@
 // Created by astrid on 9/19/20.
 //
 
-#ifndef BIGFLOAT_BOOST_INTEROP_HPP
-#define BIGFLOAT_BOOST_INTEROP_HPP
+#ifndef BIGFLOAT_BOOST_HPP
+#define BIGFLOAT_BOOST_HPP
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include "bf.hpp"
@@ -23,4 +23,4 @@ namespace boost::math::fpc::fpc_detail {
     };
 }
 
-#endif //BIGFLOAT_BOOST_INTEROP_HPP
+#endif //BIGFLOAT_BOOST_HPP
