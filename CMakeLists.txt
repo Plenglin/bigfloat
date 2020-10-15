@@ -14,7 +14,7 @@ add_library(bigfloat
         include/simd_vec4.hpp
         include/avx_helper.hpp
         src/sisd_vec4.cpp
-        src/simd.cpp)
+        src/simd.cpp src/mat_4.cpp include/mat_4.hpp)
 target_include_directories(bigfloat PRIVATE src PUBLIC include)
 target_compile_options(bigfloat PUBLIC -mavx2)
 
