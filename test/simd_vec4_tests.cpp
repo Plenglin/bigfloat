@@ -2,11 +2,11 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include <iostream>
-#include "_include.hpp"
-#include "bf.hpp"
-#include "simd_vec4.hpp"
-#include "avx_helper.hpp"
+#include <bigfloat/bf.hpp>
+#include <bigfloat/simd_vec4.hpp>
+#include <bigfloat/avx_helper.hpp>
 
+#include "_include.hpp"
 
 using namespace bigfloat;
 using namespace bigfloat::helper;

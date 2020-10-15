@@ -6,7 +6,7 @@
 #define BIGFLOAT_BOOST_HPP
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include "bf.hpp"
+#include <bigfloat/bf.hpp>
 
 using namespace bigfloat;
 

@@ -2,7 +2,7 @@
 // Created by astrid on 9/27/20.
 //
 
-#include "../include/simd.hpp"
+#include "simd.hpp"
 
 using namespace bigfloat;
 using namespace bigfloat::simd;

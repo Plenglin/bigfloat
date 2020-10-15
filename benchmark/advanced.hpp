@@ -2,8 +2,9 @@
 #define BIGFLOAT_ADVANCED_HPP
 
 #include <benchmark/benchmark.h>
+#include <bigfloat/bigfloat.hpp>
+
 #include "nbody/nbody_sisd.hpp"
-#include "bigfloat.hpp"
 
 using namespace bigfloat;
 

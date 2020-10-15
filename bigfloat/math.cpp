@@ -1,4 +1,4 @@
-#include "../include/math.hpp"
+#include "math.hpp"
 #include "cmath"
 
 using namespace bigfloat;

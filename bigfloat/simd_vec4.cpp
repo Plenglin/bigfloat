@@ -5,8 +5,8 @@
 //
 
 #include <smmintrin.h>
-#include "../include/simd_vec4.hpp"
-#include "../include/avx_helper.hpp"
+#include "simd_vec4.hpp"
+#include "avx_helper.hpp"
 
 using namespace bigfloat;
 using namespace bigfloat::simd;

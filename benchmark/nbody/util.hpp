@@ -7,8 +7,8 @@
 
 #include <type_traits>
 #include <math.h>
-#include "../../include/bf.hpp"
-#include "../../include/math.hpp"
+#include "../../bigfloat/bf.hpp"
+#include "../../bigfloat/math.hpp"
 
 template<typename real>
 real t_sqrt(real x) {
