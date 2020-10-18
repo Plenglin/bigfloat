@@ -7,11 +7,10 @@
 #include <smmintrin.h>
 #include "simd_vec4.hpp"
 #include "avx_helper.hpp"
+#include "helpers.inl"
 
 using namespace bigfloat;
 using namespace bigfloat::simd;
-
-#define CONDITIONAL_INV(s, m) s ? -m : m
 
 
 simd_vec4::simd_vec4(int sign, __m256i exponent, __m256i mantissa) :
@@ -55,7 +54,7 @@ simd_vec4::simd_vec4(__m256d ds) {
     auto ex = (__m256i)ds;
     ex = _mm256_slli_epi64(ex, 1);  // cut off sign
     ex = _mm256_srli_epi64(ex, 53);
-    ex = _mm256_sub_epi64(ex, _mm256_set1_epi64x(1023));
+    ex = _mm256_sub_epi64(ex, _mm256_set1_epi64x(IEEE_754_EXP_BIAS));
 
     mantissa = mt;
     exponent = ex;
@@ -70,7 +69,7 @@ simd_vec4::operator __m256d() const {
     __m256i mt = _mm256_slli_epi64(mantissa, 2);  // cut off 1
     mt = _mm256_srli_epi64(mt, 12);
 
-    __m256i ex = _mm256_add_epi64(exponent, _mm256_set1_epi64x(1023));
+    __m256i ex = _mm256_add_epi64(exponent, _mm256_set1_epi64x(IEEE_754_EXP_BIAS));
     ex = _mm256_slli_epi64(ex, 53);  // cut off upper bits
     ex = _mm256_srli_epi64(ex, 1);
 
@@ -274,7 +273,12 @@ std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
 }
 
 bf dot(simd_vec4 &a, simd_vec4 &b) {
-    return bf();
+    auto sum = a + b;
+    auto acc = bf(0);
+    for (int i = 0; i < 4; i++) {
+        acc += sum[i];
+    }
+    return acc;
 }
 
 #pragma clang diagnostic pop

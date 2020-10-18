@@ -3,12 +3,12 @@
 //
 
 #include "bf.hpp"
+#include "helpers.inl"
 #include <immintrin.h>
 #include <xmmintrin.h>
 #include <vector>
 
 #define BINARY_OP_ARGS short exa, long mta, short exb, long mtb
-#define IEEE_754_EXP_BIAS 1023
 
 using namespace bigfloat;
 

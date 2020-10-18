@@ -1,0 +1,7 @@
+#ifndef BIGFLOAT_HELPERS_INL
+#define BIGFLOAT_HELPERS_INL
+
+#define CONDITIONAL_INV(s, m) s ? -m : m
+#define IEEE_754_EXP_BIAS 1023
+
+#endif //BIGFLOAT_HELPERS_INL

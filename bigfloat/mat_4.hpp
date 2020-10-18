@@ -18,7 +18,14 @@ namespace bigfloat {
         short exponents[16];
         unsigned long mantissas[16];
     public:
-        col4& operator[](int i);
+        mat4();
+
+        // Create a scaling matrix (I * x)
+        mat4(bf x);
+        // Create a diagonal matrix, with a, b, c, and d as the diagonal values.
+        mat4(bf a, bf b, bf c, bf d);
+        mat4(bf m0, bf m1, bf m2, bf m3, bf m4, bf m5, bf m6, bf m7, bf m8, bf m9, bf m10, bf m11, bf m12, bf m13, bf m14, bf m15);
+        bf get(int i, int j);
 
         void operator+=(mat4 &other);
         void operator-=(mat4 &other);

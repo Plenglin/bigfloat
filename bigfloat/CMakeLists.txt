@@ -11,6 +11,6 @@ add_library(bigfloat
         sisd_vec4.cpp
         simd.cpp
         mat_4.cpp
-        mat_4.hpp)
+        mat_4.hpp helpers.inl)
 target_compile_options(bigfloat PUBLIC -mavx2)
 
