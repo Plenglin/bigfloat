@@ -158,7 +158,7 @@ inline __m256i subtraction(__m256i sa, __m256i exa, __m256i mta, __m256i mtb, __
     exo = _mm256_andnot_si256(is_zero, exo);
 }
 
-void simd_vec4::operator+=(simd_vec4 &other) {
+simd_vec4 simd_vec4::operator+(simd_vec4 &other) const {
     __m256i zeros = _mm256_setzero_si256();
     helper::m256_union sau, sbu;
     for (int i = 0; i < 4; i++) {
@@ -184,9 +184,19 @@ void simd_vec4::operator+=(simd_vec4 &other) {
     helper::m256_union sou;
     sou.v = _mm256_blendv_epi8(add_so, sub_so, op);
 
-    sign = ((sou.q[3] >> 63) << 3) | ((sou.q[2] >> 63) << 2) | ((sou.q[1] >> 63) << 1) | (sou.q[0] >> 63);
-    exponent = _mm256_blendv_epi8(add_exo, sub_exo, op);
-    mantissa = _mm256_blendv_epi8(add_mto, sub_mto, op);
+    return simd_vec4(
+            ((sou.q[3] >> 63) << 3) | ((sou.q[2] >> 63) << 2) | ((sou.q[1] >> 63) << 1) | (sou.q[0] >> 63),
+            _mm256_blendv_epi8(add_exo, sub_exo, op),
+            _mm256_blendv_epi8(add_mto, sub_mto, op));
+}
+
+void simd_vec4::operator+=(simd_vec4 &other) {
+    *this = *this + other;
+}
+
+simd_vec4 simd_vec4::operator-(simd_vec4 &other) const {
+    auto n = -other;
+    return *this + n;
 }
 
 void simd_vec4::operator-=(simd_vec4 &other) {
@@ -195,10 +205,7 @@ void simd_vec4::operator-=(simd_vec4 &other) {
     other.negate();
 }
 
-void simd_vec4::operator*=(simd_vec4 &other) {
-    // Handle signs
-    sign ^= other.sign;
-
+simd_vec4 simd_vec4::operator*(simd_vec4 &other) {
     // Multiply mantissas
     helper::m256_union muls;
     for (int i = 0; i < 4; i++) {
@@ -225,8 +232,11 @@ void simd_vec4::operator*=(simd_vec4 &other) {
     // Decrement upper bit exponents by 1
     __m256i exo = _mm256_sub_epi64(exp_sum, has_upper_bit_mask);
 
-    mantissa = mto;
-    exponent = exo;
+    return simd_vec4(sign ^ other.sign, exo, mto);
+}
+
+void simd_vec4::operator*=(simd_vec4 &other) {
+    *this = *this * other;
 }
 
 bf simd_vec4::operator[](int i) const {
@@ -240,19 +250,31 @@ void simd_vec4::invert() {
 
 }
 
-void simd_vec4::operator/=(simd_vec4 &other) {
+simd_vec4 simd_vec4::operator/(simd_vec4 &other) {
     auto inv = _mm256_div_pd(_mm256_set1_pd(1), __m256d(other));
     auto other_inv = simd_vec4(inv);
-    *this *= other_inv;
+    return *this * other_inv;
+}
+
+void simd_vec4::operator/=(simd_vec4 &other) {
+    *this = *this / other;
 }
 
 void simd_vec4::negate() {
     sign = ~sign;
 }
 
+simd_vec4 simd_vec4::operator-() const {
+    return simd_vec4(~sign, exponent, mantissa);
+}
+
 std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
     os << "simd_vec4[" << x[0] << "," << x[1] << "," << x[2] << "," << x[3] << "]";
     return os;
+}
+
+bf dot(simd_vec4 &a, simd_vec4 &b) {
+    return bf();
 }
 
 #pragma clang diagnostic pop
