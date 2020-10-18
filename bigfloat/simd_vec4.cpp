@@ -273,10 +273,10 @@ std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
 }
 
 bf simd::dot(simd_vec4 &a, simd_vec4 &b) {
-    auto sum = a + b;
+    auto prods = a * b;
     auto acc = bf(0);
     for (int i = 0; i < 4; i++) {
-        acc += sum[i];
+        acc += prods[i];
     }
     return acc;
 }
