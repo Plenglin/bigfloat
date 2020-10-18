@@ -7,6 +7,7 @@
 #include <immintrin.h>
 #include <xmmintrin.h>
 #include <vector>
+#include <sstream>
 
 #define BINARY_OP_ARGS short exa, long mta, short exb, long mtb
 
@@ -335,6 +336,12 @@ bf bf::truncated() const {
 bf bf::operator%(const bf &other) const {
     auto div_result = *this / other;
     return *this - (div_result.truncated() * other);
+}
+
+std::string bf::to_string() {
+    std::stringstream ss;
+    ss << *this;
+    return ss.str();
 }
 
 std::ostream &bigfloat::operator<<(std::ostream &os, const bf &x) {

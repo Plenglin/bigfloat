@@ -105,6 +105,8 @@ namespace bigfloat {
         inline static bf min_value() {
             return bf::inf(true);
         }
+
+        std::string to_string();
     };
     std::ostream &operator<<(std::ostream &os, const bigfloat::bf &x);
 }

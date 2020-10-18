@@ -149,8 +149,8 @@ mat4 mat4::operator*(mat4 &other) {
     __m256i row_indices = _mm256_set_epi64x(0, 4, 8, 12);
     __m256i row_sign_shift = _mm256_set_epi64x(0, 4, 8, 12);
     for (int i = 0; i < 4; i++) {
-        auto row_mants = _mm256_i64gather_epi64(mantissas, row_indices, 1);
-        auto row_exps = _mm256_i64gather_epi64(exponents, row_indices, 1);
+        auto row_mants = _mm256_i64gather_epi64(mantissas, row_indices, 8);
+        auto row_exps = _mm256_set_epi64x(exponents[i + 9], exponents[i + 6], exponents[i + 3], exponents[i]);
         int row_signs = (signs >> i) & 1;
         row_signs |= (signs >> (i + 3)) & 2;
         row_signs |= (signs >> (i + 6)) & 4;
@@ -162,9 +162,15 @@ mat4 mat4::operator*(mat4 &other) {
 
         for (int j = 0; j < 4; j++) {
             int col_offset = j * 4;
-            __m256i col_mants = _mm256_load_si256((__m256i*)(mantissas + col_offset));
-            __m256i col_exps = _mm256_load_si256((__m256i*)(mantissas + col_offset));
-            auto col = vec4(signs >> j, col_exps, col_mants);
+            auto col_mants = _mm256_load_si256(v_mantissas + j);
+            union {
+                unsigned long v_exps;
+                short exps[4];
+            };
+            v_exps = exponents[j];
+
+            auto col_exps = _mm256_set_epi64x(exps[3], exps[2], exps[1], exps[0]);
+            auto col = vec4(signs >> col_offset, col_exps, col_mants);
             auto cell_result = dot(row, col);
 
             int result_offset = 4 * i + j;

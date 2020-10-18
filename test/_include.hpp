@@ -1,6 +1,3 @@
-#ifndef BIGFLOAT__INCLUDE_HPP
-#define BIGFLOAT__INCLUDE_HPP
-
 #include <boost/test/unit_test.hpp>
 #include <boost/test/data/test_case.hpp>
 #include <boost/test/data/monomorphic.hpp>
@@ -86,5 +83,3 @@ static const bf BF_ARR2[] = {
         bf(83, 984231432L | BF_MSB),
         bf(0, 50000L | BF_MSB),
 };
-
-#endif //BIGFLOAT__INCLUDE_HPP

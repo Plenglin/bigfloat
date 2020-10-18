@@ -272,7 +272,7 @@ std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
     return os;
 }
 
-bf dot(simd_vec4 &a, simd_vec4 &b) {
+bf simd::dot(simd_vec4 &a, simd_vec4 &b) {
     auto sum = a + b;
     auto acc = bf(0);
     for (int i = 0; i < 4; i++) {

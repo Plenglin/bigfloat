@@ -5,6 +5,7 @@
 #ifndef BIGFLOAT_MAT_4_HPP
 #define BIGFLOAT_MAT_4_HPP
 
+#include <immintrin.h>
 #include "bf.hpp"
 
 namespace bigfloat {
@@ -15,13 +16,19 @@ namespace bigfloat {
     class mat4 {
         // Column-major
         int signs;
-        short exponents[16];
-        unsigned long mantissas[16];
+        union {
+            short exponents[16];
+            long v_exponents[4];
+        };
+        union {
+            unsigned long mantissas[16];
+            __m256i v_mantissas[4];
+        };
     public:
         mat4();
 
         // Create a scaling matrix (I * x)
-        mat4(bf x);
+        explicit mat4(bf x);
         // Create a diagonal matrix, with a, b, c, and d as the diagonal values.
         mat4(bf a, bf b, bf c, bf d);
         mat4(bf m0, bf m1, bf m2, bf m3, bf m4, bf m5, bf m6, bf m7, bf m8, bf m9, bf m10, bf m11, bf m12, bf m13, bf m14, bf m15);
