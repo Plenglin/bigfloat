@@ -1,4 +1,5 @@
 #pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
 #pragma ide diagnostic ignored "portability-simd-intrinsics"
 //
 // Created by astrid on 9/7/20.
@@ -12,6 +13,12 @@
 using namespace bigfloat;
 using namespace bigfloat::simd;
 
+
+simd_vec4::simd_vec4() = default;
+
+simd_vec4::simd_vec4(bf *x) : simd_vec4(x[0], x[1], x[2], x[3]) {
+
+}
 
 simd_vec4::simd_vec4(int sign, __m256i exponent, __m256i mantissa) :
         sign(sign),

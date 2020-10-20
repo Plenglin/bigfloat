@@ -19,7 +19,9 @@ namespace bigfloat::simd {
         };
         int sign;
 
+        simd_vec4();
         explicit simd_vec4(bf x);
+        explicit simd_vec4(bf *x);
         simd_vec4(int sign, __m256i exponent, __m256i mantissa);
         simd_vec4(const bf &x0, const bf &x1, const bf &x2, const bf &x3);
         explicit simd_vec4(__m256d x);
