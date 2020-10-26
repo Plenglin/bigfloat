@@ -274,6 +274,18 @@ simd_vec4 simd_vec4::operator-() const {
     return simd_vec4(~sign, exponent, mantissa);
 }
 
+bool simd_vec4::operator==(simd_vec4 &other) {
+    auto exponent_neq = _mm256_xor_si256(exponent, other.exponent);
+    auto mantissa_neq = _mm256_xor_si256(exponent, other.exponent);
+
+    bool exp_mant_eq = _mm256_testz_si256(exponent_neq, mantissa_neq);
+    return (((sign ^ other.sign) & 0xf) == 0) && exp_mant_eq;
+}
+
+bool simd_vec4::operator!=(simd_vec4 &other) {
+    return !(*this == other);
+}
+
 std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
     os << "simd_vec4[" << x[0] << "," << x[1] << "," << x[2] << "," << x[3] << "]";
     return os;

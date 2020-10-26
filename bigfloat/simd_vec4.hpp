@@ -41,6 +41,9 @@ namespace bigfloat::simd {
         void operator-=(simd_vec4 &other);
         void operator*=(simd_vec4 &other);
         void operator/=(simd_vec4 &other);
+
+        bool operator==(simd_vec4 &other);
+        bool operator!=(simd_vec4 &other);
     };
 
     bf dot(simd_vec4 &a, simd_vec4 &b);
