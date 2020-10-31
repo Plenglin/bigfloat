@@ -16,9 +16,9 @@ namespace bigfloat {
 
     class mat4 {
         // Column-major
-        vec4 cols[4];
+        vec4 rows[4];
     public:
-        typedef vec4 col;
+        typedef vec4 row;
         mat4();
 
         // Create a scaling matrix (I * x)
@@ -30,7 +30,7 @@ namespace bigfloat {
         // Create a matrix from columns.
         mat4(vec4 c0, vec4 c1, vec4 c2, vec4 c3);
 
-        col& operator[](int i);
+        row& operator[](int i);
 
         void operator+=(mat4 &other);
         mat4 operator+(mat4 &other);
