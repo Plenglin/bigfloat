@@ -4,6 +4,7 @@
 
 #include "bf.hpp"
 #include "helpers.inl"
+#include <stdexcept>
 #include <immintrin.h>
 #include <xmmintrin.h>
 #include <vector>
@@ -66,8 +67,70 @@ bf::bf(int x) : bf(double(x)) {
 
 }
 
-bf::bf(std::string x) {
+bf::bf(std::string x, int radix) {
+    std::vector<int> integer;
+    std::vector<int> fraction;
+    std::vector<int> exponent;
+    std::vector<int> *push = &integer;
 
+    // Parse parts of the string
+    for (auto c : x) {
+        // Decimal point
+        if (c == '.') {
+            if (push != &integer) throw std::invalid_argument("");
+            push = &fraction;
+            continue;
+        }
+
+        // Exponent
+        if (c == 'e') {
+            if (push != &fraction) throw std::invalid_argument("");
+            push = &exponent;
+            continue;
+        }
+
+        // Digit
+        if ('0' <= c && c <= '9') {
+            push->push_back(c - '0');
+            continue;
+        }
+
+        throw std::invalid_argument("");
+    }
+
+    bf bf_radix = radix;
+    bf power = 1;
+    bf coefficient = 0;
+    for (auto it = integer.crbegin(); it != integer.crend(); it++) {
+        coefficient += bf(*it) * power;
+        power *= bf_radix;
+    }
+
+    bf reciprocal = bf(1) / bf(radix);
+    power = reciprocal;
+    for (auto & it : fraction) {
+        coefficient += bf(it) * power;
+        power *= reciprocal;
+    }
+
+    int exp = 0;
+    int int_power = 1;
+    for (auto it = exponent.crbegin(); it != integer.crend(); it++) {
+        exp += *it * int_power;
+        int_power *= radix;
+    }
+
+    bf acc = coefficient;
+    bf p2 = coefficient;
+    while (exp > 0) {
+        p2 *= p2;
+        if (exp & 1) {
+            acc += p2;
+        }
+        exp >>= 2;
+    }
+
+    *this = acc;
 }
 
 bf::bf(bf_packed x) {

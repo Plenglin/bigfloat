@@ -28,7 +28,7 @@ namespace bigfloat {
         bf(bf_packed x);
         bf(double x);
         bf(int x);
-        bf(std::string x);
+        bf(std::string x, int radix = 10);
 
         explicit operator double() const;
         explicit operator bf_packed() const;
