@@ -33,7 +33,7 @@ mat4::mat4(bf x) : mat4(x, x, x, x) {
 
 }
 
-mat4::mat4(vec4 c0, vec4 c1, vec4 c2, vec4 c3) : cols{c0, c1, c2, c3} {
+mat4::mat4(vec4 c0, vec4 c1, vec4 c2, vec4 c3) : rows{c0, c1, c2, c3} {
 
 }
 

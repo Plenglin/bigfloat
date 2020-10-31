@@ -244,11 +244,11 @@ void simd_vec4::operator*=(simd_vec4 &other) {
     *this = *this * other;
 }
 
-bf simd_vec4::operator[](int i) const {
-    return bf(
-            exponent_array[i],
-            CONDITIONAL_INV((sign >> i) & 1, (mantissa_array[i]))
-    );
+simd_vec4::bf_ref simd_vec4::operator[](int i) const {
+    return {
+        .parent = (simd_vec4*)this,
+        .i = i
+    };
 }
 
 void simd_vec4::invert() {

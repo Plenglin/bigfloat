@@ -3,11 +3,18 @@
 
 #include <immintrin.h>
 #include "bf.hpp"
+#include "helpers.inl"
 
 
 namespace bigfloat {
 
+    struct simd_vec4_component_ref;
+
     struct simd_vec4 {
+    private:
+        struct bf_ref;
+
+    public:
         union {
             __m256i mantissa;
             unsigned long mantissa_array[4];
@@ -17,7 +24,7 @@ namespace bigfloat {
             __m256i exponent;
             long exponent_array[4];
         };
-        int sign;
+        unsigned int sign;
 
         simd_vec4();
         explicit simd_vec4(bf x);
@@ -27,7 +34,7 @@ namespace bigfloat {
         explicit simd_vec4(__m256d x);
         explicit operator __m256d() const;
 
-        bf operator[](int i) const;
+        bf_ref operator[](int i) const;
         void invert();
         void negate();
         simd_vec4 operator-() const;
@@ -44,6 +51,34 @@ namespace bigfloat {
 
         bool operator==(simd_vec4 &other);
         bool operator!=(simd_vec4 &other);
+
+    private:
+        struct bf_ref {
+            simd_vec4 *parent;
+            int i;
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "google-explicit-constructor"
+            inline operator bf() const {
+                auto ex = parent->exponent[i];
+                auto mt = parent->mantissa[i];
+                mt = CONDITIONAL_INV(parent->sign >> i & 1, mt);
+                return bf(ex, mt);
+            }
+#pragma clang diagnostic pop
+
+            inline void operator&=(bf other) const {
+                parent->mantissa_array[i] = other.mantissa;
+                parent->exponent[i] = other.mantissa;
+                parent->sign = other.mantissa;
+            }
+
+            inline bf_ref& operator=(bf other) const {
+                parent->mantissa_array[i] = other.mantissa;
+                parent->exponent[i] = other.mantissa;
+                parent->sign = other.mantissa;
+            }
+        };
     };
 
     bf dot(simd_vec4 &a, simd_vec4 &b);
