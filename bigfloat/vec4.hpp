@@ -1,5 +1,5 @@
-#ifndef BIGFLOAT_SIMD_HPP
-#define BIGFLOAT_SIMD_HPP
+#ifndef BIGFLOAT_VEC4_HPP
+#define BIGFLOAT_VEC4_HPP
 
 #include <xmmintrin.h>
 #include <vector>
@@ -11,20 +11,19 @@
 #pragma message "AVX2 detected! Using SIMD instructions for accelerated arithmetic."
 
 #include "simd_vec4.hpp"
-namespace bigfloat::simd {
+namespace bigfloat {
     typedef simd_vec4 vec4;
 }
 
 #else
-#warning "AVX2 is not enabled! No vectorization is possible, Deferring to SISD instructions."
 
 #include "sisd_vec4.hpp"
-namespace bigfloat::simd {
+namespace bigfloat {
     typedef sisd_vec4 vec4;
 }
 #endif
 
-namespace bigfloat::simd {
+namespace bigfloat {
     class vecn {
         size_t count;
         unsigned long *mantissa;
@@ -47,4 +46,4 @@ namespace bigfloat::simd {
     };
 }
 
-#endif //BIGFLOAT_SIMD_HPP
+#endif //BIGFLOAT_VEC4_HPP

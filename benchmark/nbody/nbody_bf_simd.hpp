@@ -7,11 +7,10 @@
 
 #include <vector>
 #include "../../bigfloat/bigfloat.hpp"
-#include "../../bigfloat/simd.hpp"
+#include "../../bigfloat/vec4.hpp"
 #include "body.hpp"
 
 using namespace bigfloat;
-using namespace bigfloat::simd;
 
 const bf G = bf(6.67430e-11);
 const std::vector<bf> mass_vector = std::vector {

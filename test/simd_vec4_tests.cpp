@@ -10,7 +10,6 @@
 
 using namespace bigfloat;
 using namespace bigfloat::helper;
-using namespace bigfloat::simd;
 
 BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
     // Test cases, preferably non-zero/nan/inf ones. The zero ones can get their own test cases.

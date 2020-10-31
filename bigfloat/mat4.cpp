@@ -2,13 +2,12 @@
 // Created by astrid on 10/8/20.
 //
 
-#include "mat_4.hpp"
-#include "simd.hpp"
+#include "mat4.hpp"
+#include "vec4.hpp"
 #include "helpers.inl"
 #include <immintrin.h>
 
 using namespace bigfloat;
-using namespace bigfloat::simd;
 
 mat4::mat4() = default;
 
@@ -34,7 +33,7 @@ mat4::mat4(bf x) : mat4(x, x, x, x) {
 
 }
 
-mat4::mat4(simd::vec4 c0, simd::vec4 c1, simd::vec4 c2, simd::vec4 c3) : cols{c0, c1, c2, c3} {
+mat4::mat4(vec4 c0, vec4 c1, vec4 c2, vec4 c3) : cols{c0, c1, c2, c3} {
 
 }
 

@@ -2,12 +2,12 @@
 // Created by astrid on 10/8/20.
 //
 
-#ifndef BIGFLOAT_MAT_4_HPP
-#define BIGFLOAT_MAT_4_HPP
+#ifndef BIGFLOAT_MAT4_HPP
+#define BIGFLOAT_MAT4_HPP
 
 #include <immintrin.h>
 #include "bf.hpp"
-#include "simd.hpp"
+#include "vec4.hpp"
 
 namespace bigfloat {
     class bf_ref {};
@@ -16,9 +16,9 @@ namespace bigfloat {
 
     class mat4 {
         // Column-major
-        simd::vec4 cols[4];
+        vec4 cols[4];
     public:
-        typedef simd::vec4 col;
+        typedef vec4 col;
         mat4();
 
         // Create a scaling matrix (I * x)
@@ -28,7 +28,7 @@ namespace bigfloat {
         // Create a matrix.
         mat4(bf m0, bf m1, bf m2, bf m3, bf m4, bf m5, bf m6, bf m7, bf m8, bf m9, bf m10, bf m11, bf m12, bf m13, bf m14, bf m15);
         // Create a matrix from columns.
-        mat4(simd::vec4 c0, simd::vec4 c1, simd::vec4 c2, simd::vec4 c3);
+        mat4(vec4 c0, vec4 c1, vec4 c2, vec4 c3);
 
         col& operator[](int i);
 
@@ -47,4 +47,4 @@ namespace bigfloat {
 }
 
 
-#endif //BIGFLOAT_MAT_4_HPP
+#endif //BIGFLOAT_MAT4_HPP

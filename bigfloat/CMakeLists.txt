@@ -4,13 +4,13 @@ add_library(bigfloat
         bf.hpp
         math.hpp
         math.cpp
-        simd.hpp
+        vec4.hpp
         simd_vec4.cpp
         simd_vec4.hpp
         avx_helper.hpp
         sisd_vec4.cpp
-        simd.cpp
-        mat_4.cpp
-        mat_4.hpp helpers.inl)
+        vec4.cpp
+        mat4.cpp
+        mat4.hpp helpers.inl)
 target_compile_options(bigfloat PUBLIC -mavx2)
 

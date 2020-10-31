@@ -5,7 +5,7 @@
 #include "bf.hpp"
 
 
-namespace bigfloat::simd {
+namespace bigfloat {
 
     struct simd_vec4 {
         union {

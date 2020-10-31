@@ -5,7 +5,6 @@
 #include "sisd_vec4.hpp"
 
 using namespace bigfloat;
-using namespace bigfloat::simd;
 
 
 sisd_vec4::sisd_vec4(bf x) : sisd_vec4(x, x, x, x) {

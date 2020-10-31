@@ -3,7 +3,7 @@
 //
 
 #include "_include.hpp"
-#include <bigfloat/mat_4.hpp>
+#include <bigfloat/mat4.hpp>
 
 using namespace bigfloat;
 

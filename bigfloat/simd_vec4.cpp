@@ -11,7 +11,6 @@
 #include "helpers.inl"
 
 using namespace bigfloat;
-using namespace bigfloat::simd;
 
 
 simd_vec4::simd_vec4() = default;
@@ -291,7 +290,7 @@ std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
     return os;
 }
 
-bf simd::dot(simd_vec4 &a, simd_vec4 &b) {
+bf bigfloat::dot(simd_vec4 &a, simd_vec4 &b) {
     auto prods = a * b;
     auto acc = bf(0);
     for (int i = 0; i < 4; i++) {

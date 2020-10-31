@@ -7,7 +7,7 @@
 
 #include "bf.hpp"
 
-namespace bigfloat::simd {
+namespace bigfloat {
     struct sisd_vec4 {
         bf xs[4];
 
