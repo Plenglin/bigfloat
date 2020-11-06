@@ -3,7 +3,6 @@ add_library(bigfloat
         bf.cpp
         bf.hpp
         math.hpp
-        math.cpp
         vec4.hpp
         simd_vec4.cpp
         simd_vec4.hpp
@@ -11,6 +10,6 @@ add_library(bigfloat
         sisd_vec4.cpp
         vec4.cpp
         mat4.cpp
-        mat4.hpp helpers.inl interop/glm.hpp)
+        mat4.hpp helpers.inl interop/glm.hpp matrix_utils.hpp)
 target_compile_options(bigfloat PUBLIC -mavx2)
 
