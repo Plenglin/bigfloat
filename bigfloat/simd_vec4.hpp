@@ -8,13 +8,9 @@
 
 namespace bigfloat {
 
-    struct simd_vec4_component_ref;
+    struct bf_ref;
 
     struct simd_vec4 {
-    private:
-        struct bf_ref;
-
-    public:
         union {
             __m256i mantissa;
             unsigned long mantissa_array[4];
@@ -41,8 +37,18 @@ namespace bigfloat {
 
         simd_vec4 operator+(simd_vec4 &other) const;
         simd_vec4 operator-(simd_vec4 &other) const;
-        simd_vec4 operator*(simd_vec4 &other);
-        simd_vec4 operator/(simd_vec4 &other);
+        simd_vec4 operator*(simd_vec4 &other) const;
+        simd_vec4 operator/(simd_vec4 &other) const;
+
+        simd_vec4 operator+(bf other) const;
+        simd_vec4 operator-(bf other) const;
+        simd_vec4 operator*(bf other) const;
+        simd_vec4 operator/(bf other) const;
+
+        simd_vec4 operator+(bf_ref other) const;
+        simd_vec4 operator-(bf_ref other) const;
+        simd_vec4 operator*(bf_ref other) const;
+        simd_vec4 operator/(bf_ref other) const;
 
         void operator+=(simd_vec4 &other);
         void operator-=(simd_vec4 &other);
@@ -51,34 +57,34 @@ namespace bigfloat {
 
         bool operator==(simd_vec4 &other);
         bool operator!=(simd_vec4 &other);
+    };
 
-    private:
-        struct bf_ref {
-            simd_vec4 *parent;
-            int i;
+    struct bf_ref {
+        simd_vec4 *parent;
+        int i;
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "google-explicit-constructor"
-            inline operator bf() const {
-                auto ex = parent->exponent[i];
-                auto mt = parent->mantissa[i];
-                mt = CONDITIONAL_INV(parent->sign >> i & 1, mt);
-                return bf(ex, mt);
-            }
+        inline operator bf() const {
+            auto ex = parent->exponent[i];
+            auto mt = parent->mantissa[i];
+            mt = CONDITIONAL_INV(parent->sign >> i & 1, mt);
+            return bf(ex, mt);
+        }
 #pragma clang diagnostic pop
 
-            inline void operator&=(bf other) const {
-                parent->mantissa_array[i] = other.mantissa;
-                parent->exponent[i] = other.mantissa;
-                parent->sign = other.mantissa;
-            }
+        inline void operator&=(bf other) const {
+            parent->mantissa_array[i] = other.mantissa;
+            parent->exponent[i] = other.mantissa;
+            parent->sign = other.mantissa;
+        }
 
-            inline bf_ref& operator=(bf other) const {
-                parent->mantissa_array[i] = other.mantissa;
-                parent->exponent[i] = other.mantissa;
-                parent->sign = other.mantissa;
-            }
-        };
+        inline bf_ref& operator=(bf other) {
+            parent->mantissa_array[i] = other.mantissa;
+            parent->exponent[i] = other.mantissa;
+            parent->sign = other.mantissa;
+            return *this;
+        }
     };
 
     bf dot(simd_vec4 &a, simd_vec4 &b);

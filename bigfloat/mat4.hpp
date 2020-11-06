@@ -10,10 +10,6 @@
 #include "vec4.hpp"
 
 namespace bigfloat {
-    class bf_ref {};
-
-    class col4 {};
-
     class mat4 {
         // Column-major
         vec4 rows[4];

@@ -407,6 +407,10 @@ std::string bf::to_string() {
     return ss.str();
 }
 
+bf::operator float() const {
+    return float(double(*this));
+}
+
 std::ostream &bigfloat::operator<<(std::ostream &os, const bf &x) {
     bf remainder = x;
     if (remainder.sign()) {

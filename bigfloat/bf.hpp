@@ -1,8 +1,8 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "google-explicit-constructor"
-
 #ifndef BIGFLOAT_BF_HPP
 #define BIGFLOAT_BF_HPP
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "google-explicit-constructor"
 
 #include <gmp.h>
 
@@ -31,6 +31,7 @@ namespace bigfloat {
         bf(std::string x, int radix = 10);
 
         explicit operator double() const;
+        explicit operator float() const;
         explicit operator bf_packed() const;
 
         inline bf operator+() const {
@@ -111,7 +112,6 @@ namespace bigfloat {
     std::ostream &operator<<(std::ostream &os, const bigfloat::bf &x);
 }
 
+#pragma clang diagnostic pop
 
 #endif //BIGFLOAT_BF_HPP
-
-#pragma clang diagnostic pop

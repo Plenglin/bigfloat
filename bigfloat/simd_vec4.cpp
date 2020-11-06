@@ -210,7 +210,7 @@ void simd_vec4::operator-=(simd_vec4 &other) {
     other.negate();
 }
 
-simd_vec4 simd_vec4::operator*(simd_vec4 &other) {
+simd_vec4 simd_vec4::operator*(simd_vec4 &other) const {
     // Multiply mantissas
     helper::m256_union muls;
     for (int i = 0; i < 4; i++) {
@@ -244,7 +244,7 @@ void simd_vec4::operator*=(simd_vec4 &other) {
     *this = *this * other;
 }
 
-simd_vec4::bf_ref simd_vec4::operator[](int i) const {
+bf_ref simd_vec4::operator[](int i) const {
     return {
         .parent = (simd_vec4*)this,
         .i = i
@@ -255,7 +255,7 @@ void simd_vec4::invert() {
 
 }
 
-simd_vec4 simd_vec4::operator/(simd_vec4 &other) {
+simd_vec4 simd_vec4::operator/(simd_vec4 &other) const {
     auto inv = _mm256_div_pd(_mm256_set1_pd(1), __m256d(other));
     auto other_inv = simd_vec4(inv);
     return *this * other_inv;
@@ -283,6 +283,42 @@ bool simd_vec4::operator==(simd_vec4 &other) {
 
 bool simd_vec4::operator!=(simd_vec4 &other) {
     return !(*this == other);
+}
+
+simd_vec4 simd_vec4::operator+(bf other) const {
+    auto v_other = simd_vec4(other);
+    return *this + v_other;
+}
+
+simd_vec4 simd_vec4::operator-(bf other) const {
+    auto v_other = simd_vec4(other);
+    return *this - v_other;
+}
+
+simd_vec4 simd_vec4::operator*(bf other) const {
+    auto v_other = simd_vec4(other);
+    return *this * v_other;
+}
+
+simd_vec4 simd_vec4::operator/(bf other) const {
+    auto v_other = simd_vec4(other);
+    return *this / v_other;
+}
+
+simd_vec4 simd_vec4::operator+(bf_ref other) const {
+    return *this + bf(other);
+}
+
+simd_vec4 simd_vec4::operator-(bf_ref other) const {
+    return *this - bf(other);
+}
+
+simd_vec4 simd_vec4::operator*(bf_ref other) const {
+    return *this * bf(other);
+}
+
+simd_vec4 simd_vec4::operator/(bf_ref other) const {
+    return *this / bf(other);
 }
 
 std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
