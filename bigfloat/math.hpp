@@ -14,6 +14,7 @@ namespace bigfloat {
         auto secondary = x / guess;
         return (guess + secondary) / 2;
     }
+
     bf log(const bf x) {
         if (x.sign()) return bf::nan(false);
 
@@ -26,6 +27,7 @@ namespace bigfloat {
         // Perform a linear approximation. Note that d/dx log(x) = 1/x, giving us the slope.
         return (bf(1) / x) * (x - x0) + y0;
     }
+
     bf exp(const bf x) {
         // Calculate a point for the linear approximation
         auto y0 = bf(std::exp(double(x)));
@@ -36,9 +38,11 @@ namespace bigfloat {
         // Perform a linear approximation. Note that d/dx e^x = e^x, giving us the slope.
         return y0 * (x - x0) + y0;
     }
+
     bf pow(const bf b, const bf p) {
         return bf();
     }
+
     bf pow(const bf b, unsigned int p) {
         // Exponentiation by squaring
         bf acc = 1;
@@ -54,11 +58,33 @@ namespace bigfloat {
     }
 
     bf sin(const bf x) {
-        return bf();
+        // Calculate a point for the linear approximation
+        auto y0 = bf(std::sin(double(x)));
+
+        // Derivative for the linear approximation
+        auto m = bf(std::cos(double(x)));
+
+        // Results of double conversion
+        auto x0 = bf(x.exponent, x.mantissa & ~0x7ff);
+
+        // Perform a linear approximation. Note that d/dx log(x) = 1/x, giving us the slope.
+        return m * (x - x0) + y0;
     }
+
     bf cos(const bf x) {
-        return bf();
+        // Calculate a point for the linear approximation
+        auto y0 = bf(std::cos(double(x)));
+
+        // Derivative for the linear approximation
+        auto m = bf(-std::sin(double(x)));
+
+        // Results of double conversion
+        auto x0 = bf(x.exponent, x.mantissa & ~0x7ff);
+
+        // Perform a linear approximation. Note that d/dx log(x) = 1/x, giving us the slope.
+        return m * (x - x0) + y0;
     }
+
     bf tan(const bf x);
     bf asin(const bf x);
     bf acos(const bf x);

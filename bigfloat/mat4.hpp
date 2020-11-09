@@ -40,6 +40,7 @@ namespace bigfloat {
         mat4 T();
         mat4 inverted();
     };
+    std::ostream &operator<<(std::ostream &os, const mat4 &x);
 }
 
 

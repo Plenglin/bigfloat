@@ -24,6 +24,11 @@ namespace bigfloat {
 #endif
 
 namespace bigfloat {
+    std::ostream &operator<<(std::ostream &os, const vec4 &x) {
+        os << "[" << x[0] << "," << x[1] << "," << x[2] << "," << x[3] << "]";
+        return os;
+    }
+
     class vecn {
         size_t count;
         unsigned long *mantissa;

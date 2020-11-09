@@ -19,7 +19,7 @@ namespace bigfloat {
     }
 
     inline mat4 scale(vec4 v) {
-        return scale(v[0], v[1], v[2])
+        return scale(v[0], v[1], v[2]);
     }
 
     inline mat4 translate(bf x, bf y, bf z) {
@@ -32,7 +32,7 @@ namespace bigfloat {
     }
 
     inline mat4 translate(vec4 v) {
-        return translate(v[0], v[1], v[2])
+        return translate(v[0], v[1], v[2]);
     }
 
     inline mat4 rotate(bf a, bf x, bf y, bf z) {

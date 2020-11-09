@@ -21,7 +21,7 @@ mat4::mat4(bf m0, bf m1, bf m2, bf m3, bf m4, bf m5, bf m6, bf m7, bf m8, bf m9,
 }
 
 
-mat4::mat4(bf a, bf b, bf c, bf d) :    mat4(
+mat4::mat4(bf a, bf b, bf c, bf d) : mat4(
         a, 0, 0, 0,
         0, b, 0, 0,
         0, 0, c, 0,
@@ -37,7 +37,7 @@ mat4::mat4(vec4 c0, vec4 c1, vec4 c2, vec4 c3) : rows{c0, c1, c2, c3} {
 
 }
 
-mat4::row &mat4::operator[](int i) {
+mat4::row& mat4::operator[](int i) {
     return rows[i];
 }
 
@@ -121,4 +121,9 @@ bool mat4::operator==(mat4 &other) {
 
 template<bf f(bf a, bf b)>
 inline void componentwise(mat4 &a, mat4 &b) {
+}
+
+std::ostream &bigfloat::operator<<(std::ostream &os, const mat4 &x) {
+    mat4 m = x;
+    return os << "[" << m[0] << "," << m[1] << "," << m[2] << "," << m[3] << "]";
 }

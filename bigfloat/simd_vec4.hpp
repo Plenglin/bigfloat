@@ -88,6 +88,5 @@ namespace bigfloat {
     };
 
     bf dot(simd_vec4 &a, simd_vec4 &b);
-    std::ostream &operator<<(std::ostream &os, const simd_vec4 &x);
 }
 #endif //BIGFLOAT_SIMD_VEC4_HPP

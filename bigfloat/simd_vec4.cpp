@@ -321,11 +321,6 @@ simd_vec4 simd_vec4::operator/(bf_ref other) const {
     return *this / bf(other);
 }
 
-std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
-    os << "simd_vec4[" << x[0] << "," << x[1] << "," << x[2] << "," << x[3] << "]";
-    return os;
-}
-
 bf bigfloat::dot(simd_vec4 &a, simd_vec4 &b) {
     auto prods = a * b;
     auto acc = bf(0);
