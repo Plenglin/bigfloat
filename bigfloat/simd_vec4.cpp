@@ -330,4 +330,9 @@ bf bigfloat::dot(simd_vec4 &a, simd_vec4 &b) {
     return acc;
 }
 
+std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
+    os << "[" << bf(x[0]) << "," << bf(x[1]) << "," << bf(x[2]) << "," << bf(x[3]) << "]";
+    return os;
+}
+
 #pragma clang diagnostic pop

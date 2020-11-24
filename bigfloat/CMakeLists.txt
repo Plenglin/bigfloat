@@ -8,7 +8,6 @@ add_library(bigfloat
         simd_vec4.hpp
         avx_helper.hpp
         sisd_vec4.cpp
-        vec4.cpp
         mat4.cpp
         mat4.hpp helpers.inl interop/glm.hpp matrix_utils.hpp)
 target_compile_options(bigfloat PUBLIC -mavx2)

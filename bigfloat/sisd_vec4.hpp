@@ -22,8 +22,6 @@ namespace bigfloat {
         void operator*=(sisd_vec4 &other);
         void operator/=(sisd_vec4 &other);
     };
-
-    std::ostream &operator<<(std::ostream &os, const sisd_vec4 &x);
 }
 
 #endif //BIGFLOAT_SISD_VEC4_HPP
