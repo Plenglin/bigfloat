@@ -12,9 +12,9 @@ namespace bigfloat {
     inline mat4 scale(bf x, bf y, bf z) {
         return mat4(
                 x, 0, 0, 0,
-                1, y, 0, 0,
-                1, 0, z, 0,
-                1, 0, 0, 1
+                0, y, 0, 0,
+                0, 0, z, 0,
+                0, 0, 0, 1
         );
     }
 
@@ -25,9 +25,9 @@ namespace bigfloat {
     inline mat4 translate(bf x, bf y, bf z) {
         return mat4(
                 1, 0, 0, x,
-                1, 1, 0, y,
-                1, 0, 1, z,
-                1, 0, 0, 1
+                0, 1, 0, y,
+                0, 0, 1, z,
+                0, 0, 0, 1
         );
     }
 
