@@ -217,6 +217,12 @@ inline bf add_impl(BINARY_OP_ARGS) {
 }
 
 inline bf sort_add_impl(BINARY_OP_ARGS) {
+    if (mta == 0) {
+        return bf(exb, mtb);
+    }
+    if (mtb == 0) {
+        return bf(exa, mta);
+    }
     if (exa == exb && mta == mtb)  // doubling case. takes care of -1 + -1
         return bf(exa + 1, mta);
     if (exa > exb)
