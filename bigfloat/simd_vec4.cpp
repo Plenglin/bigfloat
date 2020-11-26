@@ -330,9 +330,18 @@ bf bigfloat::dot(simd_vec4 &a, simd_vec4 &b) {
     return acc;
 }
 
+#include "iostream"
+
 namespace bigfloat {
     std::ostream &operator<<(std::ostream &os, const simd_vec4 &x) {
-        os << "[" << bf(x[0]) << "," << bf(x[1]) << "," << bf(x[2]) << "," << bf(x[3]) << "]";
+        auto c0 = bf(x[0]);
+        auto c1 = bf(x[1]);
+        auto c2 = bf(x[2]);
+        auto c3 = bf(x[3]);
+        os << "[" << c0;
+        os << "," << c1;
+        os << "," << c2;
+        os << "," << c3 << "]";
         return os;
     }
 }

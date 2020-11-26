@@ -1,10 +1,11 @@
+#pragma once
 #ifndef BIGFLOAT_MATH_HPP
 #define BIGFLOAT_MATH_HPP
 
 #include "bf.hpp"
 
 namespace bigfloat {
-    bf sqrt(const bf x) {
+    inline bf sqrt(const bf x) {
         if (x.sign()) return bf::nan(false);
 
         // Double-impl guess gives us 52 bits.
@@ -15,7 +16,7 @@ namespace bigfloat {
         return (guess + secondary) / 2;
     }
 
-    bf log(const bf x) {
+    inline bf log(const bf x) {
         if (x.sign()) return bf::nan(false);
 
         // Calculate a point for the linear approximation
@@ -28,7 +29,7 @@ namespace bigfloat {
         return (bf(1) / x) * (x - x0) + y0;
     }
 
-    bf exp(const bf x) {
+    inline bf exp(const bf x) {
         // Calculate a point for the linear approximation
         auto y0 = bf(std::exp(double(x)));
 
@@ -39,11 +40,11 @@ namespace bigfloat {
         return y0 * (x - x0) + y0;
     }
 
-    bf pow(const bf b, const bf p) {
+    inline bf pow(const bf b, const bf p) {
         return bf();
     }
 
-    bf pow(const bf b, unsigned int p) {
+    inline bf pow(const bf b, unsigned int p) {
         // Exponentiation by squaring
         bf acc = 1;
         bf fac = b;
@@ -57,7 +58,7 @@ namespace bigfloat {
         return acc;
     }
 
-    bf sin(const bf x) {
+    inline bf sin(const bf x) {
         // Calculate a point for the linear approximation
         auto y0 = bf(std::sin(double(x)));
 
@@ -71,7 +72,7 @@ namespace bigfloat {
         return m * (x - x0) + y0;
     }
 
-    bf cos(const bf x) {
+    inline bf cos(const bf x) {
         // Calculate a point for the linear approximation
         auto y0 = bf(std::cos(double(x)));
 

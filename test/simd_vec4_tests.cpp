@@ -25,10 +25,10 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
 
         auto as = simd_vec4(bx0, bx1, bx2, bx3);
 
-        BOOST_REQUIRE_EQUAL(as[0], bx0);
-        BOOST_REQUIRE_EQUAL(as[1], bx1);
-        BOOST_REQUIRE_EQUAL(as[2], bx2);
-        BOOST_REQUIRE_EQUAL(as[3], bx3);
+        BOOST_REQUIRE_EQUAL(bf(as[0]), bx0);
+        BOOST_REQUIRE_EQUAL(bf(as[1]), bx1);
+        BOOST_REQUIRE_EQUAL(bf(as[2]), bx2);
+        BOOST_REQUIRE_EQUAL(bf(as[3]), bx3);
     }
 
     BOOST_DATA_TEST_CASE(converts_to_double, DATA, x0, x1, x2, x3, _0, _1, _2, _3) {
@@ -44,10 +44,10 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
         };
         dv = __m256d(bfvec);
 
-        BOOST_REQUIRE_EQUAL(ds[0], double(bx0));
-        BOOST_REQUIRE_EQUAL(ds[1], double(bx1));
-        BOOST_REQUIRE_EQUAL(ds[2], double(bx2));
-        BOOST_REQUIRE_EQUAL(ds[3], double(bx3));
+        BOOST_REQUIRE_EQUAL(bf(ds[0]), double(bx0));
+        BOOST_REQUIRE_EQUAL(bf(ds[1]), double(bx1));
+        BOOST_REQUIRE_EQUAL(bf(ds[2]), double(bx2));
+        BOOST_REQUIRE_EQUAL(bf(ds[3]), double(bx3));
     }
 
     BOOST_DATA_TEST_CASE(converts_from_double, DATA, x0, x1, x2, x3, _0, _1, _2, _3) {
@@ -59,10 +59,10 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
 
         auto as = simd_vec4(__m256d(bfvec));
 
-        BOOST_REQUIRE_EQUAL(as[0], bf(double(bx0)));
-        BOOST_REQUIRE_EQUAL(as[1], bf(double(bx1)));
-        BOOST_REQUIRE_EQUAL(as[2], bf(double(bx2)));
-        BOOST_REQUIRE_EQUAL(as[3], bf(double(bx3)));
+        BOOST_REQUIRE_EQUAL(bf(as[0]), bf(double(bx0)));
+        BOOST_REQUIRE_EQUAL(bf(as[1]), bf(double(bx1)));
+        BOOST_REQUIRE_EQUAL(bf(as[2]), bf(double(bx2)));
+        BOOST_REQUIRE_EQUAL(bf(as[3]), bf(double(bx3)));
     }
 
     BOOST_DATA_TEST_CASE(vec4_add_is_correct, DATA, x0, x1, x2, x3, x4, x5, x6, x7) {
@@ -84,10 +84,10 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
 
         as += bs;
 
-        auto a0 = as[0];
-        auto a1 = as[1];
-        auto a2 = as[2];
-        auto a3 = as[3];
+        bf a0 = as[0];
+        bf a1 = as[1];
+        bf a2 = as[2];
+        bf a3 = as[3];
         BOOST_REQUIRE_EQUAL(a0, e0);
         BOOST_REQUIRE_EQUAL(a1, e1);
         BOOST_REQUIRE_EQUAL(a2, e2);
@@ -113,10 +113,10 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
 
         as -= bs;
 
-        auto a0 = as[0];
-        auto a1 = as[1];
-        auto a2 = as[2];
-        auto a3 = as[3];
+        bf a0 = as[0];
+        bf a1 = as[1];
+        bf a2 = as[2];
+        bf a3 = as[3];
         BOOST_REQUIRE_CLOSE(a0, e0, bf(1e-9));
         BOOST_REQUIRE_CLOSE(a1, e1, bf(1e-9));
         BOOST_REQUIRE_CLOSE(a2, e2, bf(1e-9));
@@ -142,10 +142,10 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
 
         as *= bs;
 
-        auto a0 = as[0];
-        auto a1 = as[1];
-        auto a2 = as[2];
-        auto a3 = as[3];
+        bf a0 = as[0];
+        bf a1 = as[1];
+        bf a2 = as[2];
+        bf a3 = as[3];
         BOOST_REQUIRE_EQUAL(a0, e0);
         BOOST_REQUIRE_EQUAL(a1, e1);
         BOOST_REQUIRE_EQUAL(a2, e2);
@@ -171,14 +171,36 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
 
         as /= bs;
 
-        auto a0 = as[0];
-        auto a1 = as[1];
-        auto a2 = as[2];
-        auto a3 = as[3];
+        bf a0 = as[0];
+        bf a1 = as[1];
+        bf a2 = as[2];
+        bf a3 = as[3];
         BOOST_REQUIRE_EQUAL(a0, e0);
         BOOST_REQUIRE_EQUAL(a1, e1);
         BOOST_REQUIRE_EQUAL(a2, e2);
         BOOST_REQUIRE_EQUAL(a3, e3);
+    }
+
+    BOOST_AUTO_TEST_CASE(to_string) {
+        simd_vec4 v = simd_vec4(1, 0, 0, 0.02);
+        bf b = bf(0.02);
+
+        stringstream ssb;
+        ssb << b;
+
+        stringstream ssc;
+        ssc << bf(v[3]);
+
+        stringstream ssv;
+        ssv << v;
+
+        std::cout << int(2) << endl;
+
+        BOOST_REQUIRE_EQUAL("0.02", ssb.str());
+        BOOST_REQUIRE_EQUAL(bf(0.02), bf(v[3]));
+        BOOST_REQUIRE_EQUAL(b, bf(v[3]));
+        BOOST_REQUIRE_EQUAL("0.02", ssc.str());
+        BOOST_REQUIRE_EQUAL("[1,0,0,0.02]", ssv.str());
     }
 
 BOOST_AUTO_TEST_SUITE_END();

@@ -9,6 +9,6 @@ add_library(bigfloat
         avx_helper.hpp
         sisd_vec4.cpp
         mat4.cpp
-        mat4.hpp helpers.inl interop/glm.hpp matrix_utils.hpp)
+        mat4.hpp helpers.inl interop/glm.hpp matrix_utils.hpp fwd.hpp)
 target_compile_options(bigfloat PUBLIC -mavx2)
 

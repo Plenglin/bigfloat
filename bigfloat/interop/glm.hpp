@@ -14,8 +14,9 @@ namespace glm {
     inline glm::mat4 to_float(bigfloat::mat4 &m) {
         glm::mat4 out;
         for (int i = 0; i < 4; i++) {
+            auto row = __m256d(m[i]);
             for (int j = 0; j < 4; j++) {
-                out[i][j] = float(bigfloat::bf(m[j][i]));
+                out[j][i] = row[j];
             }
         }
         return out;

@@ -66,10 +66,10 @@ namespace bigfloat {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "google-explicit-constructor"
         inline operator bf() const {
-            auto ex = parent->exponent[i];
-            auto mt = parent->mantissa[i];
-            mt = CONDITIONAL_INV(parent->sign >> i & 1, mt);
-            return bf(ex, mt);
+            return bf(
+                    parent->exponent_array[i],
+                    CONDITIONAL_INV((parent->sign >> i) & 1, (parent->mantissa_array[i]))
+            );
         }
 #pragma clang diagnostic pop
 
