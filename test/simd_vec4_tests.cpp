@@ -14,8 +14,8 @@ using namespace bigfloat::helper;
 BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
     // Test cases, preferably non-zero/nan/inf ones. The zero ones can get their own test cases.
     static const auto DATA =
-              data::make(ARR1) ^ data::make(ARR2) ^ data::make(ARR1) ^ data::make(ARR2)
-            ^ data::make(ARR2) ^ data::make(ARR1) ^ data::make(ARR2) ^ data::make(ARR1);
+            (data::make(ARR1) ^ data::make(ARR2) ^ data::make(ARR1) ^ data::make(ARR2)
+            ^ data::make(ARR2) ^ data::make(ARR1) ^ data::make(ARR2) ^ data::make(ARR1));
 
     BOOST_DATA_TEST_CASE(preserves_bf, DATA, x0, x1, x2, x3, _0, _1, _2, _3) {
         auto bx0 = bf(x0);
@@ -29,6 +29,21 @@ BOOST_AUTO_TEST_SUITE(bigfloat_simd_vec4)
         BOOST_REQUIRE_EQUAL(bf(as[1]), bx1);
         BOOST_REQUIRE_EQUAL(bf(as[2]), bx2);
         BOOST_REQUIRE_EQUAL(bf(as[3]), bx3);
+    }
+
+    BOOST_AUTO_TEST_CASE(converts_to_double_zeros) {
+        auto bfvec = simd_vec4(1, 0, 0, 0);
+
+        union {
+            __m256d dv;
+            double ds[4];
+        };
+        dv = __m256d(bfvec);
+
+        BOOST_REQUIRE_EQUAL(double(ds[0]), 1.0);
+        BOOST_REQUIRE_EQUAL(double(ds[1]), 0.0);
+        BOOST_REQUIRE_EQUAL(double(ds[2]), 0.0);
+        BOOST_REQUIRE_EQUAL(double(ds[3]), 0.0);
     }
 
     BOOST_DATA_TEST_CASE(converts_to_double, DATA, x0, x1, x2, x3, _0, _1, _2, _3) {

@@ -72,14 +72,27 @@ simd_vec4::operator __m256d() const {
         s.q[i] = ((sign >> i) & 1) ? (1UL << 63) : 0;
     }
 
+    // zero checking
+    __m256i zero = _mm256_setzero_si256();
+    __m256i mt_zero = _mm256_cmpeq_epi64(zero, mantissa);
+    __m256i ex_zero = _mm256_cmpeq_epi64(zero, exponent);
+    __m256i set_zero = _mm256_and_si256(mt_zero, ex_zero);
+
+    // move mantissa to right spot
     __m256i mt = _mm256_slli_epi64(mantissa, 2);  // cut off 1
     mt = _mm256_srli_epi64(mt, 12);
 
+    // move exponent to right spot
     __m256i ex = _mm256_add_epi64(exponent, _mm256_set1_epi64x(IEEE_754_EXP_BIAS));
     ex = _mm256_slli_epi64(ex, 53);  // cut off upper bits
     ex = _mm256_srli_epi64(ex, 1);
 
-    return (__m256d)_mm256_or_si256(_mm256_or_si256(s.v, mt), ex);
+    __m256d result = (__m256d)_mm256_or_si256(_mm256_or_si256(s.v, mt), ex);
+
+    // use zero check results
+    result = _mm256_blendv_pd(result, _mm256_setzero_pd(), (__m256d)set_zero);
+
+    return result;
 }
 
 inline __m256i has_high_bit(__m256i x) {
