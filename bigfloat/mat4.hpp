@@ -33,9 +33,10 @@ namespace bigfloat {
         void operator-=(mat4 &other);
         mat4 operator-(mat4 &other);
         void mul_componentwise(mat4 &other);
-        mat4 operator*(mat4 &other);
+        mat4 operator*(mat4 &B);
 
-        bool operator==(mat4 &other);
+        bool operator==(mat4 &other) const;
+        bool operator==(const mat4 other) const;
 
         mat4 T();
         mat4 inverted();

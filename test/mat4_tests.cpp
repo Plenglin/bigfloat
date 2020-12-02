@@ -4,6 +4,7 @@
 
 #include "_include.hpp"
 #include <bigfloat/mat4.hpp>
+#include <bigfloat/matrix_utils.hpp>
 
 using namespace bigfloat;
 
@@ -15,6 +16,14 @@ BOOST_AUTO_TEST_SUITE(bigfloat_mat4)
 
         mat4 a = i1 * i2;
         BOOST_REQUIRE_EQUAL(bf(a[0][0]), bf(1));
+    }
+
+    BOOST_AUTO_TEST_CASE(translation) {
+        mat4 a = translate(0.02, 0, 0);
+        mat4 b = mat4(1);
+
+        mat4 prod = a * b;
+        BOOST_REQUIRE_EQUAL(a, prod);
     }
 
     BOOST_AUTO_TEST_CASE(conversion) {

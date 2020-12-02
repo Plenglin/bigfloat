@@ -55,8 +55,8 @@ namespace bigfloat {
         void operator*=(simd_vec4 &other);
         void operator/=(simd_vec4 &other);
 
-        bool operator==(simd_vec4 &other);
-        bool operator!=(simd_vec4 &other);
+        bool operator==(simd_vec4 &other) const;
+        bool operator!=(simd_vec4 &other) const;
     };
 
     struct bf_ref {

@@ -286,7 +286,7 @@ simd_vec4 simd_vec4::operator-() const {
     return simd_vec4(~sign, exponent, mantissa);
 }
 
-bool simd_vec4::operator==(simd_vec4 &other) {
+bool simd_vec4::operator==(simd_vec4 &other) const {
     auto exponent_neq = _mm256_xor_si256(exponent, other.exponent);
     auto mantissa_neq = _mm256_xor_si256(exponent, other.exponent);
 
@@ -294,7 +294,7 @@ bool simd_vec4::operator==(simd_vec4 &other) {
     return (((sign ^ other.sign) & 0xf) == 0) && exp_mant_eq;
 }
 
-bool simd_vec4::operator!=(simd_vec4 &other) {
+bool simd_vec4::operator!=(simd_vec4 &other) const {
     return !(*this == other);
 }
 

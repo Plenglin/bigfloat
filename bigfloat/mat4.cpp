@@ -43,10 +43,10 @@ mat4::row& mat4::operator[](int i) {
 
 mat4 mat4::T() {
     return mat4(
-            rows[0][0], rows[0][1], rows[0][2], rows[0][3],
-            rows[1][0], rows[1][1], rows[1][2], rows[1][3],
-            rows[2][0], rows[2][1], rows[2][2], rows[2][3],
-            rows[3][0], rows[3][1], rows[3][2], rows[3][3]
+            rows[0][0], rows[1][0], rows[2][0], rows[3][0],
+            rows[0][1], rows[1][1], rows[2][1], rows[3][1],
+            rows[0][2], rows[1][2], rows[2][2], rows[3][2],
+            rows[0][3], rows[1][3], rows[2][3], rows[3][3]
     );
 }
 
@@ -93,24 +93,33 @@ mat4 mat4::operator-(mat4 &other) {
     );
 }
 
-mat4 mat4::operator*(mat4 &other) {
+mat4 mat4::operator*(mat4 &B) {
     mat4 out;
     mat4 &A = *this;
     for (int i = 0; i < 4; i++) {
-        auto col = vec4(A[0][i], A[1][i], A[2][i], A[3][i]);
+        auto col = vec4(B[0][i], B[1][i], B[2][i], B[3][i]);
         bf acc[4];
 
         for (int j = 0; j < 4; j++) {
-            acc[j] += dot(col, rows[j]);
+            acc[j] = dot(col, rows[j]);
         }
 
         out[i] = vec4(acc);
     }
 
-    return out;
+    return out.T();
 }
 
-bool mat4::operator==(mat4 &other) {
+bool mat4::operator==(mat4 &other) const {
+    for (int i = 0; i < 4; i++) {
+        if (rows[i] != other.rows[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool mat4::operator==(mat4 other) const {
     for (int i = 0; i < 4; i++) {
         if (rows[i] != other.rows[i]) {
             return false;
