@@ -146,13 +146,13 @@ static const std::string strs[] = {
         "382373",
         "1",
         "0",
-        "0.5",
-        "0.1",
-        "0.000009",
-        "923.230019",
-        "-21419.13",
-        "-38231231.2",
-        "0.02"
+        ".5",
+        ".1",
+        ".00000999999",
+        "923.23",
+        "-21419.1",
+        "-3.823123e7",
+        ".02"
 };
 static const auto NUM_STR_PAIRS =
         data::make(numbers) ^
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_SUITE(bigfloat_str)
         bf x = val;
         ss << x;
         auto actual = ss.str();
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        BOOST_REQUIRE_EQUAL(actual, expected);
     }
 BOOST_AUTO_TEST_SUITE_END();
 

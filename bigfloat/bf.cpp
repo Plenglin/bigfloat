@@ -423,61 +423,93 @@ std::ostream &bigfloat::operator<<(std::ostream &os, const bf &x) {
         remainder = -remainder;
         os << '-';
     }
-
-    // Accumulate tens until we exceed the target
-    bf tens_acc = 1;
-    std::vector<bf> gt1_powers;
-    do {
-        gt1_powers.push_back(tens_acc);
-        tens_acc *= 10;
-    } while (tens_acc < remainder);
-
-    // Divide by powers of 10 until we reach zero
-    std::vector<char> digits;
-    for (auto it = gt1_powers.rbegin(); it != gt1_powers.rend(); it++) {
-        auto p10 = *it;
-        if (p10 > remainder) {  // Too big
-            os << '0';
-            continue;
-        }
-        auto result = remainder / p10;
-        auto trunc = result.truncated();
-        auto d = double(trunc);
-        auto digit = int(d);
-        os << digit;
-        remainder -= trunc * p10;
+    if (remainder.is_zero()) {
+        return os << "0";
     }
 
-    if (remainder.is_zero()) return os;
-
-    os << '.';
-    tens_acc = 1;
     static const bf one_tenth = bf(1) / 10;
 
-    int buffered_zeros = 0;
-    for (int i = os.precision(); !remainder.is_zero() && i > 0; i--) {
-        tens_acc *= one_tenth;
-        if (tens_acc > remainder) {
-            buffered_zeros++;
-            continue;
-        }
+    // Find the power of ten just under the target
+    bf tens = 1;
+    int places = 0;
+    if (x.exponent < 0) {
+        do {
+            tens *= one_tenth;
+            places--;
+        } while (tens > remainder);
+    } else {
+        do {
+            tens *= 10;
+            places++;
+        } while (tens < remainder);
+        tens *= one_tenth;
+        places--;
+    }
 
-        auto result = remainder / tens_acc;
+    // Divide by powers of 10 until we reach zero
+    std::vector<int> digits;
+    for (auto i = 0; digits.size() < os.precision() + 1; i++) {
+        if (remainder.is_zero()) break;
+        auto result = remainder / tens;
         auto trunc = result.truncated();
-        auto d = double(trunc);
-        auto digit = int(d);
-        remainder -= trunc * tens_acc;
+        remainder = (result - trunc) * tens;
+        auto digit = int(double(trunc));
+        digits.push_back(digit);
 
-        if (digit == 0) {
-            buffered_zeros++;
-        } else {
-            while (buffered_zeros > 0) {
-                os << '0';
-                buffered_zeros--;
+        tens *= one_tenth;
+    }
+
+    // Rounding
+    if (digits.size() > os.precision()) {
+        if (*digits.end() == 9) {
+            digits[digits.size() - 1] = 10;
+            for (int i = digits.size() - 2; i >= 0; i--) {
+                if (digits[i + 1] != 10) {
+                    break;
+                }
+                digits[i + 1] = 0;
+                digits[i]++;
             }
-            os << digit;
+            if (digits[0] == 10) {
+                digits[0] = 0;
+                digits.insert(digits.begin(), 1);
+                places++;
+            }
         }
     }
 
+    // Trim trailing zeros
+    int last_nonzero = digits.size() - 1;
+    for (; last_nonzero > 0; last_nonzero--) {
+        if (digits[last_nonzero] != 0) {
+            break;
+        }
+    }
+    digits.erase(digits.begin() + last_nonzero + 1, digits.end());
+
+    // Exponential form
+    if (std::abs(places) > os.precision()) {
+        os << digits[0] << ".";
+        for (int i = 1; i < digits.size(); i++) {
+            os << digits[i];
+        }
+        return os << "e" << places;
+    }
+
+    // Fractional standard form
+    if (places < -1) {
+        os << ".";
+        for (int i = -1; i > places; i--) {
+            os << "0";
+        }
+    }
+
+    // Whole standard form
+    for (auto i = 0; i < os.precision() && i < digits.size(); i++) {
+        if (places-- == -1) {
+            os << ".";
+        }
+        os << digits[i];
+    }
     return os;
 }
