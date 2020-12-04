@@ -72,12 +72,6 @@ simd_vec4::operator __m256d() const {
         s.q[i] = ((sign >> i) & 1) ? (1UL << 63) : 0;
     }
 
-    // zero checking
-    __m256i zero = _mm256_setzero_si256();
-    __m256i mt_zero = _mm256_cmpeq_epi64(zero, mantissa);
-    __m256i ex_zero = _mm256_cmpeq_epi64(zero, exponent);
-    __m256i set_zero = _mm256_and_si256(mt_zero, ex_zero);
-
     // move mantissa to right spot
     __m256i mt = _mm256_slli_epi64(mantissa, 2);  // cut off 1
     mt = _mm256_srli_epi64(mt, 12);
@@ -90,7 +84,7 @@ simd_vec4::operator __m256d() const {
     __m256d result = (__m256d)_mm256_or_si256(_mm256_or_si256(s.v, mt), ex);
 
     // use zero check results
-    result = _mm256_blendv_pd(result, _mm256_setzero_pd(), (__m256d)set_zero);
+    result = _mm256_blendv_pd(result, _mm256_setzero_pd(), (__m256d)is_zero());
 
     return result;
 }
@@ -250,6 +244,12 @@ simd_vec4 simd_vec4::operator*(simd_vec4 &other) const {
     // Decrement upper bit exponents by 1
     __m256i exo = _mm256_sub_epi64(exp_sum, has_upper_bit_mask);
 
+    // Zero handling
+    __m256i zero = _mm256_setzero_si256();
+    __m256i set_zero = _mm256_or_si256(is_zero(), other.is_zero());
+    mto = _mm256_blendv_epi8(mto, zero, set_zero);
+    exo = _mm256_blendv_epi8(exo, zero, set_zero);
+
     return simd_vec4(sign ^ other.sign, exo, mto);
 }
 
@@ -332,6 +332,13 @@ simd_vec4 simd_vec4::operator*(bf_ref other) const {
 
 simd_vec4 simd_vec4::operator/(bf_ref other) const {
     return *this / bf(other);
+}
+
+__m256i simd_vec4::is_zero() const {
+    __m256i zero = _mm256_setzero_si256();
+    __m256i mt_zero = _mm256_cmpeq_epi64(zero, mantissa);
+    __m256i ex_zero = _mm256_cmpeq_epi64(zero, exponent);
+    return _mm256_and_si256(mt_zero, ex_zero);
 }
 
 bf bigfloat::dot(simd_vec4 &a, simd_vec4 &b) {

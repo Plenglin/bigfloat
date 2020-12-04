@@ -50,6 +50,8 @@ namespace bigfloat {
         simd_vec4 operator*(bf_ref other) const;
         simd_vec4 operator/(bf_ref other) const;
 
+        __m256i is_zero() const;
+
         void operator+=(simd_vec4 &other);
         void operator-=(simd_vec4 &other);
         void operator*=(simd_vec4 &other);
