@@ -166,6 +166,10 @@ BOOST_AUTO_TEST_SUITE(bigfloat_str)
         auto actual = ss.str();
         BOOST_REQUIRE_EQUAL(actual, expected);
     }
+
+    BOOST_DATA_TEST_CASE(str2bf, NUM_STR_PAIRS, expected, val) {
+        BOOST_REQUIRE_CLOSE(bf(val), expected, bf(1e-5));
+    }
 BOOST_AUTO_TEST_SUITE_END();
 
 

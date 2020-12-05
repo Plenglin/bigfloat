@@ -9,6 +9,7 @@
 #include <xmmintrin.h>
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 #define BINARY_OP_ARGS short exa, long mta, short exb, long mtb
 
@@ -67,18 +68,31 @@ bf::bf(int x) : bf(double(x)) {
 
 }
 
-bf::bf(std::string x, int radix) {
+bf::bf(const std::string &x) {
     std::vector<int> integer;
     std::vector<int> fraction;
     std::vector<int> exponent;
     std::vector<int> *push = &integer;
 
+    bool sign = false;
+    bool exp_sign = false;
+
     // Parse parts of the string
-    for (auto c : x) {
+    for (auto it = x.begin(); it != x.end();) {
+        auto &c = *it;
+
+        // Sign
+        if (it == x.begin() && c == '-') {
+            sign = true;
+            ++it;
+            continue;
+        }
+
         // Decimal point
         if (c == '.') {
             if (push != &integer) throw std::invalid_argument("");
             push = &fraction;
+            ++it;
             continue;
         }
 
@@ -86,19 +100,28 @@ bf::bf(std::string x, int radix) {
         if (c == 'e') {
             if (push != &fraction) throw std::invalid_argument("");
             push = &exponent;
+            if (*(it + 1) == '-') {
+                exp_sign = true;
+                ++it;
+            }
+            ++it;
             continue;
         }
 
         // Digit
         if ('0' <= c && c <= '9') {
             push->push_back(c - '0');
+            ++it;
             continue;
         }
 
-        throw std::invalid_argument("");
+        std::stringstream ss;
+        ss << x << "is an invalid argument";
+        throw std::invalid_argument(ss.str());
     }
 
-    bf bf_radix = radix;
+    // Calculate whole part of coefficient
+    bf bf_radix = 10;
     bf power = 1;
     bf coefficient = 0;
     for (auto it = integer.crbegin(); it != integer.crend(); it++) {
@@ -106,31 +129,42 @@ bf::bf(std::string x, int radix) {
         power *= bf_radix;
     }
 
-    bf reciprocal = bf(1) / bf(radix);
-    power = reciprocal;
+    // Calculate fractional part of coefficient
+    static const bf one_tenth = bf(1) / bf(10);
+    power = one_tenth;
     for (auto & it : fraction) {
         coefficient += bf(it) * power;
-        power *= reciprocal;
+        power *= one_tenth;
     }
 
-    int exp = 0;
+    // Convert exponent string to int
+    unsigned int exp = 0;
     int int_power = 1;
-    for (auto it = exponent.crbegin(); it != integer.crend(); it++) {
+    for (auto it = exponent.rbegin(); it != exponent.rend(); it++) {
         exp += *it * int_power;
-        int_power *= radix;
+        int_power *= 10;
     }
+    if (exp_sign) exp = -exp;
 
-    bf acc = coefficient;
-    bf p2 = coefficient;
+    // Calculate exponential factor (exp. by squaring)
+    bf acc = 1;
+    bf p10;
+    if (exp >= 0) {
+        p10 = 10;
+    } else {
+        p10 = one_tenth;
+        exp = -exp;
+    }
     while (exp > 0) {
-        p2 *= p2;
         if (exp & 1) {
-            acc += p2;
+            acc *= p10;
         }
-        exp >>= 2;
+        p10 *= p10;
+        exp >>= 1;
     }
+    std::cout << acc << std::endl;
 
-    *this = acc;
+    *this = (sign ? -coefficient : coefficient) * acc;
 }
 
 bf::bf(bf_packed x) {
