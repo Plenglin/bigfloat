@@ -98,7 +98,7 @@ bf::bf(const std::string &x) {
 
         // Exponent
         if (c == 'e') {
-            if (push != &fraction) throw std::invalid_argument("");
+            if (push != &integer && push != &fraction) throw std::invalid_argument("");
             push = &exponent;
             if (*(it + 1) == '-') {
                 exp_sign = true;
