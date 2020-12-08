@@ -23,4 +23,16 @@ namespace glm {
     }
 }
 
+namespace bigfloat {
+    inline bigfloat::mat4 to_bf(const glm::mat4 &m) {
+        __m256d rows[4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                rows[j][i] = m[i][j];
+            }
+        }
+        return bigfloat::mat4(vec4(rows[0]), vec4(rows[1]), vec4(rows[2]), vec4(rows[3]));
+    }
+}
+
 #endif //BIGFLOAT_PLANET_GLM_HPP

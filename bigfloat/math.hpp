@@ -5,6 +5,10 @@
 #include "bf.hpp"
 
 namespace bigfloat {
+    inline bf abs(const bf x) {
+        return bf(x.exponent, std::abs(x.mantissa));
+    }
+
     inline bf sqrt(const bf x) {
         if (x.sign()) return bf::nan(false);
 
@@ -86,7 +90,13 @@ namespace bigfloat {
         return m * (x - x0) + y0;
     }
 
-    bf tan(const bf x);
+    inline bf tan(const bf x) {
+        auto d = double(x);
+        auto c = bf(std::cos(d));
+        auto s = bf(std::sin(d));
+        return s / c;
+    }
+
     bf asin(const bf x);
     bf acos(const bf x);
     bf atan(const bf x);
